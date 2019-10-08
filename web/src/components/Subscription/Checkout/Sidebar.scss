@@ -1,0 +1,95 @@
+/* Copyright (C) 2019 Monomax Software Pty Ltd
+ *
+ * This file is part of Dnote.
+ *
+ * Dnote is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Dnote is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+@import '../../App/theme';
+@import '../../App/variables';
+@import '../../App/responsive';
+@import '../../App/font';
+@import '../../App/rem';
+
+.wrapper {
+  margin-top: rem(20px);
+
+  @include breakpoint(lg) {
+    margin-top: 0;
+  }
+}
+
+.header {
+  border: 1px solid $border-color;
+  border-top: rem(20px) solid $third;
+  padding: rem(16px) rem(32px);
+}
+
+.plan-name {
+  @include font-size('x-large');
+  font-weight: 600;
+}
+
+.price {
+  @include font-size('3x-large');
+  font-weight: 600;
+}
+
+.interval {
+  @include font-size('large');
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-left: rem(4px);
+}
+
+.price-wrapper {
+  display: flex;
+  align-items: baseline;
+  margin-top: rem(16px);
+}
+
+.purchase-button {
+  margin-top: rem(20px);
+}
+
+.assurance {
+  @include font-size('medium');
+  font-weight: 600;
+  margin-top: rem(20px);
+  text-align: center;
+}
+
+.perks {
+  margin-top: rem(12px);
+}
+.perk-value {
+  @include font-size('regular');
+  margin-left: rem(8px);
+}
+.perk-item {
+  display: flex;
+  flex-shrink: 1;
+
+  &:not(:first-child) {
+    margin-top: rem(4px);
+  }
+}
+
+.perk-icon {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: rem(4px);
+}
