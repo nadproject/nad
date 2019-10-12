@@ -21,7 +21,7 @@ package validate
 import (
 	"strings"
 
-	"github.com/dnote/dnote/pkg/cli/utils"
+	"github.com/nadproject/nad/pkg/cli/utils"
 	"github.com/pkg/errors"
 )
 

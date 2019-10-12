@@ -3,7 +3,7 @@
 # appropriate env vars.
 set -eux
 
-pushd "$GOPATH"/src/github.com/dnote/dnote/pkg/server/api
+pushd "$GOPATH"/src/github.com/nadproject/nad/pkg/server/api
 
 if [ "${WATCH-false}" == true ]; then
   set +e

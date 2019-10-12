@@ -26,9 +26,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/dnote/dnote/pkg/server/api/helpers"
-	"github.com/dnote/dnote/pkg/server/api/operations"
-	"github.com/dnote/dnote/pkg/server/database"
+	"github.com/nadproject/nad/pkg/server/api/helpers"
+	"github.com/nadproject/nad/pkg/server/api/operations"
+	"github.com/nadproject/nad/pkg/server/database"
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"github.com/stripe/stripe-go"

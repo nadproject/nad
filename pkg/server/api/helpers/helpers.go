@@ -19,7 +19,7 @@
 package helpers
 
 import (
-	"github.com/dnote/dnote/pkg/server/database"
+	"github.com/nadproject/nad/pkg/server/database"
 	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
 )

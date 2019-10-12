@@ -23,10 +23,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/dnote/dnote/pkg/cli/client"
-	"github.com/dnote/dnote/pkg/cli/database"
-	"github.com/dnote/dnote/pkg/cli/utils"
-	"github.com/dnote/dnote/pkg/cli/utils/diff"
+	"github.com/nadproject/nad/pkg/cli/client"
+	"github.com/nadproject/nad/pkg/cli/database"
+	"github.com/nadproject/nad/pkg/cli/utils"
+	"github.com/nadproject/nad/pkg/cli/utils/diff"
 	"github.com/pkg/errors"
 )
 

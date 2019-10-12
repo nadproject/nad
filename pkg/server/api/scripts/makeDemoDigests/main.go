@@ -19,8 +19,8 @@
 package main
 
 import (
-	"github.com/dnote/dnote/pkg/server/api/helpers"
-	"github.com/dnote/dnote/pkg/server/database"
+	"github.com/nadproject/nad/pkg/server/api/helpers"
+	"github.com/nadproject/nad/pkg/server/database"
 	"os"
 	"time"
 )

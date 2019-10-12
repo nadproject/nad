@@ -136,7 +136,7 @@ install_dnote() {
 
   if ! check_platform "$os" "$arch"; then
     print_error "System not supported: $os/$arch"
-    print_error "Please compile manually from https://github.com/dnote/dnote"
+    print_error "Please compile manually from https://github.com/nadproject/nad"
     exit 1
   fi
 
@@ -191,7 +191,7 @@ install_dnote() {
 exit_error() {
   # shellcheck disable=SC2181
   if [ "$?" -ne 0 ]; then
-    print_error "A problem occurred while installing Dnote. Please report it on https://github.com/dnote/dnote/issues so that we can help you."
+    print_error "A problem occurred while installing Dnote. Please report it on https://github.com/nadproject/nad/issues so that we can help you."
   fi
 }
 

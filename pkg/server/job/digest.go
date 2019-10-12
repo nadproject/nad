@@ -22,8 +22,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/dnote/dnote/pkg/server/database"
-	"github.com/dnote/dnote/pkg/server/mailer"
+	"github.com/nadproject/nad/pkg/server/database"
+	"github.com/nadproject/nad/pkg/server/mailer"
 	"github.com/pkg/errors"
 )
 

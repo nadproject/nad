@@ -26,11 +26,11 @@ import (
 	"strings"
 
 	"github.com/dnote/actions"
-	"github.com/dnote/dnote/pkg/cli/client"
-	"github.com/dnote/dnote/pkg/cli/config"
-	"github.com/dnote/dnote/pkg/cli/context"
-	"github.com/dnote/dnote/pkg/cli/database"
-	"github.com/dnote/dnote/pkg/cli/log"
+	"github.com/nadproject/nad/pkg/cli/client"
+	"github.com/nadproject/nad/pkg/cli/config"
+	"github.com/nadproject/nad/pkg/cli/context"
+	"github.com/nadproject/nad/pkg/cli/database"
+	"github.com/nadproject/nad/pkg/cli/log"
 	"github.com/pkg/errors"
 )
 

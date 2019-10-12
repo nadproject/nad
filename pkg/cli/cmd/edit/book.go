@@ -21,12 +21,12 @@ package edit
 import (
 	"strings"
 
-	"github.com/dnote/dnote/pkg/cli/context"
-	"github.com/dnote/dnote/pkg/cli/database"
-	"github.com/dnote/dnote/pkg/cli/log"
-	"github.com/dnote/dnote/pkg/cli/output"
-	"github.com/dnote/dnote/pkg/cli/ui"
-	"github.com/dnote/dnote/pkg/cli/validate"
+	"github.com/nadproject/nad/pkg/cli/context"
+	"github.com/nadproject/nad/pkg/cli/database"
+	"github.com/nadproject/nad/pkg/cli/log"
+	"github.com/nadproject/nad/pkg/cli/output"
+	"github.com/nadproject/nad/pkg/cli/ui"
+	"github.com/nadproject/nad/pkg/cli/validate"
 	"github.com/pkg/errors"
 )
 

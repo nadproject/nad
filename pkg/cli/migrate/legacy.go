@@ -27,9 +27,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/dnote/dnote/pkg/cli/context"
-	"github.com/dnote/dnote/pkg/cli/log"
-	"github.com/dnote/dnote/pkg/cli/utils"
+	"github.com/nadproject/nad/pkg/cli/context"
+	"github.com/nadproject/nad/pkg/cli/log"
+	"github.com/nadproject/nad/pkg/cli/utils"
 	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
 	"gopkg.in/yaml.v2"
@@ -184,7 +184,7 @@ func restoreBackup(ctx context.DnoteCtx) error {
 		if err != nil {
 			log.Printf(`Failed to restore backup for a failed migration.
 	Don't worry. Your data is still intact in the backup directory.
-	Get help on https://github.com/dnote/dnote/pkg/cli/issues`)
+	Get help on https://github.com/nadproject/nad/pkg/cli/issues`)
 		}
 	}()
 
@@ -781,7 +781,7 @@ func migrateToV6(ctx context.DnoteCtx) error {
 
 // migrateToV7 migrates data of edit_note action to the proper version which is
 // EditNoteDataV2. Due to a bug, edit logged actions with schema version '2'
-// but with a data of EditNoteDataV1. https://github.com/dnote/dnote/pkg/cli/issues/107
+// but with a data of EditNoteDataV1. https://github.com/nadproject/nad/pkg/cli/issues/107
 func migrateToV7(ctx context.DnoteCtx) error {
 	actionPath := fmt.Sprintf("%s/actions", ctx.DnoteDir)
 

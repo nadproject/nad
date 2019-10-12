@@ -19,10 +19,10 @@
 package edit
 
 import (
-	"github.com/dnote/dnote/pkg/cli/context"
-	"github.com/dnote/dnote/pkg/cli/infra"
-	"github.com/dnote/dnote/pkg/cli/log"
-	"github.com/dnote/dnote/pkg/cli/utils"
+	"github.com/nadproject/nad/pkg/cli/context"
+	"github.com/nadproject/nad/pkg/cli/infra"
+	"github.com/nadproject/nad/pkg/cli/log"
+	"github.com/nadproject/nad/pkg/cli/utils"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )

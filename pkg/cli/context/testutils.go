@@ -22,9 +22,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/dnote/dnote/pkg/cli/consts"
-	"github.com/dnote/dnote/pkg/cli/database"
-	"github.com/dnote/dnote/pkg/clock"
+	"github.com/nadproject/nad/pkg/cli/consts"
+	"github.com/nadproject/nad/pkg/cli/database"
+	"github.com/nadproject/nad/pkg/clock"
 )
 
 // InitTestCtx initializes a test context

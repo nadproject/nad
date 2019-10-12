@@ -22,7 +22,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 
-	"github.com/dnote/dnote/pkg/server/database"
+	"github.com/nadproject/nad/pkg/server/database"
 	"github.com/pkg/errors"
 )
 

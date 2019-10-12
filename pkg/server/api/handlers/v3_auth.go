@@ -23,8 +23,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/dnote/dnote/pkg/server/api/operations"
-	"github.com/dnote/dnote/pkg/server/database"
+	"github.com/nadproject/nad/pkg/server/api/operations"
+	"github.com/nadproject/nad/pkg/server/database"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )

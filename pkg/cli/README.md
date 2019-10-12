@@ -26,7 +26,7 @@ In some cases, you might need an elevated permission:
 
     curl -s https://raw.githubusercontent.com/dnote/dnote/master/pkg/cli/install.sh | sudo sh
 
-Otherwise, you can download the binary for your platform manually from the [releases page](https://github.com/dnote/dnote/releases).
+Otherwise, you can download the binary for your platform manually from the [releases page](https://github.com/nadproject/nad/releases).
 
 ## Commands
 

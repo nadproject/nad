@@ -24,7 +24,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/dnote/dnote/pkg/server/log"
+	"github.com/nadproject/nad/pkg/server/log"
 	"golang.org/x/time/rate"
 )
 

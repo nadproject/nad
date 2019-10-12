@@ -24,7 +24,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/dnote/dnote/pkg/assert"
+	"github.com/nadproject/nad/pkg/assert"
 	"github.com/pkg/errors"
 )
 

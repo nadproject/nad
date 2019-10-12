@@ -25,11 +25,11 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/dnote/dnote/pkg/clock"
-	"github.com/dnote/dnote/pkg/server/api/handlers"
-	"github.com/dnote/dnote/pkg/server/database"
-	"github.com/dnote/dnote/pkg/server/job"
-	"github.com/dnote/dnote/pkg/server/mailer"
+	"github.com/nadproject/nad/pkg/clock"
+	"github.com/nadproject/nad/pkg/server/api/handlers"
+	"github.com/nadproject/nad/pkg/server/database"
+	"github.com/nadproject/nad/pkg/server/job"
+	"github.com/nadproject/nad/pkg/server/mailer"
 
 	"github.com/gobuffalo/packr/v2"
 	"github.com/gorilla/mux"

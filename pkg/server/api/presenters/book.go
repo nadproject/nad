@@ -21,7 +21,7 @@ package presenters
 import (
 	"time"
 
-	"github.com/dnote/dnote/pkg/server/database"
+	"github.com/nadproject/nad/pkg/server/database"
 )
 
 // Book is a result of PresentBooks

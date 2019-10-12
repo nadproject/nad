@@ -23,7 +23,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/dnote/dnote/pkg/server/database"
+	"github.com/nadproject/nad/pkg/server/database"
 	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
 	"github.com/rubenv/sql-migrate"

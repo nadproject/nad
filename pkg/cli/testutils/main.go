@@ -32,10 +32,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dnote/dnote/pkg/cli/consts"
-	"github.com/dnote/dnote/pkg/cli/context"
-	"github.com/dnote/dnote/pkg/cli/database"
-	"github.com/dnote/dnote/pkg/cli/utils"
+	"github.com/nadproject/nad/pkg/cli/consts"
+	"github.com/nadproject/nad/pkg/cli/context"
+	"github.com/nadproject/nad/pkg/cli/database"
+	"github.com/nadproject/nad/pkg/cli/utils"
 	"github.com/pkg/errors"
 )
 

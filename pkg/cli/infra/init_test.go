@@ -21,8 +21,8 @@ package infra
 import (
 	"testing"
 
-	"github.com/dnote/dnote/pkg/assert"
-	"github.com/dnote/dnote/pkg/cli/database"
+	"github.com/nadproject/nad/pkg/assert"
+	"github.com/nadproject/nad/pkg/cli/database"
 	"github.com/pkg/errors"
 )
 

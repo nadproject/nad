@@ -21,7 +21,7 @@ package testutils
 import (
 	"testing"
 
-	"github.com/dnote/dnote/pkg/cli/database"
+	"github.com/nadproject/nad/pkg/cli/database"
 )
 
 // Setup1 sets up a dnote env #1

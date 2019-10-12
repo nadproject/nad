@@ -25,7 +25,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/dnote/dnote/pkg/cli/log"
+	"github.com/nadproject/nad/pkg/cli/log"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/ssh/terminal"
 )

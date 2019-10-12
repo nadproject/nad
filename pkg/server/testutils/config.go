@@ -40,6 +40,6 @@ func init() {
 
 	// Populate paths
 	ProjectPath = filepath.Join(goPath, "src/gitlab.com/monomax/dnote-infra")
-	CLIPath = filepath.Join(goPath, "src/github.com/dnote/dnote/pkg/cli")
-	ServerPath = filepath.Join(goPath, "src/github.com/dnote/dnote/pkg/server")
+	CLIPath = filepath.Join(goPath, "src/github.com/nadproject/nad/pkg/cli")
+	ServerPath = filepath.Join(goPath, "src/github.com/nadproject/nad/pkg/server")
 }

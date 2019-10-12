@@ -20,8 +20,8 @@
 package context
 
 import (
-	"github.com/dnote/dnote/pkg/cli/database"
-	"github.com/dnote/dnote/pkg/clock"
+	"github.com/nadproject/nad/pkg/cli/database"
+	"github.com/nadproject/nad/pkg/clock"
 )
 
 // DnoteCtx is a context holding the information of the current runtime

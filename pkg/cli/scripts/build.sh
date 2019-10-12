@@ -14,8 +14,8 @@
 set -ex
 
 version=$1
-projectDir="$GOPATH/src/github.com/dnote/dnote"
-basedir="$GOPATH/src/github.com/dnote/dnote/pkg/cli"
+projectDir="$GOPATH/src/github.com/nadproject/nad"
+basedir="$GOPATH/src/github.com/nadproject/nad/pkg/cli"
 outputDir="$projectDir/build/cli"
 
 command_exists () {

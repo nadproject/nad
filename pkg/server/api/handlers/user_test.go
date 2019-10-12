@@ -26,12 +26,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dnote/dnote/pkg/assert"
-	"github.com/dnote/dnote/pkg/clock"
-	"github.com/dnote/dnote/pkg/server/api/presenters"
-	"github.com/dnote/dnote/pkg/server/database"
-	"github.com/dnote/dnote/pkg/server/mailer"
-	"github.com/dnote/dnote/pkg/server/testutils"
+	"github.com/nadproject/nad/pkg/assert"
+	"github.com/nadproject/nad/pkg/clock"
+	"github.com/nadproject/nad/pkg/server/api/presenters"
+	"github.com/nadproject/nad/pkg/server/database"
+	"github.com/nadproject/nad/pkg/server/mailer"
+	"github.com/nadproject/nad/pkg/server/testutils"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )

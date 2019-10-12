@@ -23,8 +23,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/dnote/dnote/pkg/assert"
-	"github.com/dnote/dnote/pkg/cli/context"
+	"github.com/nadproject/nad/pkg/assert"
+	"github.com/nadproject/nad/pkg/cli/context"
 	"github.com/pkg/errors"
 )
 

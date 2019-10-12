@@ -21,8 +21,8 @@ package operations
 import (
 	"time"
 
-	"github.com/dnote/dnote/pkg/server/api/crypt"
-	"github.com/dnote/dnote/pkg/server/database"
+	"github.com/nadproject/nad/pkg/server/api/crypt"
+	"github.com/nadproject/nad/pkg/server/database"
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"

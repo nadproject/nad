@@ -21,7 +21,7 @@ package presenters
 import (
 	"time"
 
-	"github.com/dnote/dnote/pkg/server/database"
+	"github.com/nadproject/nad/pkg/server/database"
 )
 
 // EmailPreference is a presented email digest

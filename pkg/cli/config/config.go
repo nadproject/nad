@@ -22,8 +22,8 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/dnote/dnote/pkg/cli/consts"
-	"github.com/dnote/dnote/pkg/cli/context"
+	"github.com/nadproject/nad/pkg/cli/consts"
+	"github.com/nadproject/nad/pkg/cli/context"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )

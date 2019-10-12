@@ -26,7 +26,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/dnote/dnote/pkg/assert"
+	"github.com/nadproject/nad/pkg/assert"
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
 )

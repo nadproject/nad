@@ -4,8 +4,8 @@ NPM := $(shell command -v npm 2> /dev/null)
 HUB := $(shell command -v hub 2> /dev/null)
 COMPILEDAEMON := $(shell command -v CompileDaemon 2> /dev/null)
 
-serverOutputDir = ${GOPATH}/src/github.com/dnote/dnote/build/server
-cliOutputDir = ${GOPATH}/src/github.com/dnote/dnote/build/cli
+serverOutputDir = ${GOPATH}/src/github.com/nadproject/nad/build/server
+cliOutputDir = ${GOPATH}/src/github.com/nadproject/nad/build/cli
 cliHomebrewDir = ${GOPATH}/src/github.com/dnote/homebrew-dnote
 
 ## installation
@@ -40,13 +40,13 @@ endif
 	@echo "==> installing js dependencies"
 
 ifeq ($(CI), true)
-	@(cd ${GOPATH}/src/github.com/dnote/dnote/web && npm install --unsafe-perm=true)
-	@(cd ${GOPATH}/src/github.com/dnote/dnote/browser && npm install --unsafe-perm=true)
-	@(cd ${GOPATH}/src/github.com/dnote/dnote/jslib && npm install --unsafe-perm=true)
+	@(cd ${GOPATH}/src/github.com/nadproject/nad/web && npm install --unsafe-perm=true)
+	@(cd ${GOPATH}/src/github.com/nadproject/nad/browser && npm install --unsafe-perm=true)
+	@(cd ${GOPATH}/src/github.com/nadproject/nad/jslib && npm install --unsafe-perm=true)
 else
-	@(cd ${GOPATH}/src/github.com/dnote/dnote/web && npm install)
-	@(cd ${GOPATH}/src/github.com/dnote/dnote/browser && npm install)
-	@(cd ${GOPATH}/src/github.com/dnote/dnote/jslib && npm install)
+	@(cd ${GOPATH}/src/github.com/nadproject/nad/web && npm install)
+	@(cd ${GOPATH}/src/github.com/nadproject/nad/browser && npm install)
+	@(cd ${GOPATH}/src/github.com/nadproject/nad/jslib && npm install)
 endif
 .PHONY: install-js
 
@@ -56,21 +56,21 @@ test: test-cli test-api test-web test-jslib
 
 test-cli:
 	@echo "==> running CLI test"
-	@${GOPATH}/src/github.com/dnote/dnote/pkg/cli/scripts/test.sh
+	@${GOPATH}/src/github.com/nadproject/nad/pkg/cli/scripts/test.sh
 .PHONY: test-cli
 
 test-api:
 	@echo "==> running API test"
-	@${GOPATH}/src/github.com/dnote/dnote/pkg/server/api/scripts/test-local.sh
+	@${GOPATH}/src/github.com/nadproject/nad/pkg/server/api/scripts/test-local.sh
 .PHONY: test-api
 
 test-web:
 	@echo "==> running web test"
 
 ifeq ($(WATCH), true)
-	@(cd ${GOPATH}/src/github.com/dnote/dnote/web && npm run test:watch)
+	@(cd ${GOPATH}/src/github.com/nadproject/nad/web && npm run test:watch)
 else 
-	@(cd ${GOPATH}/src/github.com/dnote/dnote/web && npm run test)
+	@(cd ${GOPATH}/src/github.com/nadproject/nad/web && npm run test)
 endif
 .PHONY: test-web
 
@@ -78,22 +78,22 @@ test-jslib:
 	@echo "==> running jslib test"
 
 ifeq ($(WATCH), true)
-	@(cd ${GOPATH}/src/github.com/dnote/dnote/jslib && npm run test:watch)
+	@(cd ${GOPATH}/src/github.com/nadproject/nad/jslib && npm run test:watch)
 else
-	@(cd ${GOPATH}/src/github.com/dnote/dnote/jslib && npm run test)
+	@(cd ${GOPATH}/src/github.com/nadproject/nad/jslib && npm run test)
 endif
 .PHONY: test-jslib
 
 # development
 dev-server:
 	@echo "==> running dev environment"
-	@(cd ${GOPATH}/src/github.com/dnote/dnote/web && ./scripts/dev.sh)
+	@(cd ${GOPATH}/src/github.com/nadproject/nad/web && ./scripts/dev.sh)
 .PHONY: dev-server
 
 ## build
 build-web:
 	@echo "==> building web"
-	@(cd ${GOPATH}/src/github.com/dnote/dnote/web && ./scripts/build-prod.sh)
+	@(cd ${GOPATH}/src/github.com/nadproject/nad/web && ./scripts/build-prod.sh)
 .PHONY: build-web
 
 build-server: build-web
@@ -102,13 +102,13 @@ ifndef version
 endif
 
 	@echo "==> building server"
-	@(cd ${GOPATH}/src/github.com/dnote/dnote/pkg/server && ./scripts/build.sh $(version))
+	@(cd ${GOPATH}/src/github.com/nadproject/nad/pkg/server && ./scripts/build.sh $(version))
 .PHONY: build-server
 
 build-cli:
 ifeq ($(debug), true)
 	@echo "==> building cli in dev mode"
-	@${GOPATH}/src/github.com/dnote/dnote/pkg/cli/scripts/dev.sh
+	@${GOPATH}/src/github.com/nadproject/nad/pkg/cli/scripts/dev.sh
 else
 
 ifndef version
@@ -116,7 +116,7 @@ ifndef version
 endif
 
 	@echo "==> building cli"
-	@${GOPATH}/src/github.com/dnote/dnote/pkg/cli/scripts/build.sh $(version)
+	@${GOPATH}/src/github.com/nadproject/nad/pkg/cli/scripts/build.sh $(version)
 endif
 .PHONY: build-cli
 
@@ -135,7 +135,7 @@ endif
 	fi
 
 	@echo "==> releasing cli"
-	@${GOPATH}/src/github.com/dnote/dnote/scripts/release.sh cli $(version) ${cliOutputDir}
+	@${GOPATH}/src/github.com/nadproject/nad/scripts/release.sh cli $(version) ${cliOutputDir}
 
 	@echo "===> releading on Homebrew"
 	@(cd "${cliHomebrewDir}" && \
@@ -154,7 +154,7 @@ ifndef HUB
 endif
 
 	@echo "==> releasing server"
-	@${GOPATH}/src/github.com/dnote/dnote/scripts/release.sh server $(version) ${serverOutputDir}
+	@${GOPATH}/src/github.com/nadproject/nad/scripts/release.sh server $(version) ${serverOutputDir}
 .PHONY: release-server
 
 # migrations
@@ -163,7 +163,7 @@ ifndef filename
 	$(error filename is required. Usage: make filename=your-filename create-migration)
 endif
 
-	@(cd ${GOPATH}/src/github.com/dnote/dnote/pkg/server/database && ./scripts/create-migration.sh $(filename))
+	@(cd ${GOPATH}/src/github.com/nadproject/nad/pkg/server/database && ./scripts/create-migration.sh $(filename))
 .PHONY: create-migration
 
 clean:

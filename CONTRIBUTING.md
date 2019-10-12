@@ -17,7 +17,7 @@ This repository contains the server side and the client side code for Dnote.
 2. Get the Dnote code:
 
 ```sh
-go get github.com/dnote/dnote
+go get github.com/nadproject/nad
 ```
 
 3. Run `make` to install dependencies
@@ -89,4 +89,3 @@ make test-web
 # Run tests for API
 make test-api
 ```
-

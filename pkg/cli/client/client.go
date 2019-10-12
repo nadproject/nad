@@ -30,8 +30,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dnote/dnote/pkg/cli/context"
-	"github.com/dnote/dnote/pkg/cli/log"
+	"github.com/nadproject/nad/pkg/cli/context"
+	"github.com/nadproject/nad/pkg/cli/log"
 	"github.com/pkg/errors"
 )
 

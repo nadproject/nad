@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/dnote/dnote/pkg/assert"
+	"github.com/nadproject/nad/pkg/assert"
 )
 
 func TestScanToken(t *testing.T) {

@@ -27,13 +27,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dnote/dnote/pkg/assert"
-	"github.com/dnote/dnote/pkg/cli/client"
-	"github.com/dnote/dnote/pkg/cli/consts"
-	"github.com/dnote/dnote/pkg/cli/context"
-	"github.com/dnote/dnote/pkg/cli/database"
-	"github.com/dnote/dnote/pkg/cli/testutils"
-	"github.com/dnote/dnote/pkg/cli/utils"
+	"github.com/nadproject/nad/pkg/assert"
+	"github.com/nadproject/nad/pkg/cli/client"
+	"github.com/nadproject/nad/pkg/cli/consts"
+	"github.com/nadproject/nad/pkg/cli/context"
+	"github.com/nadproject/nad/pkg/cli/database"
+	"github.com/nadproject/nad/pkg/cli/testutils"
+	"github.com/nadproject/nad/pkg/cli/utils"
 	"github.com/pkg/errors"
 )
 

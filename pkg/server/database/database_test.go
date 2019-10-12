@@ -19,7 +19,7 @@
 package database
 
 import (
-	"github.com/dnote/dnote/pkg/assert"
+	"github.com/nadproject/nad/pkg/assert"
 	"testing"
 )
 

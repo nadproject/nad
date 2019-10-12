@@ -24,10 +24,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dnote/dnote/pkg/cli/consts"
-	"github.com/dnote/dnote/pkg/cli/context"
-	"github.com/dnote/dnote/pkg/cli/log"
-	"github.com/dnote/dnote/pkg/cli/ui"
+	"github.com/nadproject/nad/pkg/cli/consts"
+	"github.com/nadproject/nad/pkg/cli/context"
+	"github.com/nadproject/nad/pkg/cli/log"
+	"github.com/nadproject/nad/pkg/cli/ui"
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
 )
@@ -104,7 +104,7 @@ func checkVersion(ctx context.DnoteCtx) error {
 	if latestVersion == ctx.Version {
 		log.Success("you are up-to-date\n\n")
 	} else {
-		log.Infof("to upgrade, see https://github.com/dnote/dnote/pkg/cli/blob/master/README.md\n")
+		log.Infof("to upgrade, see https://github.com/nadproject/nad/pkg/cli/blob/master/README.md\n")
 	}
 
 	return nil

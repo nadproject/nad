@@ -4,7 +4,7 @@
 
 set -eux
 
-basePath="$GOPATH/src/github.com/dnote/dnote/pkg/cli"
+basePath="$GOPATH/src/github.com/nadproject/nad/pkg/cli"
 
 # clear tmp dir in case not properly torn down
 rm -rf "$basePath/tmp"

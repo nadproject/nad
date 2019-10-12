@@ -19,14 +19,14 @@
 package view
 
 import (
-	"github.com/dnote/dnote/pkg/cli/context"
-	"github.com/dnote/dnote/pkg/cli/infra"
+	"github.com/nadproject/nad/pkg/cli/context"
+	"github.com/nadproject/nad/pkg/cli/infra"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/dnote/dnote/pkg/cli/cmd/cat"
-	"github.com/dnote/dnote/pkg/cli/cmd/ls"
-	"github.com/dnote/dnote/pkg/cli/utils"
+	"github.com/nadproject/nad/pkg/cli/cmd/cat"
+	"github.com/nadproject/nad/pkg/cli/cmd/ls"
+	"github.com/nadproject/nad/pkg/cli/utils"
 )
 
 var example = `

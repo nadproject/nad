@@ -24,10 +24,10 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/dnote/dnote/pkg/server/api/helpers"
-	"github.com/dnote/dnote/pkg/server/api/operations"
-	"github.com/dnote/dnote/pkg/server/api/presenters"
-	"github.com/dnote/dnote/pkg/server/database"
+	"github.com/nadproject/nad/pkg/server/api/helpers"
+	"github.com/nadproject/nad/pkg/server/api/operations"
+	"github.com/nadproject/nad/pkg/server/api/presenters"
+	"github.com/nadproject/nad/pkg/server/database"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 )

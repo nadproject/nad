@@ -25,8 +25,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/dnote/dnote/pkg/server/database"
-	"github.com/dnote/dnote/pkg/server/log"
+	"github.com/nadproject/nad/pkg/server/database"
+	"github.com/nadproject/nad/pkg/server/log"
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 )

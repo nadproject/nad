@@ -21,24 +21,24 @@ package main
 import (
 	"os"
 
-	"github.com/dnote/dnote/pkg/cli/infra"
-	"github.com/dnote/dnote/pkg/cli/log"
+	"github.com/nadproject/nad/pkg/cli/infra"
+	"github.com/nadproject/nad/pkg/cli/log"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/pkg/errors"
 
 	// commands
-	"github.com/dnote/dnote/pkg/cli/cmd/add"
-	"github.com/dnote/dnote/pkg/cli/cmd/cat"
-	"github.com/dnote/dnote/pkg/cli/cmd/edit"
-	"github.com/dnote/dnote/pkg/cli/cmd/find"
-	"github.com/dnote/dnote/pkg/cli/cmd/login"
-	"github.com/dnote/dnote/pkg/cli/cmd/logout"
-	"github.com/dnote/dnote/pkg/cli/cmd/ls"
-	"github.com/dnote/dnote/pkg/cli/cmd/remove"
-	"github.com/dnote/dnote/pkg/cli/cmd/root"
-	"github.com/dnote/dnote/pkg/cli/cmd/sync"
-	"github.com/dnote/dnote/pkg/cli/cmd/version"
-	"github.com/dnote/dnote/pkg/cli/cmd/view"
+	"github.com/nadproject/nad/pkg/cli/cmd/add"
+	"github.com/nadproject/nad/pkg/cli/cmd/cat"
+	"github.com/nadproject/nad/pkg/cli/cmd/edit"
+	"github.com/nadproject/nad/pkg/cli/cmd/find"
+	"github.com/nadproject/nad/pkg/cli/cmd/login"
+	"github.com/nadproject/nad/pkg/cli/cmd/logout"
+	"github.com/nadproject/nad/pkg/cli/cmd/ls"
+	"github.com/nadproject/nad/pkg/cli/cmd/remove"
+	"github.com/nadproject/nad/pkg/cli/cmd/root"
+	"github.com/nadproject/nad/pkg/cli/cmd/sync"
+	"github.com/nadproject/nad/pkg/cli/cmd/version"
+	"github.com/nadproject/nad/pkg/cli/cmd/view"
 )
 
 // apiEndpoint and versionTag are populated during link time

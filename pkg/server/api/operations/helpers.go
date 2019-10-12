@@ -19,7 +19,7 @@
 package operations
 
 import (
-	"github.com/dnote/dnote/pkg/server/database"
+	"github.com/nadproject/nad/pkg/server/database"
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 )

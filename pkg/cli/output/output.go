@@ -24,8 +24,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dnote/dnote/pkg/cli/database"
-	"github.com/dnote/dnote/pkg/cli/log"
+	"github.com/nadproject/nad/pkg/cli/database"
+	"github.com/nadproject/nad/pkg/cli/log"
 )
 
 // NoteInfo prints a note information

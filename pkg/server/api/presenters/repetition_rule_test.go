@@ -22,8 +22,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/dnote/dnote/pkg/assert"
-	"github.com/dnote/dnote/pkg/server/database"
+	"github.com/nadproject/nad/pkg/assert"
+	"github.com/nadproject/nad/pkg/server/database"
 )
 
 func TestPresentDigestRule(t *testing.T) {

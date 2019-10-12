@@ -21,7 +21,7 @@ package version
 import (
 	"fmt"
 
-	"github.com/dnote/dnote/pkg/cli/context"
+	"github.com/nadproject/nad/pkg/cli/context"
 	"github.com/spf13/cobra"
 )
 

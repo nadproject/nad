@@ -2,9 +2,9 @@
 set -eux
 
 version=$1
-basePath="$GOPATH/src/github.com/dnote/dnote"
-projectDir="$GOPATH/src/github.com/dnote/dnote"
-basedir="$GOPATH/src/github.com/dnote/dnote/pkg/server"
+basePath="$GOPATH/src/github.com/nadproject/nad"
+projectDir="$GOPATH/src/github.com/nadproject/nad"
+basedir="$GOPATH/src/github.com/nadproject/nad/pkg/server"
 outputDir="$projectDir/build/server"
 
 command_exists () {

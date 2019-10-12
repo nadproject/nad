@@ -6,7 +6,7 @@ This guide documents the steps for installing the Dnote server on your own machi
 
 1. Install Postgres 10+.
 2. Create a `dnote` database by running `createdb dnote`
-3. Download the official Dnote server release from the [release page](https://github.com/dnote/dnote/releases).
+3. Download the official Dnote server release from the [release page](https://github.com/nadproject/nad/releases).
 4. Extract the archive and move the `dnote-server` executable to `/usr/local/bin`.
 
 ```bash
