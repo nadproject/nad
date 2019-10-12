@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package ls
@@ -32,15 +32,15 @@ import (
 
 var example = `
  * List all books
- dnote ls
+ nad ls
 
  * List notes in a book
- dnote ls javascript
+ nad ls javascript
  `
 
 var deprecationWarning = `and "view" will replace it in the future version.
 
-Run "dnote view --help" for more information.
+Run "nad view --help" for more information.
 `
 
 func preRun(cmd *cobra.Command, args []string) error {
@@ -52,7 +52,7 @@ func preRun(cmd *cobra.Command, args []string) error {
 }
 
 // NewCmd returns a new ls command
-func NewCmd(ctx context.DnoteCtx) *cobra.Command {
+func NewCmd(ctx context.NADCtx) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:        "ls <book name?>",
 		Aliases:    []string{"l", "notes"},
@@ -67,7 +67,7 @@ func NewCmd(ctx context.DnoteCtx) *cobra.Command {
 }
 
 // NewRun returns a new run function for ls
-func NewRun(ctx context.DnoteCtx, nameOnly bool) infra.RunEFunc {
+func NewRun(ctx context.NADCtx, nameOnly bool) infra.RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
 			if err := printBooks(ctx, nameOnly); err != nil {
@@ -134,7 +134,7 @@ func printBookLine(info bookInfo, nameOnly bool) {
 	}
 }
 
-func printBooks(ctx context.DnoteCtx, nameOnly bool) error {
+func printBooks(ctx context.NADCtx, nameOnly bool) error {
 	db := ctx.DB
 
 	rows, err := db.Query(`SELECT books.label, count(notes.uuid) note_count
@@ -166,7 +166,7 @@ func printBooks(ctx context.DnoteCtx, nameOnly bool) error {
 	return nil
 }
 
-func printNotes(ctx context.DnoteCtx, bookName string) error {
+func printNotes(ctx context.NADCtx, bookName string) error {
 	db := ctx.DB
 
 	var bookUUID string

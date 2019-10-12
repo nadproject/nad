@@ -1,3 +1,3 @@
-# Dnote Server
+# NAD Server
 
-The Dnote server containing the web interface, the web API, and the background jobs.
+The NAD server containing the web interface, the web API, and the background jobs.

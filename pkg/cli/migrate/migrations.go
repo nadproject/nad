@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package migrate
@@ -25,7 +25,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/dnote/actions"
+	"github.com/nad/actions"
 	"github.com/nadproject/nad/pkg/cli/client"
 	"github.com/nadproject/nad/pkg/cli/config"
 	"github.com/nadproject/nad/pkg/cli/context"
@@ -36,12 +36,12 @@ import (
 
 type migration struct {
 	name string
-	run  func(ctx context.DnoteCtx, tx *database.DB) error
+	run  func(ctx context.NADCtx, tx *database.DB) error
 }
 
 var lm1 = migration{
 	name: "upgrade-edit-note-from-v1-to-v3",
-	run: func(ctx context.DnoteCtx, tx *database.DB) error {
+	run: func(ctx context.NADCtx, tx *database.DB) error {
 		rows, err := tx.Query("SELECT uuid, data FROM actions WHERE type = ? AND schema = ?", "edit_note", 1)
 		if err != nil {
 			return errors.Wrap(err, "querying rows")
@@ -89,7 +89,7 @@ var lm1 = migration{
 
 var lm2 = migration{
 	name: "upgrade-edit-note-from-v2-to-v3",
-	run: func(ctx context.DnoteCtx, tx *database.DB) error {
+	run: func(ctx context.NADCtx, tx *database.DB) error {
 		rows, err := tx.Query("SELECT uuid, data FROM actions WHERE type = ? AND schema = ?", "edit_note", 2)
 		if err != nil {
 			return errors.Wrap(err, "querying rows")
@@ -134,7 +134,7 @@ var lm2 = migration{
 
 var lm3 = migration{
 	name: "upgrade-remove-note-from-v1-to-v2",
-	run: func(ctx context.DnoteCtx, tx *database.DB) error {
+	run: func(ctx context.NADCtx, tx *database.DB) error {
 		rows, err := tx.Query("SELECT uuid, data FROM actions WHERE type = ? AND schema = ?", "remove_note", 1)
 		if err != nil {
 			return errors.Wrap(err, "querying rows")
@@ -176,7 +176,7 @@ var lm3 = migration{
 
 var lm4 = migration{
 	name: "add-dirty-usn-deleted-to-notes-and-books",
-	run: func(ctx context.DnoteCtx, tx *database.DB) error {
+	run: func(ctx context.NADCtx, tx *database.DB) error {
 		_, err := tx.Exec("ALTER TABLE books ADD COLUMN dirty bool DEFAULT false")
 		if err != nil {
 			return errors.Wrap(err, "adding dirty column to books")
@@ -213,7 +213,7 @@ var lm4 = migration{
 
 var lm5 = migration{
 	name: "mark-action-targets-dirty",
-	run: func(ctx context.DnoteCtx, tx *database.DB) error {
+	run: func(ctx context.NADCtx, tx *database.DB) error {
 		rows, err := tx.Query("SELECT uuid, data, type FROM actions")
 		if err != nil {
 			return errors.Wrap(err, "querying rows")
@@ -275,7 +275,7 @@ var lm5 = migration{
 
 var lm6 = migration{
 	name: "drop-actions",
-	run: func(ctx context.DnoteCtx, tx *database.DB) error {
+	run: func(ctx context.NADCtx, tx *database.DB) error {
 		_, err := tx.Exec("DROP TABLE actions;")
 		if err != nil {
 			return errors.Wrap(err, "dropping the actions table")
@@ -287,7 +287,7 @@ var lm6 = migration{
 
 var lm7 = migration{
 	name: "resolve-conflicts-with-reserved-book-names",
-	run: func(ctx context.DnoteCtx, tx *database.DB) error {
+	run: func(ctx context.NADCtx, tx *database.DB) error {
 		migrateBook := func(name string) error {
 			var uuid string
 
@@ -334,7 +334,7 @@ var lm7 = migration{
 
 var lm8 = migration{
 	name: "drop-note-id-and-rename-content-to-body",
-	run: func(ctx context.DnoteCtx, tx *database.DB) error {
+	run: func(ctx context.NADCtx, tx *database.DB) error {
 		_, err := tx.Exec(`CREATE TABLE notes_tmp
 		(
 			uuid text NOT NULL,
@@ -373,7 +373,7 @@ var lm8 = migration{
 
 var lm9 = migration{
 	name: "create-fts-index",
-	run: func(ctx context.DnoteCtx, tx *database.DB) error {
+	run: func(ctx context.NADCtx, tx *database.DB) error {
 		_, err := tx.Exec(`CREATE VIRTUAL TABLE IF NOT EXISTS note_fts USING fts5(content=notes, body, tokenize="porter unicode61 categories 'L* N* Co Ps Pe'");`)
 		if err != nil {
 			return errors.Wrap(err, "creating note_fts")
@@ -409,7 +409,7 @@ var lm9 = migration{
 
 var lm10 = migration{
 	name: "rename-number-only-book",
-	run: func(ctx context.DnoteCtx, tx *database.DB) error {
+	run: func(ctx context.NADCtx, tx *database.DB) error {
 		migrateBook := func(label string) error {
 			var uuid string
 
@@ -469,7 +469,7 @@ var lm10 = migration{
 
 var lm11 = migration{
 	name: "rename-book-labels-with-space",
-	run: func(ctx context.DnoteCtx, tx *database.DB) error {
+	run: func(ctx context.NADCtx, tx *database.DB) error {
 		processLabel := func(label string) (string, error) {
 			sanitized := strings.Replace(label, " ", "_", -1)
 
@@ -533,13 +533,13 @@ var lm11 = migration{
 
 var lm12 = migration{
 	name: "add apiEndpoint to the configuration file",
-	run: func(ctx context.DnoteCtx, tx *database.DB) error {
+	run: func(ctx context.NADCtx, tx *database.DB) error {
 		cf, err := config.Read(ctx)
 		if err != nil {
 			return errors.Wrap(err, "reading config")
 		}
 
-		cf.APIEndpoint = "https://api.getdnote.com"
+		cf.APIEndpoint = "https://api.getnad.com"
 
 		err = config.Write(ctx, cf)
 		if err != nil {
@@ -552,7 +552,7 @@ var lm12 = migration{
 
 var rm1 = migration{
 	name: "sync-book-uuids-from-server",
-	run: func(ctx context.DnoteCtx, tx *database.DB) error {
+	run: func(ctx context.NADCtx, tx *database.DB) error {
 		sessionKey := ctx.SessionKey
 		if sessionKey == "" {
 			return errors.New("not logged in")

@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package migrate
@@ -28,7 +28,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dnote/actions"
+	"github.com/nad/actions"
 	"github.com/nadproject/nad/pkg/assert"
 	"github.com/nadproject/nad/pkg/cli/consts"
 	"github.com/nadproject/nad/pkg/cli/context"
@@ -63,13 +63,13 @@ func TestExecute_bump_schema(t *testing.T) {
 
 			m1 := migration{
 				name: "noop",
-				run: func(ctx context.DnoteCtx, db *database.DB) error {
+				run: func(ctx context.NADCtx, db *database.DB) error {
 					return nil
 				},
 			}
 			m2 := migration{
 				name: "noop",
-				run: func(ctx context.DnoteCtx, db *database.DB) error {
+				run: func(ctx context.NADCtx, db *database.DB) error {
 					return nil
 				},
 			}
@@ -122,28 +122,28 @@ func TestRun_nonfresh(t *testing.T) {
 			sequence := []migration{
 				{
 					name: "v1",
-					run: func(ctx context.DnoteCtx, db *database.DB) error {
+					run: func(ctx context.NADCtx, db *database.DB) error {
 						database.MustExec(t, "marking v1 completed", db, "INSERT INTO migrate_run_test (name) VALUES (?)", "v1")
 						return nil
 					},
 				},
 				{
 					name: "v2",
-					run: func(ctx context.DnoteCtx, db *database.DB) error {
+					run: func(ctx context.NADCtx, db *database.DB) error {
 						database.MustExec(t, "marking v2 completed", db, "INSERT INTO migrate_run_test (name) VALUES (?)", "v2")
 						return nil
 					},
 				},
 				{
 					name: "v3",
-					run: func(ctx context.DnoteCtx, db *database.DB) error {
+					run: func(ctx context.NADCtx, db *database.DB) error {
 						database.MustExec(t, "marking v3 completed", db, "INSERT INTO migrate_run_test (name) VALUES (?)", "v3")
 						return nil
 					},
 				},
 				{
 					name: "v4",
-					run: func(ctx context.DnoteCtx, db *database.DB) error {
+					run: func(ctx context.NADCtx, db *database.DB) error {
 						database.MustExec(t, "marking v4 completed", db, "INSERT INTO migrate_run_test (name) VALUES (?)", "v4")
 						return nil
 					},
@@ -202,21 +202,21 @@ func TestRun_fresh(t *testing.T) {
 			sequence := []migration{
 				{
 					name: "v1",
-					run: func(ctx context.DnoteCtx, db *database.DB) error {
+					run: func(ctx context.NADCtx, db *database.DB) error {
 						database.MustExec(t, "marking v1 completed", db, "INSERT INTO migrate_run_test (name) VALUES (?)", "v1")
 						return nil
 					},
 				},
 				{
 					name: "v2",
-					run: func(ctx context.DnoteCtx, db *database.DB) error {
+					run: func(ctx context.NADCtx, db *database.DB) error {
 						database.MustExec(t, "marking v2 completed", db, "INSERT INTO migrate_run_test (name) VALUES (?)", "v2")
 						return nil
 					},
 				},
 				{
 					name: "v3",
-					run: func(ctx context.DnoteCtx, db *database.DB) error {
+					run: func(ctx context.NADCtx, db *database.DB) error {
 						database.MustExec(t, "marking v3 completed", db, "INSERT INTO migrate_run_test (name) VALUES (?)", "v3")
 						return nil
 					},
@@ -278,21 +278,21 @@ func TestRun_up_to_date(t *testing.T) {
 			sequence := []migration{
 				{
 					name: "v1",
-					run: func(ctx context.DnoteCtx, db *database.DB) error {
+					run: func(ctx context.NADCtx, db *database.DB) error {
 						database.MustExec(t, "marking v1 completed", db, "INSERT INTO migrate_run_test (name) VALUES (?)", "v1")
 						return nil
 					},
 				},
 				{
 					name: "v2",
-					run: func(ctx context.DnoteCtx, db *database.DB) error {
+					run: func(ctx context.NADCtx, db *database.DB) error {
 						database.MustExec(t, "marking v2 completed", db, "INSERT INTO migrate_run_test (name) VALUES (?)", "v2")
 						return nil
 					},
 				},
 				{
 					name: "v3",
-					run: func(ctx context.DnoteCtx, db *database.DB) error {
+					run: func(ctx context.NADCtx, db *database.DB) error {
 						database.MustExec(t, "marking v3 completed", db, "INSERT INTO migrate_run_test (name) VALUES (?)", "v3")
 						return nil
 					},
@@ -1068,7 +1068,7 @@ func TestLocalMigration12(t *testing.T) {
 	defer context.TeardownTestCtx(t, ctx)
 
 	data := []byte("editor: vim")
-	path := fmt.Sprintf("%s/dnoterc", ctx.DnoteDir)
+	path := fmt.Sprintf("%s/nadrc", ctx.NADDir)
 	if err := ioutil.WriteFile(path, data, 0644); err != nil {
 		t.Fatal(errors.Wrap(err, "Failed to write schema file"))
 	}

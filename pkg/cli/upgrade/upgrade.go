@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package upgrade
@@ -36,7 +36,7 @@ import (
 var upgradeInterval int64 = 86400 * 7 * 3
 
 // shouldCheckUpdate checks if update should be checked
-func shouldCheckUpdate(ctx context.DnoteCtx) (bool, error) {
+func shouldCheckUpdate(ctx context.NADCtx) (bool, error) {
 	db := ctx.DB
 
 	var lastUpgrade int64
@@ -50,7 +50,7 @@ func shouldCheckUpdate(ctx context.DnoteCtx) (bool, error) {
 	return now-lastUpgrade > upgradeInterval, nil
 }
 
-func touchLastUpgrade(ctx context.DnoteCtx) error {
+func touchLastUpgrade(ctx context.NADCtx) error {
 	db := ctx.DB
 
 	now := time.Now().Unix()
@@ -66,7 +66,7 @@ func fetchLatestStableTag(gh *github.Client, page int) (string, error) {
 	params := github.ListOptions{
 		Page: page,
 	}
-	releases, resp, err := gh.Repositories.ListReleases(stdCtx.Background(), "dnote", "dnote", &params)
+	releases, resp, err := gh.Repositories.ListReleases(stdCtx.Background(), "nad", "nad", &params)
 	if err != nil {
 		return "", errors.Wrapf(err, "fetching releases page %d", page)
 	}
@@ -87,7 +87,7 @@ func fetchLatestStableTag(gh *github.Client, page int) (string, error) {
 	return fetchLatestStableTag(gh, page+1)
 }
 
-func checkVersion(ctx context.DnoteCtx) error {
+func checkVersion(ctx context.NADCtx) error {
 	log.Infof("current version is %s\n", ctx.Version)
 
 	// Fetch the latest version
@@ -111,10 +111,10 @@ func checkVersion(ctx context.DnoteCtx) error {
 }
 
 // Check triggers update if needed
-func Check(ctx context.DnoteCtx) error {
+func Check(ctx context.NADCtx) error {
 	shouldCheck, err := shouldCheckUpdate(ctx)
 	if err != nil {
-		return errors.Wrap(err, "checking if dnote should check update")
+		return errors.Wrap(err, "checking if nad should check update")
 	}
 	if !shouldCheck {
 		return nil

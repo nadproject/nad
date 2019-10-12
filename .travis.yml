@@ -18,7 +18,7 @@ before_script:
   - nvm install "$NODE_VERSION"
   - nvm use "$NODE_VERSION"
   - node --version
-  - psql -c "CREATE DATABASE dnote_test;" -U postgres
+  - psql -c "CREATE DATABASE nad_test;" -U postgres
 
 install:
   - make install

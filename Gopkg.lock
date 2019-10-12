@@ -31,7 +31,7 @@
 
 [[projects]]
   digest = "1:cd0089a5b5d872ac1b772087c7ee0ff2e71de50aa3a51826be64a63963a85287"
-  name = "github.com/dnote/actions"
+  name = "github.com/nad/actions"
   packages = ["."]
   pruneopts = "UT"
   revision = "60e81aff027d39f4494c5ee5c1db9c3efc015ccf"
@@ -39,7 +39,7 @@
 
 [[projects]]
   digest = "1:865079840386857c809b72ce300be7580cb50d3d3129ce11bf9aa6ca2bc1934a"
-  name = "github.com/dnote/color"
+  name = "github.com/nad/color"
   packages = ["."]
   pruneopts = "UT"
   revision = "5b77d2a35fb0ede96d138fc9a99f5c9b6aef11b4"
@@ -389,8 +389,8 @@
   analyzer-version = 1
   input-imports = [
     "github.com/aymerick/douceur/inliner",
-    "github.com/dnote/actions",
-    "github.com/dnote/color",
+    "github.com/nad/actions",
+    "github.com/nad/color",
     "github.com/gobuffalo/packr/v2",
     "github.com/google/go-github/github",
     "github.com/gorilla/mux",

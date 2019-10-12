@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package view
@@ -31,13 +31,13 @@ import (
 
 var example = `
  * View all books
- dnote view
+ nad view
 
  * List notes in a book
- dnote view javascript
+ nad view javascript
 
  * View a particular note in a book
- dnote view javascript 0
+ nad view javascript 0
  `
 
 var nameOnly bool
@@ -51,7 +51,7 @@ func preRun(cmd *cobra.Command, args []string) error {
 }
 
 // NewCmd returns a new view command
-func NewCmd(ctx context.DnoteCtx) *cobra.Command {
+func NewCmd(ctx context.NADCtx) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "view <book name?> <note index?>",
 		Aliases: []string{"v"},
@@ -67,7 +67,7 @@ func NewCmd(ctx context.DnoteCtx) *cobra.Command {
 	return cmd
 }
 
-func newRun(ctx context.DnoteCtx) infra.RunEFunc {
+func newRun(ctx context.NADCtx) infra.RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		var run infra.RunEFunc
 

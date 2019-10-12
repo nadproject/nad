@@ -6,7 +6,7 @@ COMPILEDAEMON := $(shell command -v CompileDaemon 2> /dev/null)
 
 serverOutputDir = ${GOPATH}/src/github.com/nadproject/nad/build/server
 cliOutputDir = ${GOPATH}/src/github.com/nadproject/nad/build/cli
-cliHomebrewDir = ${GOPATH}/src/github.com/dnote/homebrew-dnote
+cliHomebrewDir = ${GOPATH}/src/github.com/nad/homebrew-nad
 
 ## installation
 install: install-go install-js
@@ -130,7 +130,7 @@ ifndef HUB
 endif
 
 	if [ ! -d ${cliHomebrewDir} ]; then \
-		@echo "homebrew-dnote not found locally. did you clone it?"; \
+		@echo "homebrew-nad not found locally. did you clone it?"; \
 		@exit 1; \
 	fi
 
@@ -141,7 +141,7 @@ endif
 	@(cd "${cliHomebrewDir}" && \
 		./release.sh \
 			"$(version)" \
-			"${shasum -a 256 "${cliOutputDir}/dnote_$(version)_darwin_amd64.tar.gz" | cut -d ' ' -f 1}" \
+			"${shasum -a 256 "${cliOutputDir}/nad_$(version)_darwin_amd64.tar.gz" | cut -d ' ' -f 1}" \
 	)
 .PHONY: release-cli
 

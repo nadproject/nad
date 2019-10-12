@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package main
@@ -40,7 +40,7 @@ func weeklyDigestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	email, err := job.MakeDigest(user, "sung@getdnote.com")
+	email, err := job.MakeDigest(user, "sung@getnad.com")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -58,7 +58,7 @@ func emailVerificationHandler(w http.ResponseWriter, r *http.Request) {
 		"Verify your email",
 		"testToken",
 	}
-	email := mailer.NewEmail("noreply@getdnote.com", []string{"sung@getdnote.com"}, "Reset your password")
+	email := mailer.NewEmail("noreply@getnad.com", []string{"sung@getnad.com"}, "Reset your password")
 	err := email.ParseTemplate(mailer.EmailTypeEmailVerification, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

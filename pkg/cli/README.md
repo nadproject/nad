@@ -1,8 +1,8 @@
-# Dnote CLI
+# NAD CLI
 
-A simple command line interface for Dnote. 
+A simple command line interface for NAD. 
 
-![Dnote](assets/cli.gif)
+![NAD](assets/cli.gif)
 
 It is Designed to minimize environment switching for taking notes.
 
@@ -11,20 +11,20 @@ It is Designed to minimize environment switching for taking notes.
 On macOS, you can install using Homebrew:
 
 ```sh
-brew tap dnote/dnote
-brew install dnote
+brew tap nad/nad
+brew install nad
 
 # to upgrade to the latest version
-brew upgrade dnote
+brew upgrade nad
 ```
 
 On Linux or macOS, you can use the installation script:
 
-    curl -s https://raw.githubusercontent.com/dnote/dnote/master/pkg/cli/install.sh | sh
+    curl -s https://raw.githubusercontent.com/nad/nad/master/pkg/cli/install.sh | sh
 
 In some cases, you might need an elevated permission:
 
-    curl -s https://raw.githubusercontent.com/dnote/dnote/master/pkg/cli/install.sh | sudo sh
+    curl -s https://raw.githubusercontent.com/nad/nad/master/pkg/cli/install.sh | sudo sh
 
 Otherwise, you can download the binary for your platform manually from the [releases page](https://github.com/nadproject/nad/releases).
 

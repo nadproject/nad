@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# build.sh compiles dnote binary for target platforms. It is resonsible for creating
+# build.sh compiles nad binary for target platforms. It is resonsible for creating
 # distributable files that can be released by a human or a script.
 #
 # It can either cross-compile for different platforms using xgo, simply target a specific
@@ -41,9 +41,9 @@ get_binary_name() {
   platform=$1
 
   if [ "$platform" == "windows" ]; then
-    echo "dnote.exe"
+    echo "nad.exe"
   else
-    echo "dnote"
+    echo "nad"
   fi
 }
 
@@ -56,7 +56,7 @@ build() {
 
   # build binary
   destDir="$outputDir/$platform-$arch"
-  ldflags="-X main.apiEndpoint=https://api.dnote.io -X main.versionTag=$version"
+  ldflags="-X main.apiEndpoint=https://api.nad.io -X main.versionTag=$version"
   tags="fts5"
 
   mkdir -p "$destDir"
@@ -82,7 +82,7 @@ build() {
   mv "$destDir/cli-${platform}-"* "$destDir/$binaryName"
 
   # build tarball
-  tarballName="dnote_${version}_${platform}_${arch}.tar.gz"
+  tarballName="nad_${version}_${platform}_${arch}.tar.gz"
   tarballPath="$outputDir/$tarballName"
 
   cp "$projectDir/licenses/GPLv3.txt" "$destDir"
@@ -92,7 +92,7 @@ build() {
 
   # calculate checksum
   pushd "$outputDir"
-  shasum -a 256 "$tarballName" >> "$outputDir/dnote_${version}_checksums.txt"
+  shasum -a 256 "$tarballName" >> "$outputDir/nad_${version}_checksums.txt"
   popd
 }
 

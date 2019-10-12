@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package migrate
@@ -36,21 +36,21 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func setupEnv(t *testing.T, homeDir string) context.DnoteCtx {
-	dnoteDir := fmt.Sprintf("%s/.dnote", homeDir)
-	if err := os.MkdirAll(dnoteDir, 0755); err != nil {
-		t.Fatal(errors.Wrap(err, "preparing dnote dir"))
+func setupEnv(t *testing.T, homeDir string) context.NADCtx {
+	nadDir := fmt.Sprintf("%s/.nad", homeDir)
+	if err := os.MkdirAll(nadDir, 0755); err != nil {
+		t.Fatal(errors.Wrap(err, "preparing nad dir"))
 	}
 
-	return context.DnoteCtx{
+	return context.NADCtx{
 		HomeDir:  homeDir,
-		DnoteDir: dnoteDir,
+		NADDir: nadDir,
 	}
 }
 
-func teardownEnv(t *testing.T, ctx context.DnoteCtx) {
-	if err := os.RemoveAll(ctx.DnoteDir); err != nil {
-		t.Fatal(errors.Wrap(err, "tearing down the dnote dir"))
+func teardownEnv(t *testing.T, ctx context.NADCtx) {
+	if err := os.RemoveAll(ctx.NADDir); err != nil {
+		t.Fatal(errors.Wrap(err, "tearing down the nad dir"))
 	}
 }
 
@@ -60,7 +60,7 @@ func TestMigrateToV1(t *testing.T) {
 		ctx := setupEnv(t, "../tmp")
 		defer teardownEnv(t, ctx)
 
-		yamlPath, err := filepath.Abs(filepath.Join(ctx.HomeDir, ".dnote-yaml-archived"))
+		yamlPath, err := filepath.Abs(filepath.Join(ctx.HomeDir, ".nad-yaml-archived"))
 		if err != nil {
 			panic(errors.Wrap(err, "Failed to get absolute YAML path").Error())
 		}
@@ -86,7 +86,7 @@ func TestMigrateToV1(t *testing.T) {
 		ctx := setupEnv(t, "../tmp")
 		defer teardownEnv(t, ctx)
 
-		yamlPath, err := filepath.Abs(filepath.Join(ctx.HomeDir, ".dnote-yaml-archived"))
+		yamlPath, err := filepath.Abs(filepath.Join(ctx.HomeDir, ".nad-yaml-archived"))
 		if err != nil {
 			panic(errors.Wrap(err, "Failed to get absolute YAML path").Error())
 		}
@@ -111,7 +111,7 @@ func TestMigrateToV2(t *testing.T) {
 	ctx := setupEnv(t, "../tmp")
 	defer teardownEnv(t, ctx)
 
-	testutils.CopyFixture(t, ctx, "./fixtures/legacy-2-pre-dnote.json", "dnote")
+	testutils.CopyFixture(t, ctx, "./fixtures/legacy-2-pre-nad.json", "nad")
 
 	// execute
 	if err := migrateToV2(ctx); err != nil {
@@ -119,14 +119,14 @@ func TestMigrateToV2(t *testing.T) {
 	}
 
 	// test
-	b := testutils.ReadFile(ctx, "dnote")
+	b := testutils.ReadFile(ctx, "nad")
 
-	var postDnote migrateToV2PostDnote
-	if err := json.Unmarshal(b, &postDnote); err != nil {
-		t.Fatal(errors.Wrap(err, "Failed to unmarshal the result into Dnote").Error())
+	var postNAD migrateToV2PostNAD
+	if err := json.Unmarshal(b, &postNAD); err != nil {
+		t.Fatal(errors.Wrap(err, "Failed to unmarshal the result into NAD").Error())
 	}
 
-	for _, book := range postDnote {
+	for _, book := range postNAD {
 		assert.NotEqual(t, book.Name, "", "Book name was not populated")
 
 		for _, note := range book.Notes {
@@ -145,7 +145,7 @@ func TestMigrateToV3(t *testing.T) {
 	ctx := setupEnv(t, "../tmp")
 	defer teardownEnv(t, ctx)
 
-	testutils.CopyFixture(t, ctx, "./fixtures/legacy-3-pre-dnote.json", "dnote")
+	testutils.CopyFixture(t, ctx, "./fixtures/legacy-3-pre-nad.json", "nad")
 
 	// execute
 	if err := migrateToV3(ctx); err != nil {
@@ -153,10 +153,10 @@ func TestMigrateToV3(t *testing.T) {
 	}
 
 	// test
-	b := testutils.ReadFile(ctx, "dnote")
-	var postDnote migrateToV3Dnote
-	if err := json.Unmarshal(b, &postDnote); err != nil {
-		t.Fatal(errors.Wrap(err, "Failed to unmarshal the result into Dnote").Error())
+	b := testutils.ReadFile(ctx, "nad")
+	var postNAD migrateToV3NAD
+	if err := json.Unmarshal(b, &postNAD); err != nil {
+		t.Fatal(errors.Wrap(err, "Failed to unmarshal the result into NAD").Error())
 	}
 
 	b = testutils.ReadFile(ctx, "actions")
@@ -167,7 +167,7 @@ func TestMigrateToV3(t *testing.T) {
 
 	assert.Equal(t, len(actions), 6, "actions length mismatch")
 
-	for _, book := range postDnote {
+	for _, book := range postNAD {
 		for _, note := range book.Notes {
 			assert.NotEqual(t, note.AddedOn, int64(0), "AddedOn was not carried over")
 		}
@@ -180,7 +180,7 @@ func TestMigrateToV4(t *testing.T) {
 	defer teardownEnv(t, ctx)
 	defer os.Setenv("EDITOR", "")
 
-	testutils.CopyFixture(t, ctx, "./fixtures/legacy-4-pre-dnoterc.yaml", "dnoterc")
+	testutils.CopyFixture(t, ctx, "./fixtures/legacy-4-pre-nadrc.yaml", "nadrc")
 
 	// execute
 	os.Setenv("EDITOR", "vim")
@@ -189,10 +189,10 @@ func TestMigrateToV4(t *testing.T) {
 	}
 
 	// test
-	b := testutils.ReadFile(ctx, "dnoterc")
+	b := testutils.ReadFile(ctx, "nadrc")
 	var config migrateToV4PostConfig
 	if err := yaml.Unmarshal(b, &config); err != nil {
-		t.Fatal(errors.Wrap(err, "Failed to unmarshal the result into Dnote").Error())
+		t.Fatal(errors.Wrap(err, "Failed to unmarshal the result into NAD").Error())
 	}
 
 	assert.Equal(t, config.APIKey, "Oev6e1082ORasdf9rjkfjkasdfjhgei", "api key mismatch")
@@ -301,7 +301,7 @@ func TestMigrateToV6(t *testing.T) {
 	ctx := setupEnv(t, "../tmp")
 	defer teardownEnv(t, ctx)
 
-	testutils.CopyFixture(t, ctx, "./fixtures/legacy-6-pre-dnote.json", "dnote")
+	testutils.CopyFixture(t, ctx, "./fixtures/legacy-6-pre-nad.json", "nad")
 
 	// execute
 	if err := migrateToV6(ctx); err != nil {
@@ -309,16 +309,16 @@ func TestMigrateToV6(t *testing.T) {
 	}
 
 	// test
-	b := testutils.ReadFile(ctx, "dnote")
-	var got migrateToV6PostDnote
+	b := testutils.ReadFile(ctx, "nad")
+	var got migrateToV6PostNAD
 	if err := json.Unmarshal(b, &got); err != nil {
-		t.Fatal(errors.Wrap(err, "Failed to unmarshal the result into Dnote").Error())
+		t.Fatal(errors.Wrap(err, "Failed to unmarshal the result into NAD").Error())
 	}
 
-	b = utils.ReadFileAbs("./fixtures/legacy-6-post-dnote.json")
-	var expected migrateToV6PostDnote
+	b = utils.ReadFileAbs("./fixtures/legacy-6-post-nad.json")
+	var expected migrateToV6PostNAD
 	if err := json.Unmarshal(b, &expected); err != nil {
-		t.Fatal(errors.Wrap(err, "Failed to unmarshal the result into Dnote").Error())
+		t.Fatal(errors.Wrap(err, "Failed to unmarshal the result into NAD").Error())
 	}
 
 	if ok := reflect.DeepEqual(expected, got); !ok {
@@ -348,7 +348,7 @@ func TestMigrateToV7(t *testing.T) {
 	b2 := utils.ReadFileAbs("./fixtures/legacy-7-post-actions.json")
 	var expected []migrateToV7Action
 	if err := json.Unmarshal(b, &expected); err != nil {
-		t.Fatal(errors.Wrap(err, "unmarshalling the result into Dnote").Error())
+		t.Fatal(errors.Wrap(err, "unmarshalling the result into NAD").Error())
 	}
 
 	assert.EqualJSON(t, string(b), string(b2), "Result does not match")
@@ -356,15 +356,15 @@ func TestMigrateToV7(t *testing.T) {
 
 func TestMigrateToV8(t *testing.T) {
 	opts := database.TestDBOptions{SchemaSQLPath: "./fixtures/local-1-pre-schema.sql", SkipMigration: true}
-	db := database.InitTestDB(t, "../tmp/.dnote/dnote-test.db", &opts)
+	db := database.InitTestDB(t, "../tmp/.nad/nad-test.db", &opts)
 	defer database.CloseTestDB(t, db)
 
-	ctx := context.DnoteCtx{HomeDir: "../tmp", DnoteDir: "../tmp/.dnote", DB: db}
+	ctx := context.NADCtx{HomeDir: "../tmp", NADDir: "../tmp/.nad", DB: db}
 
 	// set up
 	testutils.CopyFixture(t, ctx, "./fixtures/legacy-8-actions.json", "actions")
-	testutils.CopyFixture(t, ctx, "./fixtures/legacy-8-dnote.json", "dnote")
-	testutils.CopyFixture(t, ctx, "./fixtures/legacy-8-dnoterc.yaml", "dnoterc")
+	testutils.CopyFixture(t, ctx, "./fixtures/legacy-8-nad.json", "nad")
+	testutils.CopyFixture(t, ctx, "./fixtures/legacy-8-nadrc.yaml", "nadrc")
 	testutils.CopyFixture(t, ctx, "./fixtures/legacy-8-schema.yaml", "schema")
 	testutils.CopyFixture(t, ctx, "./fixtures/legacy-8-timestamps.yaml", "timestamps")
 
@@ -376,17 +376,17 @@ func TestMigrateToV8(t *testing.T) {
 	// test
 
 	// 1. test if files are migrated
-	dnoteFilePath := fmt.Sprintf("%s/dnote", ctx.DnoteDir)
-	dnotercPath := fmt.Sprintf("%s/dnoterc", ctx.DnoteDir)
-	schemaFilePath := fmt.Sprintf("%s/schema", ctx.DnoteDir)
-	timestampFilePath := fmt.Sprintf("%s/timestamps", ctx.DnoteDir)
+	nadFilePath := fmt.Sprintf("%s/nad", ctx.NADDir)
+	nadrcPath := fmt.Sprintf("%s/nadrc", ctx.NADDir)
+	schemaFilePath := fmt.Sprintf("%s/schema", ctx.NADDir)
+	timestampFilePath := fmt.Sprintf("%s/timestamps", ctx.NADDir)
 
-	ok, err := utils.FileExists(dnoteFilePath)
+	ok, err := utils.FileExists(nadFilePath)
 	if err != nil {
 		t.Fatal(errors.Wrap(err, "checking if file exists"))
 	}
 	if ok {
-		t.Errorf("%s still exists", dnoteFilePath)
+		t.Errorf("%s still exists", nadFilePath)
 	}
 
 	ok, err = utils.FileExists(schemaFilePath)
@@ -405,12 +405,12 @@ func TestMigrateToV8(t *testing.T) {
 		t.Errorf("%s still exists", timestampFilePath)
 	}
 
-	ok, err = utils.FileExists(dnotercPath)
+	ok, err = utils.FileExists(nadrcPath)
 	if err != nil {
 		t.Fatal(errors.Wrap(err, "checking if file exists"))
 	}
 	if !ok {
-		t.Errorf("%s still exists", dnotercPath)
+		t.Errorf("%s still exists", nadrcPath)
 	}
 
 	// 2. test if notes and books are migrated

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# dump_schema.sh dumps the current system's dnote schema
+# dump_schema.sh dumps the current system's nad schema
 set -eux
 
-sqlite3 ~/.dnote/dnote.db .schema
+sqlite3 ~/.nad/nad.db .schema

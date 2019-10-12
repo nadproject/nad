@@ -349,7 +349,7 @@
       <tr>
         <td class="container">
           <div class="content">
-            <span class="preheader">Here is your weekly Dnote digest.</span>
+            <span class="preheader">Here is your weekly NAD digest.</span>
 
             {{ template "header" }}
 
@@ -361,7 +361,7 @@
                   <table border="0" cellpadding="0" cellspacing="0">
                     <tr>
                       <td class="content-block">
-                        This is your weekly Dnote digest, featuring {{ .ActiveNoteCount }} notes from {{ .ActiveBookCount }} books.
+                        This is your weekly NAD digest, featuring {{ .ActiveNoteCount }} notes from {{ .ActiveBookCount }} books.
                       </td>
                     </tr>
 
@@ -381,12 +381,12 @@
                                       </tr>
                                       <tr>
                                         <td class="note-meta">
-                                          <a target="_blank" rel="noreferrer noopener" href="https://app.getdnote.com/notes/{{ .UUID }}"><span class="meta-label">Open</span></a>
+                                          <a target="_blank" rel="noreferrer noopener" href="https://app.getnad.com/notes/{{ .UUID }}"><span class="meta-label">Open</span></a>
                                         </td>
                                       </tr>
                                       <tr>
                                         <td class="note-meta">
-                                          <img src="https://cdn.getdnote.com/img/book-gray.png" alt="book label" width="13" height="13" class="icon"><span class="meta-label">{{ .BookLabel }}</span> <span class="meta-label timeago">{{ .TimeAgo }}</span>
+                                          <img src="https://cdn.getnad.com/img/book-gray.png" alt="book label" width="13" height="13" class="icon"><span class="meta-label">{{ .BookLabel }}</span> <span class="meta-label timeago">{{ .TimeAgo }}</span>
                                         </td>
                                       </tr>
                                     </tbody>
@@ -416,7 +416,7 @@
               <table border="0" cellpadding="0" cellspacing="0">
                 <tr>
                   <td>
-                    <span class="apple-link">Dnote</span>
+                    <span class="apple-link">NAD</span>
                     <br>Level 2, 11 York St, Sydney NSW 2000
                   </td>
                 </tr>
@@ -425,7 +425,7 @@
                 </tr>
                 <tr>
                   <td>
-                    <a href="https://app.getdnote.com/email-preference?token={{ .EmailSessionToken }}">Change email frequency</a>
+                    <a href="https://app.getnad.com/email-preference?token={{ .EmailSessionToken }}">Change email frequency</a>
                   </td>
                 </tr>
               </table>

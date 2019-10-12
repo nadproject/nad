@@ -36,14 +36,14 @@ build() {
 
   GOOS="$platform" \
   GOARCH="$arch" go build \
-    -o "$destDir/dnote-server" \
+    -o "$destDir/nad-server" \
     -ldflags "-X main.versionTag=$version" \
     "$basePath"/pkg/server/*.go
 
   packr2 clean
 
   # build tarball
-  tarballName="dnote_server_${version}_${platform}_${arch}.tar.gz"
+  tarballName="nad_server_${version}_${platform}_${arch}.tar.gz"
   tarballPath="$outputDir/$tarballName"
 
   cp "$projectDir/licenses/AGPLv3.txt" "$destDir"
@@ -53,7 +53,7 @@ build() {
 
   # calculate checksum
   pushd "$outputDir"
-  shasum -a 256 "$tarballName" >> "$outputDir/dnote_${version}_checksums.txt"
+  shasum -a 256 "$tarballName" >> "$outputDir/nad_${version}_checksums.txt"
   popd
 }
 

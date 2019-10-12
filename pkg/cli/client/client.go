@@ -1,22 +1,22 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// Package client provides interfaces for interacting with the Dnote server
+// Package client provides interfaces for interacting with the NAD server
 // and the data structures for responses
 package client
 
@@ -43,7 +43,7 @@ type requestOptions struct {
 	HTTPClient *http.Client
 }
 
-func getReq(ctx context.DnoteCtx, path, method, body string) (*http.Request, error) {
+func getReq(ctx context.NADCtx, path, method, body string) (*http.Request, error) {
 	endpoint := fmt.Sprintf("%s%s", ctx.APIEndpoint, path)
 	req, err := http.NewRequest(method, endpoint, strings.NewReader(body))
 	if err != nil {
@@ -77,7 +77,7 @@ func checkRespErr(res *http.Response) error {
 }
 
 // doReq does a http request to the given path in the api endpoint
-func doReq(ctx context.DnoteCtx, method, path, body string, options *requestOptions) (*http.Response, error) {
+func doReq(ctx context.NADCtx, method, path, body string, options *requestOptions) (*http.Response, error) {
 	req, err := getReq(ctx, path, method, body)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting request")
@@ -106,7 +106,7 @@ func doReq(ctx context.DnoteCtx, method, path, body string, options *requestOpti
 
 // doAuthorizedReq does a http request to the given path in the api endpoint as a user,
 // with the appropriate headers. The given path should include the preceding slash.
-func doAuthorizedReq(ctx context.DnoteCtx, method, path, body string, options *requestOptions) (*http.Response, error) {
+func doAuthorizedReq(ctx context.NADCtx, method, path, body string, options *requestOptions) (*http.Response, error) {
 	if ctx.SessionKey == "" {
 		return nil, errors.New("no session key found")
 	}
@@ -122,7 +122,7 @@ type GetSyncStateResp struct {
 }
 
 // GetSyncState gets the sync state response from the server
-func GetSyncState(ctx context.DnoteCtx) (GetSyncStateResp, error) {
+func GetSyncState(ctx context.NADCtx) (GetSyncStateResp, error) {
 	var ret GetSyncStateResp
 
 	res, err := doAuthorizedReq(ctx, "GET", "/v3/sync/state", "", nil)
@@ -186,7 +186,7 @@ type GetSyncFragmentResp struct {
 }
 
 // GetSyncFragment gets a sync fragment response from the server
-func GetSyncFragment(ctx context.DnoteCtx, afterUSN int) (GetSyncFragmentResp, error) {
+func GetSyncFragment(ctx context.NADCtx, afterUSN int) (GetSyncFragmentResp, error) {
 	v := url.Values{}
 	v.Set("after_usn", strconv.Itoa(afterUSN))
 	queryStr := v.Encode()
@@ -228,7 +228,7 @@ type CreateBookResp struct {
 }
 
 // CreateBook creates a new book in the server
-func CreateBook(ctx context.DnoteCtx, label string) (CreateBookResp, error) {
+func CreateBook(ctx context.NADCtx, label string) (CreateBookResp, error) {
 	payload := CreateBookPayload{
 		Name: label,
 	}
@@ -260,7 +260,7 @@ type UpdateBookResp struct {
 }
 
 // UpdateBook updates a book in the server
-func UpdateBook(ctx context.DnoteCtx, label, uuid string) (UpdateBookResp, error) {
+func UpdateBook(ctx context.NADCtx, label, uuid string) (UpdateBookResp, error) {
 	payload := updateBookPayload{
 		Name: &label,
 	}
@@ -290,7 +290,7 @@ type DeleteBookResp struct {
 }
 
 // DeleteBook deletes a book in the server
-func DeleteBook(ctx context.DnoteCtx, uuid string) (DeleteBookResp, error) {
+func DeleteBook(ctx context.NADCtx, uuid string) (DeleteBookResp, error) {
 	endpoint := fmt.Sprintf("/v3/books/%s", uuid)
 	res, err := doAuthorizedReq(ctx, "DELETE", endpoint, "", nil)
 	if err != nil {
@@ -339,7 +339,7 @@ type RespNote struct {
 }
 
 // CreateNote creates a note in the server
-func CreateNote(ctx context.DnoteCtx, bookUUID, content string) (CreateNoteResp, error) {
+func CreateNote(ctx context.NADCtx, bookUUID, content string) (CreateNoteResp, error) {
 	payload := CreateNotePayload{
 		BookUUID: bookUUID,
 		Body:     content,
@@ -375,7 +375,7 @@ type UpdateNoteResp struct {
 }
 
 // UpdateNote updates a note in the server
-func UpdateNote(ctx context.DnoteCtx, uuid, bookUUID, content string, public bool) (UpdateNoteResp, error) {
+func UpdateNote(ctx context.NADCtx, uuid, bookUUID, content string, public bool) (UpdateNoteResp, error) {
 	payload := updateNotePayload{
 		BookUUID: &bookUUID,
 		Body:     &content,
@@ -407,7 +407,7 @@ type DeleteNoteResp struct {
 }
 
 // DeleteNote removes a note in the server
-func DeleteNote(ctx context.DnoteCtx, uuid string) (DeleteNoteResp, error) {
+func DeleteNote(ctx context.NADCtx, uuid string) (DeleteNoteResp, error) {
 	endpoint := fmt.Sprintf("/v3/notes/%s", uuid)
 	res, err := doAuthorizedReq(ctx, "DELETE", endpoint, "", nil)
 	if err != nil {
@@ -429,7 +429,7 @@ type GetBooksResp []struct {
 }
 
 // GetBooks gets books from the server
-func GetBooks(ctx context.DnoteCtx, sessionKey string) (GetBooksResp, error) {
+func GetBooks(ctx context.NADCtx, sessionKey string) (GetBooksResp, error) {
 	res, err := doAuthorizedReq(ctx, "GET", "/v3/books", "", nil)
 	if err != nil {
 		return GetBooksResp{}, errors.Wrap(err, "making http request")
@@ -449,7 +449,7 @@ type PresigninResponse struct {
 }
 
 // GetPresignin gets presignin credentials
-func GetPresignin(ctx context.DnoteCtx, email string) (PresigninResponse, error) {
+func GetPresignin(ctx context.NADCtx, email string) (PresigninResponse, error) {
 	res, err := doReq(ctx, "GET", fmt.Sprintf("/v3/presignin?email=%s", email), "", nil)
 	if err != nil {
 		return PresigninResponse{}, errors.Wrap(err, "making http request")
@@ -476,7 +476,7 @@ type SigninResponse struct {
 }
 
 // Signin requests a session token
-func Signin(ctx context.DnoteCtx, email, password string) (SigninResponse, error) {
+func Signin(ctx context.NADCtx, email, password string) (SigninResponse, error) {
 	payload := SigninPayload{
 		Email:    email,
 		Passowrd: password,
@@ -503,7 +503,7 @@ func Signin(ctx context.DnoteCtx, email, password string) (SigninResponse, error
 }
 
 // Signout deletes a user session on the server side
-func Signout(ctx context.DnoteCtx, sessionKey string) error {
+func Signout(ctx context.NADCtx, sessionKey string) error {
 	hc := http.Client{
 		// No need to follow redirect
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {

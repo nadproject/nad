@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package migrate
@@ -54,7 +54,7 @@ var RemoteSequence = []migration{
 	rm1,
 }
 
-func initSchema(ctx context.DnoteCtx, schemaKey string) (int, error) {
+func initSchema(ctx context.NADCtx, schemaKey string) (int, error) {
 	// schemaVersion is the index of the latest run migration in the sequence
 	schemaVersion := 0
 
@@ -79,7 +79,7 @@ func getSchemaKey(mode int) (string, error) {
 	return "", errors.Errorf("unsupported migration type '%d'", mode)
 }
 
-func getSchema(ctx context.DnoteCtx, schemaKey string) (int, error) {
+func getSchema(ctx context.NADCtx, schemaKey string) (int, error) {
 	var ret int
 
 	db := ctx.DB
@@ -97,7 +97,7 @@ func getSchema(ctx context.DnoteCtx, schemaKey string) (int, error) {
 	return ret, nil
 }
 
-func execute(ctx context.DnoteCtx, m migration, schemaKey string) error {
+func execute(ctx context.NADCtx, m migration, schemaKey string) error {
 	log.Debug("running migration %s\n", m.name)
 
 	tx, err := ctx.DB.Begin()
@@ -130,7 +130,7 @@ func execute(ctx context.DnoteCtx, m migration, schemaKey string) error {
 }
 
 // Run performs unrun migrations
-func Run(ctx context.DnoteCtx, migrations []migration, mode int) error {
+func Run(ctx context.NADCtx, migrations []migration, mode int) error {
 	schemaKey, err := getSchemaKey(mode)
 	if err != nil {
 		return errors.Wrap(err, "getting schema key")

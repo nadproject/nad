@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package sync
@@ -40,12 +40,12 @@ const (
 )
 
 var example = `
-  dnote sync`
+  nad sync`
 
 var isFullSync bool
 
 // NewCmd returns a new sync command
-func NewCmd(ctx context.DnoteCtx) *cobra.Command {
+func NewCmd(ctx context.NADCtx) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "sync",
 		Aliases: []string{"s"},
@@ -140,7 +140,7 @@ func processFragments(fragments []client.SyncFragment) (syncList, error) {
 
 // getSyncList gets a list of all sync fragments after the specified usn
 // and aggregates them into a syncList data structure
-func getSyncList(ctx context.DnoteCtx, afterUSN int) (syncList, error) {
+func getSyncList(ctx context.NADCtx, afterUSN int) (syncList, error) {
 	fragments, err := getSyncFragments(ctx, afterUSN)
 	if err != nil {
 		return syncList{}, errors.Wrap(err, "getting sync fragments")
@@ -156,7 +156,7 @@ func getSyncList(ctx context.DnoteCtx, afterUSN int) (syncList, error) {
 
 // getSyncFragments repeatedly gets all sync fragments after the specified usn until there is no more new data
 // remaining and returns the buffered list
-func getSyncFragments(ctx context.DnoteCtx, afterUSN int) ([]client.SyncFragment, error) {
+func getSyncFragments(ctx context.NADCtx, afterUSN int) ([]client.SyncFragment, error) {
 	var buf []client.SyncFragment
 
 	nextAfterUSN := afterUSN
@@ -534,7 +534,7 @@ func cleanLocalBooks(tx *database.DB, fullList *syncList) error {
 	return nil
 }
 
-func fullSync(ctx context.DnoteCtx, tx *database.DB) error {
+func fullSync(ctx context.NADCtx, tx *database.DB) error {
 	log.Debug("performing a full sync\n")
 	log.Info("resolving delta.")
 
@@ -585,7 +585,7 @@ func fullSync(ctx context.DnoteCtx, tx *database.DB) error {
 	return nil
 }
 
-func stepSync(ctx context.DnoteCtx, tx *database.DB, afterUSN int) error {
+func stepSync(ctx context.NADCtx, tx *database.DB, afterUSN int) error {
 	log.Debug("performing a step sync\n")
 
 	log.Info("resolving delta.")
@@ -629,7 +629,7 @@ func stepSync(ctx context.DnoteCtx, tx *database.DB, afterUSN int) error {
 	return nil
 }
 
-func sendBooks(ctx context.DnoteCtx, tx *database.DB) (bool, error) {
+func sendBooks(ctx context.NADCtx, tx *database.DB) (bool, error) {
 	isBehind := false
 
 	rows, err := tx.Query("SELECT uuid, label, usn, deleted FROM books WHERE dirty")
@@ -733,7 +733,7 @@ func sendBooks(ctx context.DnoteCtx, tx *database.DB) (bool, error) {
 	return isBehind, nil
 }
 
-func sendNotes(ctx context.DnoteCtx, tx *database.DB) (bool, error) {
+func sendNotes(ctx context.NADCtx, tx *database.DB) (bool, error) {
 	isBehind := false
 
 	rows, err := tx.Query("SELECT uuid, book_uuid, body, public, deleted, usn, added_on FROM notes WHERE dirty")
@@ -833,7 +833,7 @@ func sendNotes(ctx context.DnoteCtx, tx *database.DB) (bool, error) {
 	return isBehind, nil
 }
 
-func sendChanges(ctx context.DnoteCtx, tx *database.DB) (bool, error) {
+func sendChanges(ctx context.NADCtx, tx *database.DB) (bool, error) {
 	log.Info("sending changes.")
 
 	var delta int
@@ -885,7 +885,7 @@ func saveSyncState(tx *database.DB, serverTime int64, serverMaxUSN int) error {
 	return nil
 }
 
-func newRun(ctx context.DnoteCtx) infra.RunEFunc {
+func newRun(ctx context.NADCtx) infra.RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		if ctx.SessionKey == "" {
 			return errors.New("not logged in")

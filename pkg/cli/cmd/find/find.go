@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package find
@@ -32,13 +32,13 @@ import (
 
 var example = `
 	# find notes by a keyword
-	dnote find rpoplpush
+	nad find rpoplpush
 
 	# find notes by multiple keywords
-	dnote find "building a heap"
+	nad find "building a heap"
 
 	# find notes within a book
-	dnote find "merge sort" -b algorithm
+	nad find "merge sort" -b algorithm
 	`
 
 var bookName string
@@ -52,7 +52,7 @@ func preRun(cmd *cobra.Command, args []string) error {
 }
 
 // NewCmd returns a new remove command
-func NewCmd(ctx context.DnoteCtx) *cobra.Command {
+func NewCmd(ctx context.NADCtx) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "find",
 		Short:   "Find notes by keywords",
@@ -130,13 +130,13 @@ func escapePhrase(s string) (string, error) {
 	return b.String(), nil
 }
 
-func doQuery(ctx context.DnoteCtx, query, bookName string) (*sql.Rows, error) {
+func doQuery(ctx context.NADCtx, query, bookName string) (*sql.Rows, error) {
 	db := ctx.DB
 
 	sql := `SELECT
 		notes.rowid,
 		books.label AS book_label,
-		snippet(note_fts, 0, '<dnotehl>', '</dnotehl>', '...', 28)
+		snippet(note_fts, 0, '<nadhl>', '</nadhl>', '...', 28)
 	FROM note_fts
 	INNER JOIN notes ON notes.rowid = note_fts.rowid
 	INNER JOIN books ON notes.book_uuid = books.uuid
@@ -153,7 +153,7 @@ func doQuery(ctx context.DnoteCtx, query, bookName string) (*sql.Rows, error) {
 	return rows, err
 }
 
-func newRun(ctx context.DnoteCtx) infra.RunEFunc {
+func newRun(ctx context.NADCtx) infra.RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		phrase, err := escapePhrase(args[0])
 		if err != nil {

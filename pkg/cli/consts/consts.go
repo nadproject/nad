@@ -1,35 +1,35 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 // Package consts provides definitions of constants
 package consts
 
 var (
-	// DnoteDirName is the name of the directory containing dnote files
-	DnoteDirName = ".dnote"
-	// DnoteDBFileName is a filename for the Dnote SQLite database
-	DnoteDBFileName = "dnote.db"
+	// NADDirName is the name of the directory containing nad files
+	NADDirName = ".nad"
+	// NADDBFileName is a filename for the NAD SQLite database
+	NADDBFileName = "nad.db"
 	// TmpContentFileBase is the base for the filename for a temporary content
 	TmpContentFileBase = "DNOTE_TMPCONTENT"
 	// TmpContentFileExt is the extension for the temporary content file
 	TmpContentFileExt = "md"
 	// ConfigFilename is the name of the config file
-	ConfigFilename = "dnoterc"
+	ConfigFilename = "nadrc"
 
 	// SystemSchema is the key for schema in the system table
 	SystemSchema = "schema"

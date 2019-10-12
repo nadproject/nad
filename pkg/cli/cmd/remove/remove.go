@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package remove
@@ -38,14 +38,14 @@ var yesFlag bool
 
 var example = `
   * Delete a note by id
-  dnote delete 2
+  nad delete 2
 
   * Delete a book by name
-  dnote delete js
+  nad delete js
 `
 
 // NewCmd returns a new remove command
-func NewCmd(ctx context.DnoteCtx) *cobra.Command {
+func NewCmd(ctx context.NADCtx) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "remove <note id|book name>",
 		Short:   "Remove a note or a book",
@@ -59,7 +59,7 @@ func NewCmd(ctx context.DnoteCtx) *cobra.Command {
 	f.StringVarP(&bookFlag, "book", "b", "", "The book name to delete")
 	f.BoolVarP(&yesFlag, "yes", "y", false, "Assume yes to the prompts and run in non-interactive mode")
 
-	f.MarkDeprecated("book", "Pass the book name as an argument. e.g. `dnote rm book_name`")
+	f.MarkDeprecated("book", "Pass the book name as an argument. e.g. `nad rm book_name`")
 
 	return cmd
 }
@@ -80,7 +80,7 @@ func maybeConfirm(message string, defaultValue bool) (bool, error) {
 	return ui.Confirm(message, defaultValue)
 }
 
-func newRun(ctx context.DnoteCtx) infra.RunEFunc {
+func newRun(ctx context.NADCtx) infra.RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		// DEPRECATED: Remove in 1.0.0
 		if bookFlag != "" {
@@ -93,7 +93,7 @@ func newRun(ctx context.DnoteCtx) infra.RunEFunc {
 
 		// DEPRECATED: Remove in 1.0.0
 		if len(args) == 2 {
-			log.Plain(log.ColorYellow.Sprintf("DEPRECATED: you no longer need to pass book name to the remove command. e.g. `dnote remove 123`.\n\n"))
+			log.Plain(log.ColorYellow.Sprintf("DEPRECATED: you no longer need to pass book name to the remove command. e.g. `nad remove 123`.\n\n"))
 
 			target := args[1]
 			if err := runNote(ctx, target); err != nil {
@@ -119,7 +119,7 @@ func newRun(ctx context.DnoteCtx) infra.RunEFunc {
 	}
 }
 
-func runNote(ctx context.DnoteCtx, rowIDArg string) error {
+func runNote(ctx context.NADCtx, rowIDArg string) error {
 	db := ctx.DB
 
 	noteRowID, err := strconv.Atoi(rowIDArg)
@@ -164,7 +164,7 @@ func runNote(ctx context.DnoteCtx, rowIDArg string) error {
 	return nil
 }
 
-func runBook(ctx context.DnoteCtx, bookLabel string) error {
+func runBook(ctx context.NADCtx, bookLabel string) error {
 	db := ctx.DB
 
 	bookUUID, err := database.GetBookUUID(db, bookLabel)

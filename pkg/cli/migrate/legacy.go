@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 // Package migrate provides migration logic for both sqlite and
@@ -37,7 +37,7 @@ import (
 
 var (
 	schemaFilename = "schema"
-	backupDirName  = ".dnote-bak"
+	backupDirName  = ".nad-bak"
 )
 
 // migration IDs
@@ -81,8 +81,8 @@ func makeSchema(complete bool) schema {
 	return s
 }
 
-// Legacy performs migration on JSON-based dnote if necessary
-func Legacy(ctx context.DnoteCtx) error {
+// Legacy performs migration on JSON-based nad if necessary
+func Legacy(ctx context.NADCtx) error {
 	// If schema does not exist, no need run a legacy migration
 	schemaPath := getSchemaPath(ctx)
 	ok, err := utils.FileExists(schemaPath)
@@ -108,10 +108,10 @@ func Legacy(ctx context.DnoteCtx) error {
 	return nil
 }
 
-// performMigration backs up current .dnote data, performs migration, and
+// performMigration backs up current .nad data, performs migration, and
 // restores or cleans backups depending on if there is an error
-func performMigration(ctx context.DnoteCtx, migrationID int) error {
-	// legacyMigrationV8 is the final migration of the legacy JSON Dnote migration
+func performMigration(ctx context.NADCtx, migrationID int) error {
+	// legacyMigrationV8 is the final migration of the legacy JSON NAD migration
 	// migrate to sqlite and return
 	if migrationID == legacyMigrationV8 {
 		if err := migrateToV8(ctx); err != nil {
@@ -121,8 +121,8 @@ func performMigration(ctx context.DnoteCtx, migrationID int) error {
 		return nil
 	}
 
-	if err := backupDnoteDir(ctx); err != nil {
-		return errors.Wrap(err, "Failed to back up dnote directory")
+	if err := backupNADDir(ctx); err != nil {
+		return errors.Wrap(err, "Failed to back up nad directory")
 	}
 
 	var migrationError error
@@ -165,19 +165,19 @@ func performMigration(ctx context.DnoteCtx, migrationID int) error {
 	return nil
 }
 
-// backupDnoteDir backs up the dnote directory to a temporary backup directory
-func backupDnoteDir(ctx context.DnoteCtx) error {
-	srcPath := fmt.Sprintf("%s/.dnote", ctx.HomeDir)
+// backupNADDir backs up the nad directory to a temporary backup directory
+func backupNADDir(ctx context.NADCtx) error {
+	srcPath := fmt.Sprintf("%s/.nad", ctx.HomeDir)
 	tmpPath := fmt.Sprintf("%s/%s", ctx.HomeDir, backupDirName)
 
 	if err := utils.CopyDir(srcPath, tmpPath); err != nil {
-		return errors.Wrap(err, "Failed to copy the .dnote directory")
+		return errors.Wrap(err, "Failed to copy the .nad directory")
 	}
 
 	return nil
 }
 
-func restoreBackup(ctx context.DnoteCtx) error {
+func restoreBackup(ctx context.NADCtx) error {
 	var err error
 
 	defer func() {
@@ -188,11 +188,11 @@ func restoreBackup(ctx context.DnoteCtx) error {
 		}
 	}()
 
-	srcPath := fmt.Sprintf("%s/.dnote", ctx.HomeDir)
+	srcPath := fmt.Sprintf("%s/.nad", ctx.HomeDir)
 	backupPath := fmt.Sprintf("%s/%s", ctx.HomeDir, backupDirName)
 
 	if err = os.RemoveAll(srcPath); err != nil {
-		return errors.Wrapf(err, "Failed to clear current dnote data at %s", backupPath)
+		return errors.Wrapf(err, "Failed to clear current nad data at %s", backupPath)
 	}
 
 	if err = os.Rename(backupPath, srcPath); err != nil {
@@ -202,7 +202,7 @@ func restoreBackup(ctx context.DnoteCtx) error {
 	return nil
 }
 
-func clearBackup(ctx context.DnoteCtx) error {
+func clearBackup(ctx context.NADCtx) error {
 	backupPath := fmt.Sprintf("%s/%s", ctx.HomeDir, backupDirName)
 
 	if err := os.RemoveAll(backupPath); err != nil {
@@ -213,11 +213,11 @@ func clearBackup(ctx context.DnoteCtx) error {
 }
 
 // getSchemaPath returns the path to the file containing schema info
-func getSchemaPath(ctx context.DnoteCtx) string {
-	return fmt.Sprintf("%s/%s", ctx.DnoteDir, schemaFilename)
+func getSchemaPath(ctx context.NADCtx) string {
+	return fmt.Sprintf("%s/%s", ctx.NADDir, schemaFilename)
 }
 
-func readSchema(ctx context.DnoteCtx) (schema, error) {
+func readSchema(ctx context.NADCtx) (schema, error) {
 	var ret schema
 
 	path := getSchemaPath(ctx)
@@ -235,7 +235,7 @@ func readSchema(ctx context.DnoteCtx) (schema, error) {
 	return ret, nil
 }
 
-func writeSchema(ctx context.DnoteCtx, s schema) error {
+func writeSchema(ctx context.NADCtx, s schema) error {
 	path := getSchemaPath(ctx)
 	d, err := yaml.Marshal(&s)
 	if err != nil {
@@ -249,7 +249,7 @@ func writeSchema(ctx context.DnoteCtx, s schema) error {
 	return nil
 }
 
-func getUnrunMigrations(ctx context.DnoteCtx) ([]int, error) {
+func getUnrunMigrations(ctx context.NADCtx) ([]int, error) {
 	var ret []int
 
 	schema, err := readSchema(ctx)
@@ -269,7 +269,7 @@ func getUnrunMigrations(ctx context.DnoteCtx) ([]int, error) {
 	return ret, nil
 }
 
-func updateSchemaVersion(ctx context.DnoteCtx, mID int) error {
+func updateSchemaVersion(ctx context.NADCtx, mID int) error {
 	s, err := readSchema(ctx)
 	if err != nil {
 		return errors.Wrap(err, "Failed to read schema")
@@ -304,8 +304,8 @@ type migrateToV2PostBook struct {
 	Name  string                `json:"name"`
 	Notes []migrateToV2PostNote `json:"notes"`
 }
-type migrateToV2PreDnote map[string]migrateToV2PreBook
-type migrateToV2PostDnote map[string]migrateToV2PostBook
+type migrateToV2PreNAD map[string]migrateToV2PreBook
+type migrateToV2PostNAD map[string]migrateToV2PostBook
 
 //v3
 var (
@@ -324,7 +324,7 @@ type migrateToV3Book struct {
 	Name  string            `json:"name"`
 	Notes []migrateToV3Note `json:"notes"`
 }
-type migrateToV3Dnote map[string]migrateToV3Book
+type migrateToV3NAD map[string]migrateToV3Book
 type migrateToV3Action struct {
 	Type      string                 `json:"type"`
 	Data      map[string]interface{} `json:"data"`
@@ -413,8 +413,8 @@ type migrateToV6PostBook struct {
 	Name  string                `json:"name"`
 	Notes []migrateToV6PostNote `json:"notes"`
 }
-type migrateToV6PreDnote map[string]migrateToV6PreBook
-type migrateToV6PostDnote map[string]migrateToV6PostBook
+type migrateToV6PreNAD map[string]migrateToV6PreBook
+type migrateToV6PostNAD map[string]migrateToV6PostBook
 
 // v7
 var migrateToV7ActionTypeEditNote = "edit_note"
@@ -460,7 +460,7 @@ type migrateToV8Book struct {
 	Name  string            `json:"name"`
 	Notes []migrateToV8Note `json:"notes"`
 }
-type migrateToV8Dnote map[string]migrateToV8Book
+type migrateToV8NAD map[string]migrateToV8Book
 type migrateToV8Timestamp struct {
 	LastUpgrade int64 `yaml:"last_upgrade"`
 	Bookmark    int   `yaml:"bookmark"`
@@ -474,8 +474,8 @@ var migrateToV8SystemKeyBookMark = "bookmark"
 /***** migrations **/
 
 // migrateToV1 deletes YAML archive if exists
-func migrateToV1(ctx context.DnoteCtx) error {
-	yamlPath := fmt.Sprintf("%s/%s", ctx.HomeDir, ".dnote-yaml-archived")
+func migrateToV1(ctx context.NADCtx) error {
+	yamlPath := fmt.Sprintf("%s/%s", ctx.HomeDir, ".nad-yaml-archived")
 	ok, err := utils.FileExists(yamlPath)
 	if err != nil {
 		return errors.Wrap(err, "checking if yaml file exists")
@@ -485,29 +485,29 @@ func migrateToV1(ctx context.DnoteCtx) error {
 	}
 
 	if err := os.Remove(yamlPath); err != nil {
-		return errors.Wrap(err, "Failed to delete .dnote archive")
+		return errors.Wrap(err, "Failed to delete .nad archive")
 	}
 
 	return nil
 }
 
-func migrateToV2(ctx context.DnoteCtx) error {
-	notePath := fmt.Sprintf("%s/dnote", ctx.DnoteDir)
+func migrateToV2(ctx context.NADCtx) error {
+	notePath := fmt.Sprintf("%s/nad", ctx.NADDir)
 
 	b, err := ioutil.ReadFile(notePath)
 	if err != nil {
 		return errors.Wrap(err, "Failed to read the note file")
 	}
 
-	var preDnote migrateToV2PreDnote
-	postDnote := migrateToV2PostDnote{}
+	var preNAD migrateToV2PreNAD
+	postNAD := migrateToV2PostNAD{}
 
-	err = json.Unmarshal(b, &preDnote)
+	err = json.Unmarshal(b, &preNAD)
 	if err != nil {
-		return errors.Wrap(err, "Failed to unmarshal existing dnote into JSON")
+		return errors.Wrap(err, "Failed to unmarshal existing nad into JSON")
 	}
 
-	for bookName, book := range preDnote {
+	for bookName, book := range preNAD {
 		var notes = make([]migrateToV2PostNote, 0, len(book))
 		for _, note := range book {
 			newNote := migrateToV2PostNote{
@@ -525,42 +525,42 @@ func migrateToV2(ctx context.DnoteCtx) error {
 			Notes: notes,
 		}
 
-		postDnote[bookName] = b
+		postNAD[bookName] = b
 	}
 
-	d, err := json.MarshalIndent(postDnote, "", "  ")
+	d, err := json.MarshalIndent(postNAD, "", "  ")
 	if err != nil {
-		return errors.Wrap(err, "Failed to marshal new dnote into JSON")
+		return errors.Wrap(err, "Failed to marshal new nad into JSON")
 	}
 
 	err = ioutil.WriteFile(notePath, d, 0644)
 	if err != nil {
-		return errors.Wrap(err, "Failed to write the new dnote into the file")
+		return errors.Wrap(err, "Failed to write the new nad into the file")
 	}
 
 	return nil
 }
 
-// migrateToV3 generates actions for existing dnote
-func migrateToV3(ctx context.DnoteCtx) error {
-	notePath := fmt.Sprintf("%s/dnote", ctx.DnoteDir)
-	actionsPath := fmt.Sprintf("%s/actions", ctx.DnoteDir)
+// migrateToV3 generates actions for existing nad
+func migrateToV3(ctx context.NADCtx) error {
+	notePath := fmt.Sprintf("%s/nad", ctx.NADDir)
+	actionsPath := fmt.Sprintf("%s/actions", ctx.NADDir)
 
 	b, err := ioutil.ReadFile(notePath)
 	if err != nil {
 		return errors.Wrap(err, "Failed to read the note file")
 	}
 
-	var dnote migrateToV3Dnote
+	var nad migrateToV3NAD
 
-	err = json.Unmarshal(b, &dnote)
+	err = json.Unmarshal(b, &nad)
 	if err != nil {
-		return errors.Wrap(err, "Failed to unmarshal existing dnote into JSON")
+		return errors.Wrap(err, "Failed to unmarshal existing nad into JSON")
 	}
 
 	var actions []migrateToV3Action
 
-	for bookName, book := range dnote {
+	for bookName, book := range nad {
 		// Find the minimum added_on timestamp from the notes that belong to the book
 		// to give timstamp to the add_book action.
 		// Logically add_book must have happened no later than the first add_note
@@ -629,8 +629,8 @@ func getEditorCommand() string {
 	}
 }
 
-func migrateToV4(ctx context.DnoteCtx) error {
-	configPath := fmt.Sprintf("%s/dnoterc", ctx.DnoteDir)
+func migrateToV4(ctx context.NADCtx) error {
+	configPath := fmt.Sprintf("%s/nadrc", ctx.NADDir)
 
 	b, err := ioutil.ReadFile(configPath)
 	if err != nil {
@@ -662,8 +662,8 @@ func migrateToV4(ctx context.DnoteCtx) error {
 }
 
 // migrateToV5 migrates actions
-func migrateToV5(ctx context.DnoteCtx) error {
-	actionsPath := fmt.Sprintf("%s/actions", ctx.DnoteDir)
+func migrateToV5(ctx context.NADCtx) error {
+	actionsPath := fmt.Sprintf("%s/actions", ctx.NADDir)
 
 	b, err := ioutil.ReadFile(actionsPath)
 	if err != nil {
@@ -727,23 +727,23 @@ func migrateToV5(ctx context.DnoteCtx) error {
 }
 
 // migrateToV6 adds a 'public' field to notes
-func migrateToV6(ctx context.DnoteCtx) error {
-	notePath := fmt.Sprintf("%s/dnote", ctx.DnoteDir)
+func migrateToV6(ctx context.NADCtx) error {
+	notePath := fmt.Sprintf("%s/nad", ctx.NADDir)
 
 	b, err := ioutil.ReadFile(notePath)
 	if err != nil {
 		return errors.Wrap(err, "Failed to read the note file")
 	}
 
-	var preDnote migrateToV6PreDnote
-	postDnote := migrateToV6PostDnote{}
+	var preNAD migrateToV6PreNAD
+	postNAD := migrateToV6PostNAD{}
 
-	err = json.Unmarshal(b, &preDnote)
+	err = json.Unmarshal(b, &preNAD)
 	if err != nil {
-		return errors.Wrap(err, "Failed to unmarshal existing dnote into JSON")
+		return errors.Wrap(err, "Failed to unmarshal existing nad into JSON")
 	}
 
-	for bookName, book := range preDnote {
+	for bookName, book := range preNAD {
 		var notes = make([]migrateToV6PostNote, 0, len(book.Notes))
 		public := false
 		for _, note := range book.Notes {
@@ -763,17 +763,17 @@ func migrateToV6(ctx context.DnoteCtx) error {
 			Notes: notes,
 		}
 
-		postDnote[bookName] = b
+		postNAD[bookName] = b
 	}
 
-	d, err := json.MarshalIndent(postDnote, "", "  ")
+	d, err := json.MarshalIndent(postNAD, "", "  ")
 	if err != nil {
-		return errors.Wrap(err, "Failed to marshal new dnote into JSON")
+		return errors.Wrap(err, "Failed to marshal new nad into JSON")
 	}
 
 	err = ioutil.WriteFile(notePath, d, 0644)
 	if err != nil {
-		return errors.Wrap(err, "Failed to write the new dnote into the file")
+		return errors.Wrap(err, "Failed to write the new nad into the file")
 	}
 
 	return nil
@@ -782,8 +782,8 @@ func migrateToV6(ctx context.DnoteCtx) error {
 // migrateToV7 migrates data of edit_note action to the proper version which is
 // EditNoteDataV2. Due to a bug, edit logged actions with schema version '2'
 // but with a data of EditNoteDataV1. https://github.com/nadproject/nad/pkg/cli/issues/107
-func migrateToV7(ctx context.DnoteCtx) error {
-	actionPath := fmt.Sprintf("%s/actions", ctx.DnoteDir)
+func migrateToV7(ctx context.NADCtx) error {
+	actionPath := fmt.Sprintf("%s/actions", ctx.NADDir)
 
 	b, err := ioutil.ReadFile(actionPath)
 	if err != nil {
@@ -845,27 +845,27 @@ func migrateToV7(ctx context.DnoteCtx) error {
 	return nil
 }
 
-// migrateToV8 migrates dnote data to sqlite database
-func migrateToV8(ctx context.DnoteCtx) error {
+// migrateToV8 migrates nad data to sqlite database
+func migrateToV8(ctx context.NADCtx) error {
 	tx, err := ctx.DB.Begin()
 	if err != nil {
 		return errors.Wrap(err, "beginning a transaction")
 	}
 
-	// 1. Migrate the the dnote file
-	dnoteFilePath := fmt.Sprintf("%s/dnote", ctx.DnoteDir)
-	b, err := ioutil.ReadFile(dnoteFilePath)
+	// 1. Migrate the the nad file
+	nadFilePath := fmt.Sprintf("%s/nad", ctx.NADDir)
+	b, err := ioutil.ReadFile(nadFilePath)
 	if err != nil {
 		return errors.Wrap(err, "reading the notes")
 	}
 
-	var dnote migrateToV8Dnote
-	err = json.Unmarshal(b, &dnote)
+	var nad migrateToV8NAD
+	err = json.Unmarshal(b, &nad)
 	if err != nil {
 		return errors.Wrap(err, "unmarshalling notes to JSON")
 	}
 
-	for bookName, book := range dnote {
+	for bookName, book := range nad {
 		bookUUID := uuid.NewV4().String()
 		_, err = tx.Exec(`INSERT INTO books (uuid, label) VALUES (?, ?)`, bookUUID, bookName)
 		if err != nil {
@@ -887,7 +887,7 @@ func migrateToV8(ctx context.DnoteCtx) error {
 	}
 
 	// 2. Migrate the actions file
-	actionsPath := fmt.Sprintf("%s/actions", ctx.DnoteDir)
+	actionsPath := fmt.Sprintf("%s/actions", ctx.NADDir)
 	b, err = ioutil.ReadFile(actionsPath)
 	if err != nil {
 		return errors.Wrap(err, "reading the actions")
@@ -912,7 +912,7 @@ func migrateToV8(ctx context.DnoteCtx) error {
 	}
 
 	// 3. Migrate the timestamps file
-	timestampsPath := fmt.Sprintf("%s/timestamps", ctx.DnoteDir)
+	timestampsPath := fmt.Sprintf("%s/timestamps", ctx.NADDir)
 	b, err = ioutil.ReadFile(timestampsPath)
 	if err != nil {
 		return errors.Wrap(err, "reading the timestamps")
@@ -945,8 +945,8 @@ func migrateToV8(ctx context.DnoteCtx) error {
 
 	tx.Commit()
 
-	if err := os.RemoveAll(dnoteFilePath); err != nil {
-		return errors.Wrap(err, "removing the old dnote file")
+	if err := os.RemoveAll(nadFilePath); err != nil {
+		return errors.Wrap(err, "removing the old nad file")
 	}
 	if err := os.RemoveAll(actionsPath); err != nil {
 		return errors.Wrap(err, "removing the actions file")
@@ -954,7 +954,7 @@ func migrateToV8(ctx context.DnoteCtx) error {
 	if err := os.RemoveAll(timestampsPath); err != nil {
 		return errors.Wrap(err, "removing the timestamps file")
 	}
-	schemaPath := fmt.Sprintf("%s/schema", ctx.DnoteDir)
+	schemaPath := fmt.Sprintf("%s/schema", ctx.NADDir)
 	if err := os.RemoveAll(schemaPath); err != nil {
 		return errors.Wrap(err, "removing the schema file")
 	}

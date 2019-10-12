@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 // Package ui provides the user interface for the program
@@ -34,10 +34,10 @@ import (
 
 // GetTmpContentPath returns the path to the temporary file containing
 // content being added or edited
-func GetTmpContentPath(ctx context.DnoteCtx) (string, error) {
+func GetTmpContentPath(ctx context.NADCtx) (string, error) {
 	for i := 0; ; i++ {
 		filename := fmt.Sprintf("%s_%d.%s", consts.TmpContentFileBase, i, consts.TmpContentFileExt)
-		candidate := fmt.Sprintf("%s/%s", ctx.DnoteDir, filename)
+		candidate := fmt.Sprintf("%s/%s", ctx.NADDir, filename)
 
 		ok, err := utils.FileExists(candidate)
 		if err != nil {
@@ -78,7 +78,7 @@ func getEditorCommand() string {
 	return ret
 }
 
-func newEditorCmd(ctx context.DnoteCtx, fpath string) (*exec.Cmd, error) {
+func newEditorCmd(ctx context.NADCtx, fpath string) (*exec.Cmd, error) {
 	args := strings.Fields(ctx.Editor)
 	args = append(args, fpath)
 
@@ -87,7 +87,7 @@ func newEditorCmd(ctx context.DnoteCtx, fpath string) (*exec.Cmd, error) {
 
 // GetEditorInput gets the user input by launching a text editor and waiting for
 // it to exit
-func GetEditorInput(ctx context.DnoteCtx, fpath string) (string, error) {
+func GetEditorInput(ctx context.NADCtx, fpath string) (string, error) {
 	ok, err := utils.FileExists(fpath)
 	if err != nil {
 		return "", errors.Wrapf(err, "checking if the file exists at %s", fpath)

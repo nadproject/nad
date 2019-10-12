@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package ui
@@ -38,7 +38,7 @@ func TestGetTmpContentPath(t *testing.T) {
 			t.Fatal(errors.Wrap(err, "executing"))
 		}
 
-		expected := fmt.Sprintf("%s/%s", ctx.DnoteDir, "DNOTE_TMPCONTENT_0.md")
+		expected := fmt.Sprintf("%s/%s", ctx.NADDir, "DNOTE_TMPCONTENT_0.md")
 		assert.Equal(t, res, expected, "filename did not match")
 	})
 
@@ -47,7 +47,7 @@ func TestGetTmpContentPath(t *testing.T) {
 		ctx := context.InitTestCtx(t, "../tmp2", nil)
 		defer context.TeardownTestCtx(t, ctx)
 
-		p := fmt.Sprintf("%s/%s", ctx.DnoteDir, "DNOTE_TMPCONTENT_0.md")
+		p := fmt.Sprintf("%s/%s", ctx.NADDir, "DNOTE_TMPCONTENT_0.md")
 		if _, err := os.Create(p); err != nil {
 			t.Fatal(errors.Wrap(err, "preparing the conflicting file"))
 		}
@@ -59,7 +59,7 @@ func TestGetTmpContentPath(t *testing.T) {
 		}
 
 		// test
-		expected := fmt.Sprintf("%s/%s", ctx.DnoteDir, "DNOTE_TMPCONTENT_1.md")
+		expected := fmt.Sprintf("%s/%s", ctx.NADDir, "DNOTE_TMPCONTENT_1.md")
 		assert.Equal(t, res, expected, "filename did not match")
 	})
 
@@ -68,11 +68,11 @@ func TestGetTmpContentPath(t *testing.T) {
 		ctx := context.InitTestCtx(t, "../tmp3", nil)
 		defer context.TeardownTestCtx(t, ctx)
 
-		p1 := fmt.Sprintf("%s/%s", ctx.DnoteDir, "DNOTE_TMPCONTENT_0.md")
+		p1 := fmt.Sprintf("%s/%s", ctx.NADDir, "DNOTE_TMPCONTENT_0.md")
 		if _, err := os.Create(p1); err != nil {
 			t.Fatal(errors.Wrap(err, "preparing the conflicting file"))
 		}
-		p2 := fmt.Sprintf("%s/%s", ctx.DnoteDir, "DNOTE_TMPCONTENT_1.md")
+		p2 := fmt.Sprintf("%s/%s", ctx.NADDir, "DNOTE_TMPCONTENT_1.md")
 		if _, err := os.Create(p2); err != nil {
 			t.Fatal(errors.Wrap(err, "preparing the conflicting file"))
 		}
@@ -84,7 +84,7 @@ func TestGetTmpContentPath(t *testing.T) {
 		}
 
 		// test
-		expected := fmt.Sprintf("%s/%s", ctx.DnoteDir, "DNOTE_TMPCONTENT_2.md")
+		expected := fmt.Sprintf("%s/%s", ctx.NADDir, "DNOTE_TMPCONTENT_2.md")
 		assert.Equal(t, res, expected, "filename did not match")
 	})
 }
