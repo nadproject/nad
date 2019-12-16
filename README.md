@@ -4,6 +4,4 @@ NAD is a simple notebook for developers. It is forked from [Dnote](https://githu
 
 ## What is NAD?
 
-NAD is a lightweight CLI notebook. The main design goal is to **keep you focused** by providing a way of swiftly capturing new information **without having to switch environment**.
-
-It also offers a seamless **multi device sync**, and **end-to-end encrypted backup**.
+NAD (NAD Ain't Dnote) is a lightweight CLI notebook. It supports synchronization and a web application with search. It also supports zero knowledge encryption.
