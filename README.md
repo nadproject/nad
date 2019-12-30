@@ -13,7 +13,7 @@ NAD is a simple notebook for developers. It is forked from [Dnote](https://githu
 
 CLI
 
-```
+```sh
 # launches $EDITOR which saves a note on quit
 nad add --book=php
 
@@ -32,3 +32,14 @@ tag = ["myTag1"]
 my note content
 ```
 
+Encryption will be done by specifying a path to key. The key path can be provided in the config file `~/.nad/config` or as a flag.
+
+```sh
+# encrypts the note with id 123
+nad encrypt 123 --key=/my/key/path
+
+# decrypts the note with id 123
+nad decrypt 123 --key=/my/key/path
+```
+
+The benefit is that the user enjoys total privacy for some notes that they want to keep private. The server has zero knowledge of the encrypted data.
