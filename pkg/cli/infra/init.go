@@ -76,16 +76,14 @@ func Init(apiEndpoint, versionTag string) (*context.NadCtx, error) {
 	if err := InitFiles(ctx, apiEndpoint); err != nil {
 		return nil, errors.Wrap(err, "initializing files")
 	}
-
 	if err := InitDB(ctx); err != nil {
 		return nil, errors.Wrap(err, "initializing database")
 	}
-	if err := InitSystem(ctx); err != nil {
-		return nil, errors.Wrap(err, "initializing system data")
-	}
-
 	if err := migrate.Run(ctx, migrate.LocalSequence, migrate.LocalMode); err != nil {
 		return nil, errors.Wrap(err, "running migration")
+	}
+	if err := InitSystem(ctx); err != nil {
+		return nil, errors.Wrap(err, "initializing system data")
 	}
 
 	ctx, err = SetupCtx(ctx)
@@ -159,70 +157,6 @@ func getHomeDir() (string, error) {
 	}
 
 	return usr.HomeDir, nil
-}
-
-// InitDB initializes the database.
-// Ideally this process must be a part of migration sequence. But it is performed
-// seaprately because it is a prerequisite for legacy migration.
-func InitDB(ctx context.NadCtx) error {
-	log.Debug("initializing the database\n")
-
-	db := ctx.DB
-
-	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS notes
-		(
-			id integer PRIMARY KEY AUTOINCREMENT,
-			uuid text NOT NULL,
-			book_uuid text NOT NULL,
-			content text NOT NULL,
-			added_on integer NOT NULL,
-			edited_on integer DEFAULT 0,
-			public bool DEFAULT false
-		)`)
-	if err != nil {
-		return errors.Wrap(err, "creating notes table")
-	}
-
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS books
-		(
-			uuid text PRIMARY KEY,
-			label text NOT NULL
-		)`)
-	if err != nil {
-		return errors.Wrap(err, "creating books table")
-	}
-
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS system
-		(
-			key string NOT NULL,
-			value text NOT NULL
-		)`)
-	if err != nil {
-		return errors.Wrap(err, "creating system table")
-	}
-
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS actions
-		(
-			uuid text PRIMARY KEY,
-			schema integer NOT NULL,
-			type text NOT NULL,
-			data text NOT NULL,
-			timestamp integer NOT NULL
-		)`)
-	if err != nil {
-		return errors.Wrap(err, "creating actions table")
-	}
-
-	_, err = db.Exec(`
-		CREATE UNIQUE INDEX IF NOT EXISTS idx_books_label ON books(label);
-		CREATE UNIQUE INDEX IF NOT EXISTS idx_notes_uuid ON notes(uuid);
-		CREATE UNIQUE INDEX IF NOT EXISTS idx_books_uuid ON books(uuid);
-		CREATE INDEX IF NOT EXISTS idx_notes_book_uuid ON notes(book_uuid);`)
-	if err != nil {
-		return errors.Wrap(err, "creating indices")
-	}
-
-	return nil
 }
 
 func initSystemKV(db *database.DB, key string, val string) error {
@@ -352,6 +286,24 @@ func InitFiles(ctx context.NadCtx, apiEndpoint string) error {
 	}
 	if err := initConfigFile(ctx, apiEndpoint); err != nil {
 		return errors.Wrap(err, "generating the config file")
+	}
+
+	return nil
+}
+
+// InitDB initializes the minimal database schema for fresh installations
+func InitDB(ctx context.NadCtx) error {
+	log.Debug("initializing the database\n")
+
+	db := ctx.DB
+
+	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS system
+		(
+			key string NOT NULL,
+			value text NOT NULL
+		)`)
+	if err != nil {
+		return errors.Wrap(err, "creating system table")
 	}
 
 	return nil

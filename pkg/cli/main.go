@@ -21,19 +21,17 @@ package main
 import (
 	"os"
 
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/nadproject/nad/pkg/cli/infra"
 	"github.com/nadproject/nad/pkg/cli/log"
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/pkg/errors"
 
 	// commands
 	"github.com/nadproject/nad/pkg/cli/cmd/add"
-	"github.com/nadproject/nad/pkg/cli/cmd/cat"
 	"github.com/nadproject/nad/pkg/cli/cmd/edit"
 	"github.com/nadproject/nad/pkg/cli/cmd/find"
 	"github.com/nadproject/nad/pkg/cli/cmd/login"
 	"github.com/nadproject/nad/pkg/cli/cmd/logout"
-	"github.com/nadproject/nad/pkg/cli/cmd/ls"
 	"github.com/nadproject/nad/pkg/cli/cmd/remove"
 	"github.com/nadproject/nad/pkg/cli/cmd/root"
 	"github.com/nadproject/nad/pkg/cli/cmd/sync"
@@ -57,10 +55,8 @@ func main() {
 	root.Register(login.NewCmd(*ctx))
 	root.Register(logout.NewCmd(*ctx))
 	root.Register(add.NewCmd(*ctx))
-	root.Register(ls.NewCmd(*ctx))
 	root.Register(sync.NewCmd(*ctx))
 	root.Register(version.NewCmd(*ctx))
-	root.Register(cat.NewCmd(*ctx))
 	root.Register(view.NewCmd(*ctx))
 	root.Register(find.NewCmd(*ctx))
 

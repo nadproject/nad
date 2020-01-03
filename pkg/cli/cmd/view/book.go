@@ -16,7 +16,7 @@
  * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package ls
+package view
 
 import (
 	"database/sql"
@@ -24,67 +24,9 @@ import (
 	"strings"
 
 	"github.com/nadproject/nad/pkg/cli/context"
-	"github.com/nadproject/nad/pkg/cli/infra"
 	"github.com/nadproject/nad/pkg/cli/log"
 	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
 )
-
-var example = `
- * List all books
- nad ls
-
- * List notes in a book
- nad ls javascript
- `
-
-var deprecationWarning = `and "view" will replace it in the future version.
-
-Run "nad view --help" for more information.
-`
-
-func preRun(cmd *cobra.Command, args []string) error {
-	if len(args) > 1 {
-		return errors.New("Incorrect number of argument")
-	}
-
-	return nil
-}
-
-// NewCmd returns a new ls command
-func NewCmd(ctx context.NadCtx) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:        "ls <book name?>",
-		Aliases:    []string{"l", "notes"},
-		Short:      "List all notes",
-		Example:    example,
-		RunE:       NewRun(ctx, false),
-		PreRunE:    preRun,
-		Deprecated: deprecationWarning,
-	}
-
-	return cmd
-}
-
-// NewRun returns a new run function for ls
-func NewRun(ctx context.NadCtx, nameOnly bool) infra.RunEFunc {
-	return func(cmd *cobra.Command, args []string) error {
-		if len(args) == 0 {
-			if err := printBooks(ctx, nameOnly); err != nil {
-				return errors.Wrap(err, "viewing books")
-			}
-
-			return nil
-		}
-
-		bookName := args[0]
-		if err := printNotes(ctx, bookName); err != nil {
-			return errors.Wrapf(err, "viewing book '%s'", bookName)
-		}
-
-		return nil
-	}
-}
 
 // bookInfo is an information about the book to be printed on screen
 type bookInfo struct {
@@ -166,7 +108,7 @@ func printBooks(ctx context.NadCtx, nameOnly bool) error {
 	return nil
 }
 
-func printNotes(ctx context.NadCtx, bookName string) error {
+func printBookNotes(ctx context.NadCtx, bookName string) error {
 	db := ctx.DB
 
 	var bookUUID string

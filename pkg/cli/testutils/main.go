@@ -130,8 +130,8 @@ func NewNADCmd(opts RunNADCmdOptions, binaryName string, arg ...string) (*exec.C
 
 // RunNADCmdOptions is an option for RunNADCmd
 type RunNADCmdOptions struct {
-	NADDir string
-	HomeDir  string
+	NADDir  string
+	HomeDir string
 }
 
 // RunNADCmd runs a nad command
@@ -144,7 +144,7 @@ func RunNADCmd(t *testing.T, opts RunNADCmdOptions, binaryName string, arg ...st
 		t.Fatal(errors.Wrap(err, "getting command").Error())
 	}
 
-	cmd.Env = append(cmd.Env, "DNOTE_DEBUG=1")
+	cmd.Env = append(cmd.Env, "NAD_DEBUG=1")
 
 	if err := cmd.Run(); err != nil {
 		t.Logf("\n%s", stdout)

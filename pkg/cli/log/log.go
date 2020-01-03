@@ -104,9 +104,9 @@ func Askf(msg string, masked bool, v ...interface{}) {
 	fmt.Fprintf(color.Output, "%s%s %s: ", indent, symbol, fmt.Sprintf(msg, v...))
 }
 
-// Debug prints to the console if DNOTE_DEBUG is set
+// Debug prints to the console if NAD_DEBUG is set
 func Debug(msg string, v ...interface{}) {
-	if os.Getenv("DNOTE_DEBUG") == "1" {
+	if os.Getenv("NAD_DEBUG") == "1" {
 		fmt.Fprintf(color.Output, "%s %s", ColorGray.Sprint("DEBUG:"), fmt.Sprintf(msg, v...))
 	}
 }

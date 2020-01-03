@@ -34,7 +34,9 @@ const (
 )
 
 // LocalSequence is a list of local migrations to be run
-var LocalSequence = []migration{}
+var LocalSequence = []migration{
+	lm1,
+}
 
 // RemoteSequence is a list of remote migrations to be run
 var RemoteSequence = []migration{}

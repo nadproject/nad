@@ -24,8 +24,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/nadproject/nad/pkg/cli/cmd/cat"
-	"github.com/nadproject/nad/pkg/cli/cmd/ls"
 	"github.com/nadproject/nad/pkg/cli/utils"
 )
 
@@ -53,7 +51,7 @@ func preRun(cmd *cobra.Command, args []string) error {
 // NewCmd returns a new view command
 func NewCmd(ctx context.NadCtx) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "view <book name?> <note index?>",
+		Use:     "view <note index?>",
 		Aliases: []string{"v"},
 		Short:   "List books, notes or view a content",
 		Example: example,
@@ -69,27 +67,20 @@ func NewCmd(ctx context.NadCtx) *cobra.Command {
 
 func newRun(ctx context.NadCtx) infra.RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
-		var run infra.RunEFunc
-
 		if len(args) == 0 {
-			run = ls.NewRun(ctx, nameOnly)
+			return printBooks(ctx, nameOnly)
 		} else if len(args) == 1 {
 			if nameOnly {
 				return errors.New("--name-only flag is only valid when viewing books")
 			}
 
 			if utils.IsNumber(args[0]) {
-				run = cat.NewRun(ctx)
+				return printNote(ctx, args[0])
 			} else {
-				run = ls.NewRun(ctx, false)
+				return printBookNotes(ctx, args[0])
 			}
-		} else if len(args) == 2 {
-			// DEPRECATED: passing book name to view command is deprecated
-			run = cat.NewRun(ctx)
-		} else {
-			return errors.New("Incorrect number of arguments")
 		}
 
-		return run(cmd, args)
+		return errors.New("Incorrect number of arguments")
 	}
 }
