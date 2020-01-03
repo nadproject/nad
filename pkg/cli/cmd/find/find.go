@@ -52,7 +52,7 @@ func preRun(cmd *cobra.Command, args []string) error {
 }
 
 // NewCmd returns a new remove command
-func NewCmd(ctx context.NADCtx) *cobra.Command {
+func NewCmd(ctx context.NadCtx) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "find",
 		Short:   "Find notes by keywords",
@@ -130,7 +130,7 @@ func escapePhrase(s string) (string, error) {
 	return b.String(), nil
 }
 
-func doQuery(ctx context.NADCtx, query, bookName string) (*sql.Rows, error) {
+func doQuery(ctx context.NadCtx, query, bookName string) (*sql.Rows, error) {
 	db := ctx.DB
 
 	sql := `SELECT
@@ -153,7 +153,7 @@ func doQuery(ctx context.NADCtx, query, bookName string) (*sql.Rows, error) {
 	return rows, err
 }
 
-func newRun(ctx context.NADCtx) infra.RunEFunc {
+func newRun(ctx context.NadCtx) infra.RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		phrase, err := escapePhrase(args[0])
 		if err != nil {

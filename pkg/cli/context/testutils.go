@@ -28,12 +28,12 @@ import (
 )
 
 // InitTestCtx initializes a test context
-func InitTestCtx(t *testing.T, nadDir string, dbOpts *database.TestDBOptions) NADCtx {
+func InitTestCtx(t *testing.T, nadDir string, dbOpts *database.TestDBOptions) NadCtx {
 	dbPath := fmt.Sprintf("%s/%s", nadDir, consts.NADDBFileName)
 
 	db := database.InitTestDB(t, dbPath, dbOpts)
 
-	return NADCtx{
+	return NadCtx{
 		DB:       db,
 		NADDir: nadDir,
 		// Use a mock clock to test times
@@ -42,6 +42,6 @@ func InitTestCtx(t *testing.T, nadDir string, dbOpts *database.TestDBOptions) NA
 }
 
 // TeardownTestCtx cleans up the test context
-func TeardownTestCtx(t *testing.T, ctx NADCtx) {
+func TeardownTestCtx(t *testing.T, ctx NadCtx) {
 	database.CloseTestDB(t, ctx.DB)
 }

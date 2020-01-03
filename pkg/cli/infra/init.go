@@ -43,31 +43,31 @@ import (
 // RunEFunc is a function type of nad commands
 type RunEFunc func(*cobra.Command, []string) error
 
-func newCtx(versionTag string) (context.NADCtx, error) {
+func newCtx(versionTag string) (context.NadCtx, error) {
 	homeDir, err := getHomeDir()
 	if err != nil {
-		return context.NADCtx{}, errors.Wrap(err, "Failed to get home dir")
+		return context.NadCtx{}, errors.Wrap(err, "Failed to get home dir")
 	}
 	nadDir := getNADDir(homeDir)
 
 	nadDBPath := fmt.Sprintf("%s/%s", nadDir, consts.NADDBFileName)
 	db, err := database.Open(nadDBPath)
 	if err != nil {
-		return context.NADCtx{}, errors.Wrap(err, "conntecting to db")
+		return context.NadCtx{}, errors.Wrap(err, "conntecting to db")
 	}
 
-	ctx := context.NADCtx{
-		HomeDir:  homeDir,
-		NADDir: nadDir,
-		Version:  versionTag,
-		DB:       db,
+	ctx := context.NadCtx{
+		HomeDir: homeDir,
+		NADDir:  nadDir,
+		Version: versionTag,
+		DB:      db,
 	}
 
 	return ctx, nil
 }
 
 // Init initializes the NAD environment and returns a new nad context
-func Init(apiEndpoint, versionTag string) (*context.NADCtx, error) {
+func Init(apiEndpoint, versionTag string) (*context.NadCtx, error) {
 	ctx, err := newCtx(versionTag)
 	if err != nil {
 		return nil, errors.Wrap(err, "initializing a context")
@@ -84,9 +84,6 @@ func Init(apiEndpoint, versionTag string) (*context.NADCtx, error) {
 		return nil, errors.Wrap(err, "initializing system data")
 	}
 
-	if err := migrate.Legacy(ctx); err != nil {
-		return nil, errors.Wrap(err, "running legacy migration")
-	}
 	if err := migrate.Run(ctx, migrate.LocalSequence, migrate.LocalMode); err != nil {
 		return nil, errors.Wrap(err, "running migration")
 	}
@@ -102,7 +99,7 @@ func Init(apiEndpoint, versionTag string) (*context.NADCtx, error) {
 }
 
 // SetupCtx populates the context and returns a new context
-func SetupCtx(ctx context.NADCtx) (context.NADCtx, error) {
+func SetupCtx(ctx context.NadCtx) (context.NadCtx, error) {
 	db := ctx.DB
 
 	var sessionKey string
@@ -122,9 +119,9 @@ func SetupCtx(ctx context.NADCtx) (context.NADCtx, error) {
 		return ctx, errors.Wrap(err, "reading config")
 	}
 
-	ret := context.NADCtx{
+	ret := context.NadCtx{
 		HomeDir:          ctx.HomeDir,
-		NADDir:         ctx.NADDir,
+		NADDir:           ctx.NADDir,
 		Version:          ctx.Version,
 		DB:               ctx.DB,
 		SessionKey:       sessionKey,
@@ -167,7 +164,7 @@ func getHomeDir() (string, error) {
 // InitDB initializes the database.
 // Ideally this process must be a part of migration sequence. But it is performed
 // seaprately because it is a prerequisite for legacy migration.
-func InitDB(ctx context.NADCtx) error {
+func InitDB(ctx context.NadCtx) error {
 	log.Debug("initializing the database\n")
 
 	db := ctx.DB
@@ -247,7 +244,7 @@ func initSystemKV(db *database.DB, key string, val string) error {
 }
 
 // InitSystem inserts system data if missing
-func InitSystem(ctx context.NADCtx) error {
+func InitSystem(ctx context.NadCtx) error {
 	log.Debug("initializing the system\n")
 
 	db := ctx.DB
@@ -305,7 +302,7 @@ func getEditorCommand() string {
 }
 
 // initNADDir initializes nad directory if it does not exist yet
-func initNADDir(ctx context.NADCtx) error {
+func initNADDir(ctx context.NadCtx) error {
 	path := ctx.NADDir
 
 	ok, err := utils.FileExists(path)
@@ -324,7 +321,7 @@ func initNADDir(ctx context.NADCtx) error {
 }
 
 // initConfigFile populates a new config file if it does not exist yet
-func initConfigFile(ctx context.NADCtx, apiEndpoint string) error {
+func initConfigFile(ctx context.NadCtx, apiEndpoint string) error {
 	path := config.GetPath(ctx)
 	ok, err := utils.FileExists(path)
 	if err != nil {
@@ -349,7 +346,7 @@ func initConfigFile(ctx context.NADCtx, apiEndpoint string) error {
 }
 
 // InitFiles creates, if necessary, the nad directory and files inside
-func InitFiles(ctx context.NADCtx, apiEndpoint string) error {
+func InitFiles(ctx context.NadCtx, apiEndpoint string) error {
 	if err := initNADDir(ctx); err != nil {
 		return errors.Wrap(err, "creating the nad dir")
 	}

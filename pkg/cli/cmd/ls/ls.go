@@ -52,7 +52,7 @@ func preRun(cmd *cobra.Command, args []string) error {
 }
 
 // NewCmd returns a new ls command
-func NewCmd(ctx context.NADCtx) *cobra.Command {
+func NewCmd(ctx context.NadCtx) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:        "ls <book name?>",
 		Aliases:    []string{"l", "notes"},
@@ -67,7 +67,7 @@ func NewCmd(ctx context.NADCtx) *cobra.Command {
 }
 
 // NewRun returns a new run function for ls
-func NewRun(ctx context.NADCtx, nameOnly bool) infra.RunEFunc {
+func NewRun(ctx context.NadCtx, nameOnly bool) infra.RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
 			if err := printBooks(ctx, nameOnly); err != nil {
@@ -134,7 +134,7 @@ func printBookLine(info bookInfo, nameOnly bool) {
 	}
 }
 
-func printBooks(ctx context.NADCtx, nameOnly bool) error {
+func printBooks(ctx context.NadCtx, nameOnly bool) error {
 	db := ctx.DB
 
 	rows, err := db.Query(`SELECT books.label, count(notes.uuid) note_count
@@ -166,7 +166,7 @@ func printBooks(ctx context.NADCtx, nameOnly bool) error {
 	return nil
 }
 
-func printNotes(ctx context.NADCtx, bookName string) error {
+func printNotes(ctx context.NadCtx, bookName string) error {
 	db := ctx.DB
 
 	var bookUUID string

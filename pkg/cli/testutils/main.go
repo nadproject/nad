@@ -40,7 +40,7 @@ import (
 )
 
 // Login simulates a logged in user by inserting credentials in the local database
-func Login(t *testing.T, ctx *context.NADCtx) {
+func Login(t *testing.T, ctx *context.NadCtx) {
 	db := ctx.DB
 
 	database.MustExec(t, "inserting sessionKey", db, "INSERT INTO system (key, value) VALUES (?, ?)", consts.SystemSessionKey, "someSessionKey")
@@ -58,7 +58,7 @@ func RemoveDir(t *testing.T, dir string) {
 }
 
 // CopyFixture writes the content of the given fixture to the filename inside the nad dir
-func CopyFixture(t *testing.T, ctx context.NADCtx, fixturePath string, filename string) {
+func CopyFixture(t *testing.T, ctx context.NadCtx, fixturePath string, filename string) {
 	fp, err := filepath.Abs(fixturePath)
 	if err != nil {
 		t.Fatal(errors.Wrap(err, "getting the absolute path for fixture"))
@@ -76,7 +76,7 @@ func CopyFixture(t *testing.T, ctx context.NADCtx, fixturePath string, filename 
 }
 
 // WriteFile writes a file with the given content and  filename inside the nad dir
-func WriteFile(ctx context.NADCtx, content []byte, filename string) {
+func WriteFile(ctx context.NadCtx, content []byte, filename string) {
 	dp, err := filepath.Abs(filepath.Join(ctx.NADDir, filename))
 	if err != nil {
 		panic(err)
@@ -88,7 +88,7 @@ func WriteFile(ctx context.NADCtx, content []byte, filename string) {
 }
 
 // ReadFile reads the content of the file with the given name in nad dir
-func ReadFile(ctx context.NADCtx, filename string) []byte {
+func ReadFile(ctx context.NadCtx, filename string) []byte {
 	path := filepath.Join(ctx.NADDir, filename)
 
 	b, err := ioutil.ReadFile(path)

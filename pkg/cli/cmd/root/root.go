@@ -24,7 +24,7 @@ import (
 
 var root = &cobra.Command{
 	Use:           "nad",
-	Short:         "NAD - Instantly capture what you learn while coding",
+	Short:         "nad - a simple command line notebook",
 	SilenceErrors: true,
 	SilenceUsage:  true,
 }

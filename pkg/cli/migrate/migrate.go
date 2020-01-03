@@ -34,27 +34,12 @@ const (
 )
 
 // LocalSequence is a list of local migrations to be run
-var LocalSequence = []migration{
-	lm1,
-	lm2,
-	lm3,
-	lm4,
-	lm5,
-	lm6,
-	lm7,
-	lm8,
-	lm9,
-	lm10,
-	lm11,
-	lm12,
-}
+var LocalSequence = []migration{}
 
 // RemoteSequence is a list of remote migrations to be run
-var RemoteSequence = []migration{
-	rm1,
-}
+var RemoteSequence = []migration{}
 
-func initSchema(ctx context.NADCtx, schemaKey string) (int, error) {
+func initSchema(ctx context.NadCtx, schemaKey string) (int, error) {
 	// schemaVersion is the index of the latest run migration in the sequence
 	schemaVersion := 0
 
@@ -79,7 +64,7 @@ func getSchemaKey(mode int) (string, error) {
 	return "", errors.Errorf("unsupported migration type '%d'", mode)
 }
 
-func getSchema(ctx context.NADCtx, schemaKey string) (int, error) {
+func getSchema(ctx context.NadCtx, schemaKey string) (int, error) {
 	var ret int
 
 	db := ctx.DB
@@ -97,7 +82,7 @@ func getSchema(ctx context.NADCtx, schemaKey string) (int, error) {
 	return ret, nil
 }
 
-func execute(ctx context.NADCtx, m migration, schemaKey string) error {
+func execute(ctx context.NadCtx, m migration, schemaKey string) error {
 	log.Debug("running migration %s\n", m.name)
 
 	tx, err := ctx.DB.Begin()
@@ -130,7 +115,7 @@ func execute(ctx context.NADCtx, m migration, schemaKey string) error {
 }
 
 // Run performs unrun migrations
-func Run(ctx context.NADCtx, migrations []migration, mode int) error {
+func Run(ctx context.NadCtx, migrations []migration, mode int) error {
 	schemaKey, err := getSchemaKey(mode)
 	if err != nil {
 		return errors.Wrap(err, "getting schema key")

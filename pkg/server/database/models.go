@@ -32,33 +32,31 @@ type Model struct {
 // Book is a model for a book
 type Book struct {
 	Model
-	UUID      string `json:"uuid" gorm:"index;type:uuid;default:uuid_generate_v4()"`
-	UserID    int    `json:"user_id" gorm:"index"`
-	Label     string `json:"label" gorm:"index"`
-	Notes     []Note `json:"notes" gorm:"foreignkey:book_uuid"`
-	AddedOn   int64  `json:"added_on"`
-	EditedOn  int64  `json:"edited_on"`
-	USN       int    `json:"-" gorm:"index"`
-	Deleted   bool   `json:"-" gorm:"default:false"`
-	Encrypted bool   `json:"-" gorm:"default:false"`
+	UUID     string `json:"uuid" gorm:"index;type:uuid;default:uuid_generate_v4()"`
+	UserID   int    `json:"user_id" gorm:"index"`
+	Label    string `json:"label" gorm:"index"`
+	Notes    []Note `json:"notes" gorm:"foreignkey:book_uuid"`
+	AddedOn  int64  `json:"added_on"`
+	EditedOn int64  `json:"edited_on"`
+	USN      int    `json:"-" gorm:"index"`
+	Deleted  bool   `json:"-" gorm:"default:false"`
 }
 
 // Note is a model for a note
 type Note struct {
 	Model
-	UUID      string `json:"uuid" gorm:"index;type:uuid;default:uuid_generate_v4()"`
-	Book      Book   `json:"book" gorm:"foreignkey:BookUUID"`
-	User      User   `json:"user"`
-	UserID    int    `json:"user_id" gorm:"index"`
-	BookUUID  string `json:"book_uuid" gorm:"index;type:uuid"`
-	Body      string `json:"content"`
-	AddedOn   int64  `json:"added_on"`
-	EditedOn  int64  `json:"edited_on"`
-	TSV       string `json:"-" gorm:"type:tsvector"`
-	Public    bool   `json:"public" gorm:"default:false"`
-	USN       int    `json:"-" gorm:"index"`
-	Deleted   bool   `json:"-" gorm:"default:false"`
-	Encrypted bool   `json:"-" gorm:"default:false"`
+	UUID     string `json:"uuid" gorm:"index;type:uuid;default:uuid_generate_v4()"`
+	Book     Book   `json:"book" gorm:"foreignkey:BookUUID"`
+	User     User   `json:"user"`
+	UserID   int    `json:"user_id" gorm:"index"`
+	BookUUID string `json:"book_uuid" gorm:"index;type:uuid"`
+	Body     string `json:"content"`
+	AddedOn  int64  `json:"added_on"`
+	EditedOn int64  `json:"edited_on"`
+	TSV      string `json:"-" gorm:"type:tsvector"`
+	Public   bool   `json:"public" gorm:"default:false"`
+	USN      int    `json:"-" gorm:"index"`
+	Deleted  bool   `json:"-" gorm:"default:false"`
 }
 
 // User is a model for a user
@@ -71,9 +69,6 @@ type User struct {
 	LastLoginAt      *time.Time `json:"-"`
 	MaxUSN           int        `json:"-" gorm:"default:0"`
 	Cloud            bool       `json:"-" gorm:"default:false"`
-	APIKey           string     `json:"-" gorm:"index"`                 // Deprecated
-	Name             string     `json:"name"`                           // Deprecated
-	Encrypted        bool       `json:"encrypted" gorm:"default:false"` // Deprecated
 }
 
 // Account is a model for an account

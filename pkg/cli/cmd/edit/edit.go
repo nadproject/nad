@@ -49,7 +49,7 @@ var example = `
 `
 
 // NewCmd returns a new edit command
-func NewCmd(ctx context.NADCtx) *cobra.Command {
+func NewCmd(ctx context.NadCtx) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "edit <note id|book name>",
 		Short:   "Edit a note or a book",
@@ -75,7 +75,7 @@ func preRun(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func newRun(ctx context.NADCtx) infra.RunEFunc {
+func newRun(ctx context.NadCtx) infra.RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		// DEPRECATED: Remove in 1.0.0
 		if len(args) == 2 {

@@ -36,7 +36,7 @@ var example = `
   nad login`
 
 // NewCmd returns a new login command
-func NewCmd(ctx context.NADCtx) *cobra.Command {
+func NewCmd(ctx context.NadCtx) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "login",
 		Short:   "Login to nad server",
@@ -48,7 +48,7 @@ func NewCmd(ctx context.NADCtx) *cobra.Command {
 }
 
 // Do dervies credentials on the client side and requests a session token from the server
-func Do(ctx context.NADCtx, email, password string) error {
+func Do(ctx context.NadCtx, email, password string) error {
 	signinResp, err := client.Signin(ctx, email, password)
 	if err != nil {
 		return errors.Wrap(err, "requesting session")
@@ -72,7 +72,7 @@ func Do(ctx context.NADCtx, email, password string) error {
 	return nil
 }
 
-func newRun(ctx context.NADCtx) infra.RunEFunc {
+func newRun(ctx context.NadCtx) infra.RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		log.Plain("Welcome to NAD Pro (https://www.getnad.com).\n")
 

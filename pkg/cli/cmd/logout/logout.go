@@ -38,7 +38,7 @@ var example = `
   nad logout`
 
 // NewCmd returns a new logout command
-func NewCmd(ctx context.NADCtx) *cobra.Command {
+func NewCmd(ctx context.NadCtx) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "logout",
 		Short:   "Logout from the server",
@@ -50,7 +50,7 @@ func NewCmd(ctx context.NADCtx) *cobra.Command {
 }
 
 // Do performs logout
-func Do(ctx context.NADCtx) error {
+func Do(ctx context.NadCtx) error {
 	db := ctx.DB
 	tx, err := db.Begin()
 	if err != nil {
@@ -82,7 +82,7 @@ func Do(ctx context.NADCtx) error {
 	return nil
 }
 
-func newRun(ctx context.NADCtx) infra.RunEFunc {
+func newRun(ctx context.NadCtx) infra.RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		err := Do(ctx)
 		if err == ErrNotLoggedIn {

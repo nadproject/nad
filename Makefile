@@ -6,7 +6,7 @@ COMPILEDAEMON := $(shell command -v CompileDaemon 2> /dev/null)
 
 serverOutputDir = ${GOPATH}/src/github.com/nadproject/nad/build/server
 cliOutputDir = ${GOPATH}/src/github.com/nadproject/nad/build/cli
-cliHomebrewDir = ${GOPATH}/src/github.com/nad/homebrew-nad
+cliHomebrewDir = ${GOPATH}/src/github.com/nadproject/homebrew-nad
 
 ## installation
 install: install-go install-js

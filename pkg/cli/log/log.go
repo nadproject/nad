@@ -20,7 +20,7 @@ package log
 
 import (
 	"fmt"
-	"github.com/nad/color"
+	"github.com/nadproject/color"
 	"os"
 )
 

@@ -45,7 +45,7 @@ var example = `
 `
 
 // NewCmd returns a new remove command
-func NewCmd(ctx context.NADCtx) *cobra.Command {
+func NewCmd(ctx context.NadCtx) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "remove <note id|book name>",
 		Short:   "Remove a note or a book",
@@ -80,7 +80,7 @@ func maybeConfirm(message string, defaultValue bool) (bool, error) {
 	return ui.Confirm(message, defaultValue)
 }
 
-func newRun(ctx context.NADCtx) infra.RunEFunc {
+func newRun(ctx context.NadCtx) infra.RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		// DEPRECATED: Remove in 1.0.0
 		if bookFlag != "" {
@@ -119,7 +119,7 @@ func newRun(ctx context.NADCtx) infra.RunEFunc {
 	}
 }
 
-func runNote(ctx context.NADCtx, rowIDArg string) error {
+func runNote(ctx context.NadCtx, rowIDArg string) error {
 	db := ctx.DB
 
 	noteRowID, err := strconv.Atoi(rowIDArg)
@@ -164,7 +164,7 @@ func runNote(ctx context.NADCtx, rowIDArg string) error {
 	return nil
 }
 
-func runBook(ctx context.NADCtx, bookLabel string) error {
+func runBook(ctx context.NadCtx, bookLabel string) error {
 	db := ctx.DB
 
 	bookUUID, err := database.GetBookUUID(db, bookLabel)

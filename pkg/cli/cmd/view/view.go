@@ -51,7 +51,7 @@ func preRun(cmd *cobra.Command, args []string) error {
 }
 
 // NewCmd returns a new view command
-func NewCmd(ctx context.NADCtx) *cobra.Command {
+func NewCmd(ctx context.NadCtx) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "view <book name?> <note index?>",
 		Aliases: []string{"v"},
@@ -67,7 +67,7 @@ func NewCmd(ctx context.NADCtx) *cobra.Command {
 	return cmd
 }
 
-func newRun(ctx context.NADCtx) infra.RunEFunc {
+func newRun(ctx context.NadCtx) infra.RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		var run infra.RunEFunc
 

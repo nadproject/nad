@@ -36,7 +36,7 @@ import (
 var upgradeInterval int64 = 86400 * 7 * 3
 
 // shouldCheckUpdate checks if update should be checked
-func shouldCheckUpdate(ctx context.NADCtx) (bool, error) {
+func shouldCheckUpdate(ctx context.NadCtx) (bool, error) {
 	db := ctx.DB
 
 	var lastUpgrade int64
@@ -50,7 +50,7 @@ func shouldCheckUpdate(ctx context.NADCtx) (bool, error) {
 	return now-lastUpgrade > upgradeInterval, nil
 }
 
-func touchLastUpgrade(ctx context.NADCtx) error {
+func touchLastUpgrade(ctx context.NadCtx) error {
 	db := ctx.DB
 
 	now := time.Now().Unix()
@@ -87,7 +87,7 @@ func fetchLatestStableTag(gh *github.Client, page int) (string, error) {
 	return fetchLatestStableTag(gh, page+1)
 }
 
-func checkVersion(ctx context.NADCtx) error {
+func checkVersion(ctx context.NadCtx) error {
 	log.Infof("current version is %s\n", ctx.Version)
 
 	// Fetch the latest version
@@ -111,7 +111,7 @@ func checkVersion(ctx context.NADCtx) error {
 }
 
 // Check triggers update if needed
-func Check(ctx context.NADCtx) error {
+func Check(ctx context.NadCtx) error {
 	shouldCheck, err := shouldCheckUpdate(ctx)
 	if err != nil {
 		return errors.Wrap(err, "checking if nad should check update")

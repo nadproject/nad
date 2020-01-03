@@ -53,11 +53,11 @@ func preRun(cmd *cobra.Command, args []string) error {
 }
 
 // NewCmd returns a new add command
-func NewCmd(ctx context.NADCtx) *cobra.Command {
+func NewCmd(ctx context.NadCtx) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "add <book>",
 		Short:   "Add a new note",
-		Aliases: []string{"a", "n", "new"},
+		Aliases: []string{"a"},
 		Example: example,
 		PreRunE: preRun,
 		RunE:    newRun(ctx),
@@ -69,7 +69,7 @@ func NewCmd(ctx context.NADCtx) *cobra.Command {
 	return cmd
 }
 
-func getContent(ctx context.NADCtx) (string, error) {
+func getContent(ctx context.NadCtx) (string, error) {
 	if contentFlag != "" {
 		return contentFlag, nil
 	}
@@ -87,7 +87,7 @@ func getContent(ctx context.NADCtx) (string, error) {
 	return c, nil
 }
 
-func newRun(ctx context.NADCtx) infra.RunEFunc {
+func newRun(ctx context.NadCtx) infra.RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		bookName := args[0]
 		if err := validate.BookName(bookName); err != nil {
@@ -126,7 +126,7 @@ func newRun(ctx context.NADCtx) infra.RunEFunc {
 	}
 }
 
-func writeNote(ctx context.NADCtx, bookLabel string, content string, ts int64) (int, error) {
+func writeNote(ctx context.NadCtx, bookLabel string, content string, ts int64) (int, error) {
 	tx, err := ctx.DB.Begin()
 	if err != nil {
 		return 0, errors.Wrap(err, "beginning a transaction")

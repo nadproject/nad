@@ -41,7 +41,7 @@ func validateRunBookFlags() error {
 	return nil
 }
 
-func waitEditorBookName(ctx context.NADCtx) (string, error) {
+func waitEditorBookName(ctx context.NadCtx) (string, error) {
 	fpath, err := ui.GetTmpContentPath(ctx)
 	if err != nil {
 		return "", errors.Wrap(err, "getting temporarily content file path")
@@ -59,7 +59,7 @@ func waitEditorBookName(ctx context.NADCtx) (string, error) {
 	return c, nil
 }
 
-func getName(ctx context.NADCtx) (string, error) {
+func getName(ctx context.NadCtx) (string, error) {
 	if nameFlag != "" {
 		return nameFlag, nil
 	}
@@ -72,7 +72,7 @@ func getName(ctx context.NADCtx) (string, error) {
 	return c, nil
 }
 
-func runBook(ctx context.NADCtx, bookName string) error {
+func runBook(ctx context.NadCtx, bookName string) error {
 	err := validateRunBookFlags()
 	if err != nil {
 		return errors.Wrap(err, "validating flags.")

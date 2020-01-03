@@ -24,22 +24,23 @@ import (
 	"github.com/nadproject/nad/pkg/clock"
 )
 
-// NADCtx is a context holding the information of the current runtime
-type NADCtx struct {
+// NadCtx is a context holding the information of the current runtime
+type NadCtx struct {
 	HomeDir          string
-	NADDir         string
+	NADDir           string
 	APIEndpoint      string
 	Version          string
 	DB               *database.DB
 	SessionKey       string
 	SessionKeyExpiry int64
+	CipherKey        []byte
 	Editor           string
 	Clock            clock.Clock
 }
 
 // Redact replaces private information from the context with a set of
 // placeholder values.
-func Redact(ctx NADCtx) NADCtx {
+func Redact(ctx NadCtx) NadCtx {
 	var sessionKey string
 	if ctx.SessionKey != "" {
 		sessionKey = "1"

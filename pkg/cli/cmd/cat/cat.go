@@ -49,7 +49,7 @@ func preRun(cmd *cobra.Command, args []string) error {
 }
 
 // NewCmd returns a new cat command
-func NewCmd(ctx context.NADCtx) *cobra.Command {
+func NewCmd(ctx context.NadCtx) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:        "cat <book name> <note index>",
 		Aliases:    []string{"c"},
@@ -64,7 +64,7 @@ func NewCmd(ctx context.NADCtx) *cobra.Command {
 }
 
 // NewRun returns a new run function
-func NewRun(ctx context.NADCtx) infra.RunEFunc {
+func NewRun(ctx context.NadCtx) infra.RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		var noteRowIDArg string
 

@@ -61,7 +61,7 @@ DNOTE_DEBUG=1 nad sync
 
 * Run `make version=v0.1.0 release-cli` to achieve the following:
   * Build for all target platforms, create a git tag, push all tags to the repository
-  * Create a release on GitHub and [NAD Homebrew tap](https://github.com/nad/homebrew-nad).
+  * Create a release on GitHub and [NAD Homebrew tap](https://github.com/nadproject/homebrew-nad).
 
 **Note**
 

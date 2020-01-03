@@ -34,7 +34,7 @@ import (
 
 // GetTmpContentPath returns the path to the temporary file containing
 // content being added or edited
-func GetTmpContentPath(ctx context.NADCtx) (string, error) {
+func GetTmpContentPath(ctx context.NadCtx) (string, error) {
 	for i := 0; ; i++ {
 		filename := fmt.Sprintf("%s_%d.%s", consts.TmpContentFileBase, i, consts.TmpContentFileExt)
 		candidate := fmt.Sprintf("%s/%s", ctx.NADDir, filename)
@@ -78,7 +78,7 @@ func getEditorCommand() string {
 	return ret
 }
 
-func newEditorCmd(ctx context.NADCtx, fpath string) (*exec.Cmd, error) {
+func newEditorCmd(ctx context.NadCtx, fpath string) (*exec.Cmd, error) {
 	args := strings.Fields(ctx.Editor)
 	args = append(args, fpath)
 
@@ -87,7 +87,7 @@ func newEditorCmd(ctx context.NADCtx, fpath string) (*exec.Cmd, error) {
 
 // GetEditorInput gets the user input by launching a text editor and waiting for
 // it to exit
-func GetEditorInput(ctx context.NADCtx, fpath string) (string, error) {
+func GetEditorInput(ctx context.NadCtx, fpath string) (string, error) {
 	ok, err := utils.FileExists(fpath)
 	if err != nil {
 		return "", errors.Wrapf(err, "checking if the file exists at %s", fpath)

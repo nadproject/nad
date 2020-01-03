@@ -35,12 +35,12 @@ type Config struct {
 }
 
 // GetPath returns the path to the nad config file
-func GetPath(ctx context.NADCtx) string {
+func GetPath(ctx context.NadCtx) string {
 	return fmt.Sprintf("%s/%s", ctx.NADDir, consts.ConfigFilename)
 }
 
 // Read reads the config file
-func Read(ctx context.NADCtx) (Config, error) {
+func Read(ctx context.NadCtx) (Config, error) {
 	var ret Config
 
 	configPath := GetPath(ctx)
@@ -58,7 +58,7 @@ func Read(ctx context.NADCtx) (Config, error) {
 }
 
 // Write writes the config to the config file
-func Write(ctx context.NADCtx, cf Config) error {
+func Write(ctx context.NadCtx, cf Config) error {
 	path := GetPath(ctx)
 
 	b, err := yaml.Marshal(cf)

@@ -25,7 +25,7 @@ var (
 	// NADDBFileName is a filename for the NAD SQLite database
 	NADDBFileName = "nad.db"
 	// TmpContentFileBase is the base for the filename for a temporary content
-	TmpContentFileBase = "DNOTE_TMPCONTENT"
+	TmpContentFileBase = "NAD_TMPCONTENT"
 	// TmpContentFileExt is the extension for the temporary content file
 	TmpContentFileExt = "md"
 	// ConfigFilename is the name of the config file

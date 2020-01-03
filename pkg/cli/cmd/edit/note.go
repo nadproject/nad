@@ -39,7 +39,7 @@ func validateRunNoteFlags() error {
 	return nil
 }
 
-func waitEditorNoteContent(ctx context.NADCtx, note database.Note) (string, error) {
+func waitEditorNoteContent(ctx context.NadCtx, note database.Note) (string, error) {
 	fpath, err := ui.GetTmpContentPath(ctx)
 	if err != nil {
 		return "", errors.Wrap(err, "getting temporarily content file path")
@@ -57,7 +57,7 @@ func waitEditorNoteContent(ctx context.NADCtx, note database.Note) (string, erro
 	return c, nil
 }
 
-func getContent(ctx context.NADCtx, note database.Note) (string, error) {
+func getContent(ctx context.NadCtx, note database.Note) (string, error) {
 	if contentFlag != "" {
 		return contentFlag, nil
 	}
@@ -70,7 +70,7 @@ func getContent(ctx context.NADCtx, note database.Note) (string, error) {
 	return c, nil
 }
 
-func changeContent(ctx context.NADCtx, tx *database.DB, note database.Note, content string) error {
+func changeContent(ctx context.NadCtx, tx *database.DB, note database.Note, content string) error {
 	if note.Body == content {
 		return errors.New("Nothing changed")
 	}
@@ -82,7 +82,7 @@ func changeContent(ctx context.NADCtx, tx *database.DB, note database.Note, cont
 	return nil
 }
 
-func moveBook(ctx context.NADCtx, tx *database.DB, note database.Note, bookName string) error {
+func moveBook(ctx context.NadCtx, tx *database.DB, note database.Note, bookName string) error {
 	targetBookUUID, err := database.GetBookUUID(tx, bookName)
 	if err != nil {
 		return errors.Wrap(err, "finding book uuid")
@@ -99,7 +99,7 @@ func moveBook(ctx context.NADCtx, tx *database.DB, note database.Note, bookName 
 	return nil
 }
 
-func updateNote(ctx context.NADCtx, tx *database.DB, note database.Note, bookName, content string) error {
+func updateNote(ctx context.NadCtx, tx *database.DB, note database.Note, bookName, content string) error {
 	if bookName != "" {
 		if err := moveBook(ctx, tx, note, bookName); err != nil {
 			return errors.Wrap(err, "moving book")
@@ -114,7 +114,7 @@ func updateNote(ctx context.NADCtx, tx *database.DB, note database.Note, bookNam
 	return nil
 }
 
-func runNote(ctx context.NADCtx, rowIDArg string) error {
+func runNote(ctx context.NadCtx, rowIDArg string) error {
 	err := validateRunNoteFlags()
 	if err != nil {
 		return errors.Wrap(err, "validating flags.")

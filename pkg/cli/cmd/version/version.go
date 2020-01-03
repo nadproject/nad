@@ -26,7 +26,7 @@ import (
 )
 
 // NewCmd returns a new version command
-func NewCmd(ctx context.NADCtx) *cobra.Command {
+func NewCmd(ctx context.NadCtx) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "version",
 		Short: "Print the version number of NAD",
