@@ -96,7 +96,7 @@ build-web:
 	@(cd ${GOPATH}/src/github.com/nadproject/nad/web && ./scripts/build-prod.sh)
 .PHONY: build-web
 
-build-server: build-web
+build-server:
 ifndef version
 	$(error version is required. Usage: make version=0.1.0 build-server)
 endif

@@ -10,6 +10,7 @@ require (
 	github.com/google/go-cmp v0.2.0
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect
+	github.com/google/uuid v1.1.1
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/gorilla/mux v1.7.2
 	github.com/jinzhu/gorm v1.9.9
@@ -22,6 +23,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.10.0
 	github.com/nadproject/color v1.7.0
 	github.com/pkg/errors v0.8.1
+	github.com/radovskyb/watcher v1.0.7
 	github.com/robfig/cron v1.2.0
 	github.com/rubenv/sql-migrate v0.0.0-20190618074426-f4d34eae5a5c
 	github.com/satori/go.uuid v1.2.0

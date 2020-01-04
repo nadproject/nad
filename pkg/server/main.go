@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of NAD.
+ * This file is part of Dnote.
  *
- * NAD is free software: you can redistribute it and/or modify
+ * Dnote is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * NAD is distributed in the hope that it will be useful,
+ * Dnote is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
+ * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package main
@@ -25,20 +25,20 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/jinzhu/gorm"
 	"github.com/nadproject/nad/pkg/clock"
-	"github.com/nadproject/nad/pkg/server/api/handlers"
+	"github.com/nadproject/nad/pkg/server/app"
 	"github.com/nadproject/nad/pkg/server/database"
-	"github.com/nadproject/nad/pkg/server/job"
+	"github.com/nadproject/nad/pkg/server/dbconn"
+	"github.com/nadproject/nad/pkg/server/handlers"
 	"github.com/nadproject/nad/pkg/server/mailer"
 
 	"github.com/gobuffalo/packr/v2"
-	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 )
 
 var versionTag = "master"
 var port = flag.String("port", "3000", "port to connect to")
-
 var rootBox *packr.Box
 
 func init() {
@@ -54,100 +54,72 @@ func mustFind(box *packr.Box, path string) []byte {
 	return b
 }
 
-func getStaticHandler() http.Handler {
-	box := packr.New("static", "../../web/public/static")
-
-	return http.StripPrefix("/static/", http.FileServer(box))
-}
-
-// getRootHandler returns an HTTP handler that serves the app shell
-func getRootHandler() http.HandlerFunc {
-	b := mustFind(rootBox, "index.html")
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Cache-Control", "no-cache")
-		w.Write(b)
+func initServer(a app.App) (*http.ServeMux, error) {
+	api := handlers.API{App: &a}
+	apiRouter, err := api.NewRouter()
+	if err != nil {
+		return nil, errors.Wrap(err, "initializing router")
 	}
+
+	mux := http.NewServeMux()
+	mux.Handle("/api/", http.StripPrefix("/api", apiRouter))
+
+	return mux, nil
 }
 
-func getRobotsHandler() http.HandlerFunc {
-	b := mustFind(rootBox, "robots.txt")
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Cache-Control", "no-cache")
-		w.Write(b)
-	}
-}
-
-func getSWHandler() http.HandlerFunc {
-	b := mustFind(rootBox, "service-worker.js")
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Cache-Control", "no-cache")
-		w.Header().Set("Content-Type", "application/javascript")
-		w.Write(b)
-	}
-}
-
-func initServer() *mux.Router {
-	srv := mux.NewRouter()
-
-	apiRouter := handlers.NewRouter(&handlers.App{
-		Clock:            clock.New(),
-		StripeAPIBackend: nil,
-	})
-
-	srv.PathPrefix("/api").Handler(http.StripPrefix("/api", apiRouter))
-	srv.PathPrefix("/static").Handler(getStaticHandler())
-	srv.Handle("/service-worker.js", getSWHandler())
-	srv.Handle("/robots.txt", getRobotsHandler())
-
-	// For all other requests, serve the index.html file
-	srv.PathPrefix("/").Handler(getRootHandler())
-
-	return srv
-}
-
-func startCmd() {
-	c := database.Config{
+func initDB() *gorm.DB {
+	db := dbconn.Open(dbconn.Config{
 		Host:     os.Getenv("DBHost"),
 		Port:     os.Getenv("DBPort"),
 		Name:     os.Getenv("DBName"),
 		User:     os.Getenv("DBUser"),
 		Password: os.Getenv("DBPassword"),
+	})
+	database.InitSchema(db)
+
+	return db
+}
+
+func initApp() app.App {
+	db := initDB()
+
+	return app.App{
+		DB:               db,
+		Clock:            clock.New(),
+		StripeAPIBackend: nil,
+		EmailTemplates:   mailer.NewTemplates(nil),
+		EmailBackend:     &mailer.SimpleBackendImplementation{},
+		Config: app.Config{
+			WebURL:              os.Getenv("WebURL"),
+			OnPremise:           true,
+			DisableRegistration: os.Getenv("DisableRegistration") == "true",
+		},
 	}
-	database.Open(c)
-	database.InitSchema()
-	defer database.Close()
+}
 
-	mailer.InitTemplates(nil)
+func startCmd() {
+	app := initApp()
+	defer app.DB.Close()
 
-	// Perform database migration
-	if err := database.Migrate(); err != nil {
+	if err := database.Migrate(app.DB); err != nil {
 		panic(errors.Wrap(err, "running migrations"))
 	}
 
-	// Run job in the background
-	go job.Run()
+	srv, err := initServer(app)
+	if err != nil {
+		panic(errors.Wrap(err, "initializing server"))
+	}
 
-	srv := initServer()
-
-	log.Printf("NAD version %s is running on port %s", versionTag, *port)
-	addr := fmt.Sprintf(":%s", *port)
-	log.Println(http.ListenAndServe(addr, srv))
+	log.Printf("nad version %s is running on port %s", versionTag, *port)
+	log.Fatalln(http.ListenAndServe(":"+*port, srv))
 }
 
 func versionCmd() {
 	fmt.Printf("nad-server-%s\n", versionTag)
 }
 
-func main() {
-	flag.Parse()
-	cmd := flag.Arg(0)
-
-	switch cmd {
-	case "":
-		fmt.Printf(`NAD Server - A simple notebook for developers
+func rootCmd() {
+	fmt.Printf(`nad server - A simple notebook for developers
 
 Usage:
   nad-server [command]
@@ -156,6 +128,15 @@ Available commands:
   start: Start the server
   version: Print the version
 `)
+}
+
+func main() {
+	flag.Parse()
+	cmd := flag.Arg(0)
+
+	switch cmd {
+	case "":
+		rootCmd()
 	case "start":
 		startCmd()
 	case "version":

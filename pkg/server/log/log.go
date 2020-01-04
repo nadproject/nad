@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of NAD.
+ * This file is part of nad.
  *
- * NAD is free software: you can redistribute it and/or modify
+ * nad is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * NAD is distributed in the hope that it will be useful,
+ * nad is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
+ * along with nad.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 // Package log provides interfaces to write structured logs

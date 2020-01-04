@@ -2,7 +2,15 @@ main
 *.swo
 tmp/
 /vendor
-test-nad
+test-dnote
 /dist
 /build
 server
+
+# Elastic Beanstalk Files
+/tmp
+application.zip
+test-api
+/dump
+api
+/build
