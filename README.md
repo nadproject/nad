@@ -9,6 +9,13 @@ NAD is a simple notebook for developers. It is forked from [Dnote](https://githu
 - [ ] Optional encryption on CLI using PGP
 - [ ] Note title, tag
 
+## Design goal
+
+The goal is to build and maintain a stable software that favors function over form.
+
+- Simple command line interface with only the essential commands
+- Minimalist, traditional server-rendered web interface with no front-end JavaScript framework.
+
 ## Example
 
 CLI
