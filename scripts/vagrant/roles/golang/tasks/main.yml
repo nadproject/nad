@@ -1,0 +1,26 @@
+---
+- name: Check if golang is already installed.
+  stat:
+    path: /usr/local/go
+  register: godir
+
+- name: Download Golang
+  unarchive:
+    src:  "https://dl.google.com/go/go{{ golang_version }}.linux-amd64.tar.gz"
+    dest: /usr/local
+    remote_src: true
+  when: not godir.stat.exists
+
+- name: Add symlinks from /usr/local/go/bin to /usr/bin
+  file:
+    src: /usr/local/go/bin/{{ item }}
+    dest: /usr/bin/{{ item }}
+    state: link
+  loop:
+    - go
+    - gofmt
+
+- name: Set GOPATH for all users
+  copy:
+    src: go-path.sh
+    dest: /etc/profile.d

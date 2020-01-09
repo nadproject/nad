@@ -1,0 +1,4 @@
+---
+dbname: default
+dbuser: postgres
+dbpassword:
