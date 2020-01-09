@@ -41,15 +41,12 @@ type Session struct {
 	Classic       bool   `json:"classic"`
 }
 
-func makeSession(user database.User, account database.Account) Session {
-	classic := account.AuthKeyHash != ""
-
+func makeSession(user database.User) Session {
 	return Session{
 		UUID:          user.UUID,
-		Pro:           user.Cloud,
-		Email:         account.Email.String,
-		EmailVerified: account.EmailVerified,
-		Classic:       classic,
+		Pro:           user.Pro,
+		Email:         user.Email,
+		EmailVerified: user.EmailVerified,
 	}
 }
 
@@ -60,13 +57,7 @@ func (a *API) getMe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var account database.Account
-	if err := a.App.DB.Where("user_id = ?", user.ID).First(&account).Error; err != nil {
-		HandleError(w, "finding account", err, http.StatusInternalServerError)
-		return
-	}
-
-	session := makeSession(user, account)
+	session := makeSession(user)
 
 	response := struct {
 		User Session `json:"user"`
@@ -96,8 +87,8 @@ func (a *API) createResetToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var account database.Account
-	conn := a.App.DB.Where("email = ?", params.Email).First(&account)
+	var user database.User
+	conn := a.App.DB.Where("email = ?", params.Email).First(&user)
 	if conn.RecordNotFound() {
 		return
 	}
@@ -106,18 +97,13 @@ func (a *API) createResetToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if account.AuthKeyHash != "" {
-		http.Error(w, "Please migrate your account from nad classic before resetting password", http.StatusBadRequest)
-		return
-	}
-
-	resetToken, err := token.Create(a.App.DB, account.UserID, database.TokenTypeResetPassword)
+	resetToken, err := token.Create(a.App.DB, user.ID, database.TokenTypeResetPassword)
 	if err != nil {
 		HandleError(w, errors.Wrap(err, "generating token").Error(), nil, http.StatusInternalServerError)
 		return
 	}
 
-	if err := a.App.SendPasswordResetEmail(account.Email.String, resetToken.Value); err != nil {
+	if err := a.App.SendPasswordResetEmail(user.Email, resetToken.Value); err != nil {
 		if errors.Cause(err) == mailer.ErrSMTPNotConfigured {
 			respondInvalidSMTPConfig(w)
 		} else {
@@ -171,14 +157,14 @@ func (a *API) resetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var account database.Account
-	if err := a.App.DB.Where("user_id = ?", token.UserID).First(&account).Error; err != nil {
+	var user database.User
+	if err := a.App.DB.Where("user_id = ?", token.UserID).First(&user).Error; err != nil {
 		tx.Rollback()
 		HandleError(w, errors.Wrap(err, "finding user").Error(), nil, http.StatusInternalServerError)
 		return
 	}
 
-	if err := tx.Model(&account).Update("password", string(hashedPassword)).Error; err != nil {
+	if err := tx.Model(&user).Update("password", string(hashedPassword)).Error; err != nil {
 		tx.Rollback()
 		HandleError(w, errors.Wrap(err, "updating password").Error(), nil, http.StatusInternalServerError)
 		return
@@ -191,15 +177,9 @@ func (a *API) resetPassword(w http.ResponseWriter, r *http.Request) {
 
 	tx.Commit()
 
-	var user database.User
-	if err := a.App.DB.Where("id = ?", account.UserID).First(&user).Error; err != nil {
-		HandleError(w, errors.Wrap(err, "finding user").Error(), nil, http.StatusInternalServerError)
-		return
-	}
-
 	a.respondWithSession(a.App.DB, w, user.ID, http.StatusOK)
 
-	if err := a.App.SendPasswordResetAlertEmail(account.Email.String); err != nil {
+	if err := a.App.SendPasswordResetAlertEmail(user.Email); err != nil {
 		log.ErrorWrap(err, "sending password reset email")
 	}
 }

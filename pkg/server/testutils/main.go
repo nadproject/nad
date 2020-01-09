@@ -32,9 +32,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jinzhu/gorm"
 	"github.com/nadproject/nad/pkg/server/database"
 	"github.com/nadproject/nad/pkg/server/dbconn"
-	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"github.com/stripe/stripe-go"
 	"golang.org/x/crypto/bcrypt"
@@ -76,9 +76,6 @@ func ClearData() {
 	if err := DB.Delete(&database.User{}).Error; err != nil {
 		panic(errors.Wrap(err, "Failed to clear users"))
 	}
-	if err := DB.Delete(&database.Account{}).Error; err != nil {
-		panic(errors.Wrap(err, "Failed to clear accounts"))
-	}
 	if err := DB.Delete(&database.Token{}).Error; err != nil {
 		panic(errors.Wrap(err, "Failed to clear tokens"))
 	}
@@ -88,83 +85,25 @@ func ClearData() {
 	if err := DB.Delete(&database.Session{}).Error; err != nil {
 		panic(errors.Wrap(err, "Failed to clear sessions"))
 	}
-	if err := DB.Delete(&database.Digest{}).Error; err != nil {
-		panic(errors.Wrap(err, "Failed to clear digests"))
-	}
-	if err := DB.Delete(&database.DigestNote{}).Error; err != nil {
-		panic(errors.Wrap(err, "Failed to clear digests"))
-	}
-	if err := DB.Delete(&database.DigestReceipt{}).Error; err != nil {
-		panic(errors.Wrap(err, "Failed to clear digest receipts"))
-	}
-	if err := DB.Delete(&database.RepetitionRule{}).Error; err != nil {
-		panic(errors.Wrap(err, "Failed to clear repetition rules"))
-	}
-	if err := DB.Delete(&database.NoteReview{}).Error; err != nil {
-		panic(errors.Wrap(err, "Failed to clear note review"))
-	}
 }
 
 // SetupUserData creates and returns a new user for testing purposes
-func SetupUserData() database.User {
+func SetupUserData(email, password string) database.User {
 	user := database.User{
-		APIKey: "test-api-key",
-		Name:   "user-name",
-		Cloud:  true,
-	}
-
-	if err := DB.Save(&user).Error; err != nil {
-		panic(errors.Wrap(err, "Failed to prepare user"))
-	}
-
-	return user
-}
-
-// SetupAccountData creates and returns a new account for the user
-func SetupAccountData(user database.User, email, password string) database.Account {
-	account := database.Account{
-		UserID: user.ID,
-	}
-	if email != "" {
-		account.Email = database.ToNullString(email)
+		Pro: true,
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		panic(errors.Wrap(err, "Failed to hash password"))
 	}
-	account.Password = database.ToNullString(string(hashedPassword))
+	user.Password = string(hashedPassword)
 
-	if err := DB.Save(&account).Error; err != nil {
-		panic(errors.Wrap(err, "Failed to prepare account"))
+	if err := DB.Save(&user).Error; err != nil {
+		panic(errors.Wrap(err, "Failed to prepare user"))
 	}
 
-	return account
-}
-
-// SetupClassicAccountData creates and returns a new account for the user
-func SetupClassicAccountData(user database.User, email string) database.Account {
-	// email: alice@example.com
-	// password: pass1234
-	// masterKey: WbUvagj9O6o1Z+4+7COjo7Uqm4MD2QE9EWFXne8+U+8=
-	// authKey: /XCYisXJ6/o+vf6NUEtmrdYzJYPz+T9oAUCtMpOjhzc=
-	account := database.Account{
-		UserID:             user.ID,
-		Salt:               "Et0joOigYjdgHBKMN/ijxg==",
-		AuthKeyHash:        "SeN3PMz4H/7q9lINB+VPKpygexAuK68wO8pDAgQ4OOQ=",
-		CipherKeyEnc:       "f7aFFCh7YS1WlHEOxAmDfs8rUQQoX5tr8AB7ZJQaTYCEM8NhAZCbQTsjFgKOf5iPQhhkm8eDAgPNTuhO",
-		ClientKDFIteration: 100000,
-		ServerKDFIteration: 100000,
-	}
-	if email != "" {
-		account.Email = database.ToNullString(email)
-	}
-
-	if err := DB.Save(&account).Error; err != nil {
-		panic(errors.Wrap(err, "Failed to prepare account"))
-	}
-
-	return account
+	return user
 }
 
 // SetupSession creates and returns a new user session

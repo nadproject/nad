@@ -26,12 +26,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gorilla/mux"
+	"github.com/jinzhu/gorm"
 	"github.com/nadproject/nad/pkg/server/app"
 	"github.com/nadproject/nad/pkg/server/database"
 	"github.com/nadproject/nad/pkg/server/helpers"
 	"github.com/nadproject/nad/pkg/server/log"
-	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"github.com/stripe/stripe-go"
 )
@@ -198,7 +198,7 @@ func (a *API) auth(next http.HandlerFunc, p *AuthMiddlewareParams) http.HandlerF
 		}
 
 		if p != nil && p.ProOnly {
-			if !user.Cloud {
+			if !user.Pro {
 				respondForbidden(w)
 				return
 			}
@@ -236,7 +236,7 @@ func (a *API) tokenAuth(next http.HandlerFunc, tokenType string, p *AuthMiddlewa
 		}
 
 		if p != nil && p.ProOnly {
-			if !user.Cloud {
+			if !user.Pro {
 				respondForbidden(w)
 				return
 			}
@@ -351,36 +351,20 @@ func (a *API) NewRouter() (*mux.Router, error) {
 		{"GET", "/notes", a.auth(a.getNotes, nil), false},
 		{"GET", "/notes/{noteUUID}", a.getNote, true},
 		{"GET", "/calendar", a.auth(a.getCalendar, nil), true},
-		{"GET", "/repetition_rules", a.auth(a.getRepetitionRules, nil), true},
-		{"GET", "/repetition_rules/{repetitionRuleUUID}", a.tokenAuth(a.getRepetitionRule, database.TokenTypeRepetition, &proOnly), true},
-		{"POST", "/repetition_rules", a.auth(a.createRepetitionRule, &proOnly), true},
-		{"PATCH", "/repetition_rules/{repetitionRuleUUID}", a.tokenAuth(a.updateRepetitionRule, database.TokenTypeRepetition, &proOnly), true},
-		{"DELETE", "/repetition_rules/{repetitionRuleUUID}", a.auth(a.deleteRepetitionRule, &proOnly), true},
-		{"GET", "/digests/{digestUUID}", a.auth(a.getDigest, nil), true},
-		{"GET", "/digests", a.auth(a.getDigests, nil), true},
-		{"POST", "/note_review", a.auth(a.createNoteReview, nil), true},
-		{"DELETE", "/note_review/{noteReviewUUID}", a.auth(a.deleteNoteReview, nil), true},
-
-		// migration of classic users
-		{"GET", "/classic/presignin", cors(a.classicPresignin), true},
-		{"POST", "/classic/signin", cors(a.classicSignin), true},
-		{"PATCH", "/classic/migrate", a.auth(a.classicMigrate, &proOnly), true},
-		{"GET", "/classic/notes", a.auth(a.classicGetNotes, nil), true},
-		{"PATCH", "/classic/set-password", a.auth(a.classicSetPassword, nil), true},
 
 		// v3
-		{"GET", "/v3/sync/fragment", cors(a.auth(a.GetSyncFragment, nil)), false},
-		{"GET", "/v3/sync/state", cors(a.auth(a.GetSyncState, nil)), false},
+		{"GET", "/v3/sync/fragment", cors(a.auth(a.GetSyncFragment, &proOnly)), false},
+		{"GET", "/v3/sync/state", cors(a.auth(a.GetSyncState, &proOnly)), false},
 		{"OPTIONS", "/v3/books", cors(a.BooksOptions), true},
 		{"GET", "/v3/books", cors(a.auth(a.GetBooks, nil)), true},
 		{"GET", "/v3/books/{bookUUID}", cors(a.auth(a.GetBook, nil)), true},
-		{"POST", "/v3/books", cors(a.auth(a.CreateBook, nil)), false},
-		{"PATCH", "/v3/books/{bookUUID}", cors(a.auth(a.UpdateBook, nil)), false},
-		{"DELETE", "/v3/books/{bookUUID}", cors(a.auth(a.DeleteBook, nil)), false},
+		{"POST", "/v3/books", cors(a.auth(a.CreateBook, &proOnly)), false},
+		{"PATCH", "/v3/books/{bookUUID}", cors(a.auth(a.UpdateBook, &proOnly)), false},
+		{"DELETE", "/v3/books/{bookUUID}", cors(a.auth(a.DeleteBook, &proOnly)), false},
 		{"OPTIONS", "/v3/notes", cors(a.NotesOptions), true},
-		{"POST", "/v3/notes", cors(a.auth(a.CreateNote, nil)), false},
-		{"PATCH", "/v3/notes/{noteUUID}", a.auth(a.UpdateNote, nil), false},
-		{"DELETE", "/v3/notes/{noteUUID}", a.auth(a.DeleteNote, nil), false},
+		{"POST", "/v3/notes", cors(a.auth(a.CreateNote, &proOnly)), false},
+		{"PATCH", "/v3/notes/{noteUUID}", a.auth(a.UpdateNote, &proOnly), false},
+		{"DELETE", "/v3/notes/{noteUUID}", a.auth(a.DeleteNote, &proOnly), false},
 		{"POST", "/v3/signin", cors(a.signin), true},
 		{"OPTIONS", "/v3/signout", cors(a.signoutOptions), true},
 		{"POST", "/v3/signout", cors(a.signout), true},

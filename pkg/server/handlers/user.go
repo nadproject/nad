@@ -23,13 +23,13 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/jinzhu/gorm"
 	"github.com/nadproject/nad/pkg/server/database"
 	"github.com/nadproject/nad/pkg/server/helpers"
 	"github.com/nadproject/nad/pkg/server/log"
 	"github.com/nadproject/nad/pkg/server/mailer"
 	"github.com/nadproject/nad/pkg/server/presenters"
 	"github.com/nadproject/nad/pkg/server/token"
-	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -59,13 +59,6 @@ func (a *API) updateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var account database.Account
-	err = a.App.DB.Where("user_id = ?", user.ID).First(&account).Error
-	if err != nil {
-		HandleError(w, "finding account", err, http.StatusInternalServerError)
-		return
-	}
-
 	tx := a.App.DB.Begin()
 	if err := tx.Save(&user).Error; err != nil {
 		tx.Rollback()
@@ -74,12 +67,12 @@ func (a *API) updateProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if email was changed
-	if params.Email != account.Email.String {
-		account.EmailVerified = false
+	if params.Email != user.Email {
+		user.EmailVerified = false
 	}
-	account.Email.String = params.Email
+	user.Email = params.Email
 
-	if err := tx.Save(&account).Error; err != nil {
+	if err := tx.Save(&user).Error; err != nil {
 		tx.Rollback()
 		HandleError(w, "saving account", err, http.StatusInternalServerError)
 		return
@@ -140,29 +133,22 @@ func (a *API) createVerificationToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var account database.Account
-	err := a.App.DB.Where("user_id = ?", user.ID).First(&account).Error
-	if err != nil {
-		HandleError(w, "finding account", err, http.StatusInternalServerError)
-		return
-	}
-
-	if account.EmailVerified {
+	if user.EmailVerified {
 		http.Error(w, "Email already verified", http.StatusGone)
 		return
 	}
-	if account.Email.String == "" {
+	if user.Email == "" {
 		http.Error(w, "Email not set", http.StatusUnprocessableEntity)
 		return
 	}
 
-	tok, err := token.Create(a.App.DB, account.UserID, database.TokenTypeEmailVerification)
+	tok, err := token.Create(a.App.DB, user.ID, database.TokenTypeEmailVerification)
 	if err != nil {
 		HandleError(w, "saving token", err, http.StatusInternalServerError)
 		return
 	}
 
-	if err := a.App.SendVerificationEmail(account.Email.String, tok.Value); err != nil {
+	if err := a.App.SendVerificationEmail(user.Email, tok.Value); err != nil {
 		if errors.Cause(err) == mailer.ErrSMTPNotConfigured {
 			respondInvalidSMTPConfig(w)
 		} else {
@@ -205,19 +191,19 @@ func (a *API) verifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var account database.Account
-	if err := a.App.DB.Where("user_id = ?", token.UserID).First(&account).Error; err != nil {
+	var user database.User
+	if err := a.App.DB.Where("id = ?", token.UserID).First(&user).Error; err != nil {
 		HandleError(w, "finding account", err, http.StatusInternalServerError)
 		return
 	}
-	if account.EmailVerified {
+	if user.EmailVerified {
 		http.Error(w, "Already verified", http.StatusConflict)
 		return
 	}
 
 	tx := a.App.DB.Begin()
-	account.EmailVerified = true
-	if err := tx.Save(&account).Error; err != nil {
+	user.EmailVerified = true
+	if err := tx.Save(&user).Error; err != nil {
 		tx.Rollback()
 		HandleError(w, "updating email_verified", err, http.StatusInternalServerError)
 		return
@@ -229,13 +215,7 @@ func (a *API) verifyEmail(w http.ResponseWriter, r *http.Request) {
 	}
 	tx.Commit()
 
-	var user database.User
-	if err := a.App.DB.Where("id = ?", token.UserID).First(&user).Error; err != nil {
-		HandleError(w, "finding user", err, http.StatusInternalServerError)
-		return
-	}
-
-	session := makeSession(user, account)
+	session := makeSession(user)
 	respondJSON(w, http.StatusOK, session)
 }
 
@@ -348,14 +328,8 @@ func (a *API) updatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var account database.Account
-	if err := a.App.DB.Where("user_id = ?", user.ID).First(&account).Error; err != nil {
-		HandleError(w, "getting user", nil, http.StatusInternalServerError)
-		return
-	}
-
 	password := []byte(params.OldPassword)
-	if err := bcrypt.CompareHashAndPassword([]byte(account.Password.String), password); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), password); err != nil {
 		log.WithFields(log.Fields{
 			"user_id": user.ID,
 		}).Warn("invalid password update attempt")
@@ -374,7 +348,7 @@ func (a *API) updatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := a.App.DB.Model(&account).Update("password", string(hashedNewPassword)).Error; err != nil {
+	if err := a.App.DB.Model(&user).Update("password", string(hashedNewPassword)).Error; err != nil {
 		http.Error(w, errors.Wrap(err, "updating password").Error(), http.StatusInternalServerError)
 		return
 	}

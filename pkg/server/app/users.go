@@ -21,9 +21,9 @@ package app
 import (
 	"time"
 
+	"github.com/jinzhu/gorm"
 	"github.com/nadproject/nad/pkg/server/database"
 	"github.com/nadproject/nad/pkg/server/token"
-	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -49,25 +49,6 @@ func createEmailPreference(user database.User, tx *gorm.DB) error {
 	return nil
 }
 
-func createDefaultRepetitionRule(user database.User, tx *gorm.DB) error {
-	r := database.RepetitionRule{
-		Title:      "Default repetition - all book",
-		UserID:     user.ID,
-		Enabled:    false,
-		Hour:       20,
-		Minute:     30,
-		Frequency:  604800000,
-		BookDomain: database.BookDomainAll,
-		Books:      []database.Book{},
-		NoteCount:  20,
-	}
-	if err := tx.Save(&r).Error; err != nil {
-		return errors.Wrap(err, "inserting repetition rule")
-	}
-
-	return nil
-}
-
 // CreateUser creates a user
 func (a *App) CreateUser(email, password string) (database.User, error) {
 	tx := a.DB.Begin()
@@ -87,20 +68,13 @@ func (a *App) CreateUser(email, password string) (database.User, error) {
 	}
 
 	user := database.User{
-		Cloud: pro,
+		Email:    email,
+		Password: string(hashedPassword),
+		Pro:      pro,
 	}
 	if err = tx.Save(&user).Error; err != nil {
 		tx.Rollback()
 		return database.User{}, errors.Wrap(err, "saving user")
-	}
-	account := database.Account{
-		Email:    database.ToNullString(email),
-		Password: database.ToNullString(string(hashedPassword)),
-		UserID:   user.ID,
-	}
-	if err = tx.Save(&account).Error; err != nil {
-		tx.Rollback()
-		return database.User{}, errors.Wrap(err, "saving account")
 	}
 
 	if _, err := token.Create(tx, user.ID, database.TokenTypeEmailPreference); err != nil {
@@ -110,10 +84,6 @@ func (a *App) CreateUser(email, password string) (database.User, error) {
 	if err := createEmailPreference(user, tx); err != nil {
 		tx.Rollback()
 		return database.User{}, errors.Wrap(err, "creating email preference")
-	}
-	if err := createDefaultRepetitionRule(user, tx); err != nil {
-		tx.Rollback()
-		return database.User{}, errors.Wrap(err, "creating default repetition rule")
 	}
 	if err := a.TouchLastLoginAt(user, tx); err != nil {
 		tx.Rollback()

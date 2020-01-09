@@ -23,9 +23,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/jinzhu/gorm"
 	"github.com/nadproject/nad/pkg/server/database"
 	"github.com/nadproject/nad/pkg/server/log"
-	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -90,8 +90,8 @@ func (a *API) signin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var account database.Account
-	conn := a.App.DB.Where("email = ?", params.Email).First(&account)
+	var user database.User
+	conn := a.App.DB.Where("email = ?", params.Email).First(&user)
 	if conn.RecordNotFound() {
 		http.Error(w, ErrLoginFailure.Error(), http.StatusUnauthorized)
 		return
@@ -101,16 +101,9 @@ func (a *API) signin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	password := []byte(params.Password)
-	err = bcrypt.CompareHashAndPassword([]byte(account.Password.String), password)
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), password)
 	if err != nil {
 		http.Error(w, ErrLoginFailure.Error(), http.StatusUnauthorized)
-		return
-	}
-
-	var user database.User
-	err = a.App.DB.Where("id = ?", account.UserID).First(&user).Error
-	if err != nil {
-		HandleError(w, "finding user", err, http.StatusInternalServerError)
 		return
 	}
 
@@ -120,7 +113,7 @@ func (a *API) signin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	a.respondWithSession(a.App.DB, w, account.UserID, http.StatusOK)
+	a.respondWithSession(a.App.DB, w, user.ID, http.StatusOK)
 }
 
 func (a *API) signoutOptions(w http.ResponseWriter, r *http.Request) {
@@ -192,7 +185,7 @@ func (a *API) register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var count int
-	if err := a.App.DB.Model(database.Account{}).Where("email = ?", params.Email).Count(&count).Error; err != nil {
+	if err := a.App.DB.Model(database.User{}).Where("email = ?", params.Email).Count(&count).Error; err != nil {
 		HandleError(w, "checking duplicate user", err, http.StatusInternalServerError)
 		return
 	}

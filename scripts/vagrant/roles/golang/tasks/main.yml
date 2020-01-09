@@ -24,3 +24,15 @@
   copy:
     src: go-path.sh
     dest: /etc/profile.d
+
+- name: Create go directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: vagrant
+    group: vagrant
+    mode: 0775
+  loop:
+    - /vagrant/go
+    - /vagrant/go/pkg
+

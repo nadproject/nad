@@ -37,19 +37,13 @@ func InitSchema(db *gorm.DB) {
 	}
 
 	if err := db.AutoMigrate(
+		User{},
 		Note{},
 		Book{},
-		User{},
-		Account{},
-		Notification{},
-		Token{},
-		EmailPreference{},
 		Session{},
-		Digest{},
-		DigestNote{},
-		RepetitionRule{},
-		DigestReceipt{},
-		NoteReview{},
+		Token{},
+		Notification{},
+		EmailPreference{},
 	).Error; err != nil {
 		panic(err)
 	}

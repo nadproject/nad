@@ -26,11 +26,11 @@ import (
 	"os"
 	"strings"
 
+	"github.com/jinzhu/gorm"
 	"github.com/nadproject/nad/pkg/server/app"
 	"github.com/nadproject/nad/pkg/server/database"
 	"github.com/nadproject/nad/pkg/server/helpers"
 	"github.com/nadproject/nad/pkg/server/log"
-	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/card"
@@ -53,13 +53,8 @@ func getOrCreateStripeCustomer(tx *gorm.DB, user database.User) (*stripe.Custome
 		return c, nil
 	}
 
-	var account database.Account
-	if err := tx.Where("user_id = ?", user.ID).First(&account).Error; err != nil {
-		return nil, errors.Wrap(err, "finding account")
-	}
-
 	customerParams := &stripe.CustomerParams{
-		Email: &account.Email.String,
+		Email: &user.Email,
 	}
 	c, err := customer.New(customerParams)
 	if err != nil {
@@ -132,11 +127,6 @@ func (a *API) createSub(w http.ResponseWriter, r *http.Request) {
 		HandleError(w, "No authenticated user found", nil, http.StatusInternalServerError)
 		return
 	}
-	var account database.Account
-	if err := a.App.DB.Where("user_id = ?", user.ID).First(&account).Error; err != nil {
-		HandleError(w, "getting user", err, http.StatusInternalServerError)
-		return
-	}
 
 	var payload createSubPayload
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
@@ -180,7 +170,7 @@ func (a *API) createSub(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := a.App.SendSubscriptionConfirmationEmail(account.Email.String); err != nil {
+	if err := a.App.SendSubscriptionConfirmationEmail(user.Email); err != nil {
 		log.ErrorWrap(err, "sending subscription confirmation email")
 	}
 
