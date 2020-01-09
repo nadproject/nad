@@ -21,41 +21,41 @@ package main
 import (
 	"flag"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/jinzhu/gorm"
 	"github.com/nadproject/nad/pkg/clock"
-	"github.com/nadproject/nad/pkg/server/api"
 	"github.com/nadproject/nad/pkg/server/app"
 	"github.com/nadproject/nad/pkg/server/database"
 	"github.com/nadproject/nad/pkg/server/dbconn"
+	"github.com/nadproject/nad/pkg/server/handlers"
 	"github.com/nadproject/nad/pkg/server/mailer"
 
-	"github.com/gobuffalo/packr/v2"
 	"github.com/pkg/errors"
 )
 
 var versionTag = "master"
 var port = flag.String("port", "3000", "port to connect to")
-var rootBox *packr.Box
-
-func init() {
-	rootBox = packr.New("root", "../../web/public")
-}
 
 func initServer(a app.App) (*http.ServeMux, error) {
-	c := api.Context{App: &a}
+	c := handlers.Context{App: &a}
 
-	apiRouter, err := c.New()
+	apiRouter, err := c.NewAPI()
 	if err != nil {
 		return nil, errors.Wrap(err, "initializing api router")
 	}
 
+	webRouter, err := c.NewWeb()
+	if err != nil {
+		return nil, errors.Wrap(err, "initializing web router")
+	}
+
 	mux := http.NewServeMux()
 	mux.Handle("/api/", http.StripPrefix("/api", apiRouter))
-	// mux.Handle("/", webRouter)
+	mux.Handle("/", webRouter)
 
 	return mux, nil
 }
@@ -76,12 +76,15 @@ func initDB() *gorm.DB {
 func initApp() app.App {
 	db := initDB()
 
+	t := template.Must(template.ParseFiles("templates/index.html"))
+
 	return app.App{
 		DB:               db,
 		Clock:            clock.New(),
 		StripeAPIBackend: nil,
 		EmailTemplates:   mailer.NewTemplates(nil),
 		EmailBackend:     &mailer.SimpleBackendImplementation{},
+		Templates:        t,
 		Config: app.Config{
 			WebURL:              os.Getenv("WebURL"),
 			OnPremise:           true,

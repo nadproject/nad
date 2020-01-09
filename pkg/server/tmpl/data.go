@@ -27,7 +27,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/nadproject/nad/pkg/server/api"
+	"github.com/nadproject/nad/pkg/server/handlers"
 	"github.com/nadproject/nad/pkg/server/database"
 	"github.com/nadproject/nad/pkg/server/operations"
 	"github.com/pkg/errors"
