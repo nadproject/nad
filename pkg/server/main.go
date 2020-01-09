@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package main
@@ -27,10 +27,10 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/nadproject/nad/pkg/clock"
+	"github.com/nadproject/nad/pkg/server/api"
 	"github.com/nadproject/nad/pkg/server/app"
 	"github.com/nadproject/nad/pkg/server/database"
 	"github.com/nadproject/nad/pkg/server/dbconn"
-	"github.com/nadproject/nad/pkg/server/handlers"
 	"github.com/nadproject/nad/pkg/server/mailer"
 
 	"github.com/gobuffalo/packr/v2"
@@ -45,24 +45,17 @@ func init() {
 	rootBox = packr.New("root", "../../web/public")
 }
 
-func mustFind(box *packr.Box, path string) []byte {
-	b, err := rootBox.Find(path)
-	if err != nil {
-		panic(errors.Wrapf(err, "getting file content for %s", path))
-	}
-
-	return b
-}
-
 func initServer(a app.App) (*http.ServeMux, error) {
-	api := handlers.API{App: &a}
-	apiRouter, err := api.NewRouter()
+	c := api.Context{App: &a}
+
+	apiRouter, err := c.New()
 	if err != nil {
-		return nil, errors.Wrap(err, "initializing router")
+		return nil, errors.Wrap(err, "initializing api router")
 	}
 
 	mux := http.NewServeMux()
 	mux.Handle("/api/", http.StripPrefix("/api", apiRouter))
+	// mux.Handle("/", webRouter)
 
 	return mux, nil
 }

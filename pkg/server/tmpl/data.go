@@ -27,8 +27,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/nadproject/nad/pkg/server/api"
 	"github.com/nadproject/nad/pkg/server/database"
-	"github.com/nadproject/nad/pkg/server/handlers"
 	"github.com/nadproject/nad/pkg/server/operations"
 	"github.com/pkg/errors"
 )
@@ -52,7 +52,7 @@ type notePage struct {
 }
 
 func (a AppShell) newNotePage(r *http.Request, noteUUID string) (notePage, error) {
-	user, _, err := handlers.AuthWithSession(a.DB, r, nil)
+	user, _, err := api.AuthWithSession(a.DB, r, nil)
 	if err != nil {
 		return notePage{}, errors.Wrap(err, "authenticating with session")
 	}
