@@ -26,12 +26,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gorilla/mux"
+	"github.com/jinzhu/gorm"
 	"github.com/nadproject/nad/pkg/server/database"
 	"github.com/nadproject/nad/pkg/server/helpers"
 	"github.com/nadproject/nad/pkg/server/operations"
 	"github.com/nadproject/nad/pkg/server/presenters"
-	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 )
 
@@ -100,7 +100,7 @@ func getNoteBaseQuery(db *gorm.DB, noteUUID string, search string) *gorm.DB {
 }
 
 func (c *Context) getNote(w http.ResponseWriter, r *http.Request) {
-	user, _, err := AuthWithSession(c.App.DB, r, nil)
+	user, _, err := AuthWithSession(c.App.DB, r)
 	if err != nil {
 		HandleError(w, "authenticating", err, http.StatusInternalServerError)
 		return

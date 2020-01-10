@@ -117,7 +117,7 @@ func getCredential(r *http.Request) (string, error) {
 }
 
 // AuthWithSession performs user authentication with session
-func AuthWithSession(db *gorm.DB, r *http.Request, p *AuthMiddlewareParams) (database.User, bool, error) {
+func AuthWithSession(db *gorm.DB, r *http.Request) (database.User, bool, error) {
 	var user database.User
 
 	sessionKey, err := getCredential(r)
@@ -185,15 +185,11 @@ type AuthMiddlewareParams struct {
 	ProOnly bool
 }
 
-func (c *Context) auth(next http.HandlerFunc, p *AuthMiddlewareParams) http.HandlerFunc {
+func auth(next http.HandlerFunc, p *AuthMiddlewareParams) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		user, ok, err := AuthWithSession(c.App.DB, r, p)
+		user, ok := r.Context().Value(helpers.KeyUser).(database.User)
 		if !ok {
 			respondUnauthorized(w)
-			return
-		}
-		if err != nil {
-			HandleError(w, "authenticating with session", err, http.StatusInternalServerError)
 			return
 		}
 
@@ -204,8 +200,7 @@ func (c *Context) auth(next http.HandlerFunc, p *AuthMiddlewareParams) http.Hand
 			}
 		}
 
-		ctx := context.WithValue(r.Context(), helpers.KeyUser, user)
-		next.ServeHTTP(w, r.WithContext(ctx))
+		next.ServeHTTP(w, r)
 	})
 }
 
@@ -223,7 +218,7 @@ func (c *Context) tokenAuth(next http.HandlerFunc, tokenType string, p *AuthMidd
 			ctx = context.WithValue(ctx, helpers.KeyToken, token)
 		} else {
 			// If token-based auth fails, fall back to session-based auth
-			user, ok, err = AuthWithSession(c.App.DB, r, p)
+			user, ok, err = AuthWithSession(c.App.DB, r)
 			if err != nil {
 				HandleError(w, "authenticating with session", err, http.StatusInternalServerError)
 				return
@@ -291,9 +286,28 @@ func logging(inner http.Handler) http.HandlerFunc {
 	}
 }
 
-func applyMiddleware(h http.HandlerFunc, rateLimit bool) http.Handler {
+func setUser(inner http.Handler, db *gorm.DB) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user, ok, err := AuthWithSession(db, r)
+		if err != nil {
+			HandleError(w, "authenticating with session", err, http.StatusInternalServerError)
+			return
+		}
+
+		var ctx context.Context
+		if ok {
+			ctx = context.WithValue(r.Context(), helpers.KeyUser, user)
+		} else {
+			ctx = r.Context()
+		}
+		inner.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func (c *Context) applyMiddleware(h http.HandlerFunc, rateLimit bool) http.Handler {
 	ret := h
 	ret = logging(ret)
+	ret = setUser(ret, c.App.DB)
 
 	if rateLimit && os.Getenv("GO_ENV") != "TEST" {
 		ret = limit(ret)
@@ -305,6 +319,16 @@ func applyMiddleware(h http.HandlerFunc, rateLimit bool) http.Handler {
 // Context is a web Context configuration
 type Context struct {
 	App *app.App
+}
+
+func (c Context) render(w http.ResponseWriter, tmpl string, data interface{}) error {
+	t := c.App.Templates
+
+	if err := t[tmpl].ExecuteTemplate(w, "base", data); err != nil {
+		return errors.Wrapf(err, "executing template %s", tmpl)
+	}
+
+	return nil
 }
 
 // init sets up the application based on the configuration
@@ -333,38 +357,38 @@ func (c *Context) NewAPI() (*mux.Router, error) {
 	var routes = []Route{
 		// internal
 		{"GET", "/health", c.checkHealth, false},
-		{"GET", "/me", c.auth(c.getMe, nil), true},
-		// {"POST", "/verification-token", c.auth(c.createVerificationToken, nil), true},
+		{"GET", "/me", auth(c.getMe, nil), true},
+		// {"POST", "/verification-token", auth(c.createVerificationToken, nil), true},
 		// {"PATCH", "/verify-email", c.verifyEmail, true},
 		// {"POST", "/reset-token", c.createResetToken, true},
 		// {"PATCH", "/reset-password", c.resetPassword, true},
-		// {"PATCH", "/account/profile", c.auth(c.updateProfile, nil), true},
-		// {"PATCH", "/account/password", c.auth(c.updatePassword, nil), true},
+		// {"PATCH", "/account/profile", auth(c.updateProfile, nil), true},
+		// {"PATCH", "/account/password", auth(c.updatePassword, nil), true},
 		// {"GET", "/account/email-preference", c.tokenAuth(c.getEmailPreference, database.TokenTypeEmailPreference, nil), true},
 		// {"PATCH", "/account/email-preference", c.tokenAuth(c.updateEmailPreference, database.TokenTypeEmailPreference, nil), true},
-		// {"POST", "/subscriptions", c.auth(c.createSub, nil), true},
-		// {"PATCH", "/subscriptions", c.auth(c.updateSub, nil), true},
-		//		{"GET", "/subscriptions", c.auth(c.getSub, nil), true},
-		//		{"GET", "/stripe_source", c.auth(c.getStripeSource, nil), true},
-		//		{"PATCH", "/stripe_source", c.auth(c.updateStripeSource, nil), true},
-		{"GET", "/notes", c.auth(c.getNotes, nil), false},
+		// {"POST", "/subscriptions", auth(c.createSub, nil), true},
+		// {"PATCH", "/subscriptions", auth(c.updateSub, nil), true},
+		//		{"GET", "/subscriptions", auth(c.getSub, nil), true},
+		//		{"GET", "/stripe_source", auth(c.getStripeSource, nil), true},
+		//		{"PATCH", "/stripe_source", auth(c.updateStripeSource, nil), true},
+		{"GET", "/notes", auth(c.getNotes, nil), false},
 		{"GET", "/notes/{noteUUID}", c.getNote, true},
 
 		{"POST", "/webhooks/stripe", c.stripeWebhook, true},
 
 		// v1
-		{"GET", "/v1/sync/fragment", cors(c.auth(c.GetSyncFragment, &proOnly)), false},
-		{"GET", "/v1/sync/state", cors(c.auth(c.GetSyncState, &proOnly)), false},
+		{"GET", "/v1/sync/fragment", cors(auth(c.GetSyncFragment, &proOnly)), false},
+		{"GET", "/v1/sync/state", cors(auth(c.GetSyncState, &proOnly)), false},
 		{"OPTIONS", "/v1/books", cors(c.BooksOptions), true},
-		{"GET", "/v1/books", cors(c.auth(c.GetBooks, nil)), true},
-		{"GET", "/v1/books/{bookUUID}", cors(c.auth(c.GetBook, nil)), true},
-		{"POST", "/v1/books", cors(c.auth(c.CreateBook, &proOnly)), false},
-		{"PATCH", "/v1/books/{bookUUID}", cors(c.auth(c.UpdateBook, &proOnly)), false},
-		{"DELETE", "/v1/books/{bookUUID}", cors(c.auth(c.DeleteBook, &proOnly)), false},
+		{"GET", "/v1/books", cors(auth(c.GetBooks, nil)), true},
+		{"GET", "/v1/books/{bookUUID}", cors(auth(c.GetBook, nil)), true},
+		{"POST", "/v1/books", cors(auth(c.CreateBook, &proOnly)), false},
+		{"PATCH", "/v1/books/{bookUUID}", cors(auth(c.UpdateBook, &proOnly)), false},
+		{"DELETE", "/v1/books/{bookUUID}", cors(auth(c.DeleteBook, &proOnly)), false},
 		{"OPTIONS", "/v1/notes", cors(c.NotesOptions), true},
-		{"POST", "/v1/notes", cors(c.auth(c.CreateNote, &proOnly)), false},
-		{"PATCH", "/v1/notes/{noteUUID}", c.auth(c.UpdateNote, &proOnly), false},
-		{"DELETE", "/v1/notes/{noteUUID}", c.auth(c.DeleteNote, &proOnly), false},
+		{"POST", "/v1/notes", cors(auth(c.CreateNote, &proOnly)), false},
+		{"PATCH", "/v1/notes/{noteUUID}", auth(c.UpdateNote, &proOnly), false},
+		{"DELETE", "/v1/notes/{noteUUID}", auth(c.DeleteNote, &proOnly), false},
 		{"POST", "/v1/signin", cors(c.signin), true},
 		{"OPTIONS", "/v1/signout", cors(c.signoutOptions), true},
 		{"POST", "/v1/signout", cors(c.signout), true},
@@ -379,7 +403,7 @@ func (c *Context) NewAPI() (*mux.Router, error) {
 		router.
 			Methods(route.Method).
 			Path(route.Pattern).
-			Handler(applyMiddleware(handler, route.RateLimit))
+			Handler(c.applyMiddleware(handler, route.RateLimit))
 	}
 
 	return router, nil
@@ -392,6 +416,8 @@ func (c *Context) NewWeb() (*mux.Router, error) {
 	}
 
 	var routes = []Route{
+		{"GET", "/test", auth(c.renderSignup, nil), true},
+		{"GET", "/join", c.renderSignup, true},
 		{"GET", "/", c.renderHome, true},
 	}
 
@@ -403,7 +429,7 @@ func (c *Context) NewWeb() (*mux.Router, error) {
 		router.
 			Methods(route.Method).
 			Path(route.Pattern).
-			Handler(applyMiddleware(handler, route.RateLimit))
+			Handler(c.applyMiddleware(handler, route.RateLimit))
 	}
 
 	return router, nil

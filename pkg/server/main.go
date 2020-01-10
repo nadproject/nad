@@ -21,7 +21,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -33,12 +32,14 @@ import (
 	"github.com/nadproject/nad/pkg/server/dbconn"
 	"github.com/nadproject/nad/pkg/server/handlers"
 	"github.com/nadproject/nad/pkg/server/mailer"
+	"github.com/nadproject/nad/pkg/server/tpl"
 
 	"github.com/pkg/errors"
 )
 
 var versionTag = "master"
 var port = flag.String("port", "3000", "port to connect to")
+var templateDir = flag.String("templateDir", "tpl/web", "the path to a directory containing templates")
 
 func initServer(a app.App) (*http.ServeMux, error) {
 	c := handlers.Context{App: &a}
@@ -76,7 +77,7 @@ func initDB() *gorm.DB {
 func initApp() app.App {
 	db := initDB()
 
-	t := template.Must(template.ParseFiles("templates/index.html"))
+	t := tpl.ParseWeb(*templateDir)
 
 	return app.App{
 		DB:               db,
