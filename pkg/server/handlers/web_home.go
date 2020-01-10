@@ -26,7 +26,7 @@ type homeData struct {
 func (c *Context) renderHome(w http.ResponseWriter, r *http.Request) {
 	_, ok := r.Context().Value(helpers.KeyUser).(database.User)
 	if !ok {
-		http.Redirect(w, r, "/join", 301)
+		http.Redirect(w, r, "/register", 301)
 		return
 	}
 

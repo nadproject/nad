@@ -25,7 +25,6 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/nadproject/nad/pkg/server/database"
-	"github.com/nadproject/nad/pkg/server/log"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -157,54 +156,6 @@ func validateRegisterPayload(p registerPayload) error {
 	}
 
 	return nil
-}
-
-func parseRegisterPaylaod(r *http.Request) (registerPayload, error) {
-	var ret registerPayload
-	if err := json.NewDecoder(r.Body).Decode(&ret); err != nil {
-		return ret, errors.Wrap(err, "decoding json")
-	}
-
-	return ret, nil
-}
-
-func (c *Context) register(w http.ResponseWriter, r *http.Request) {
-	if c.App.Config.DisableRegistration {
-		respondForbidden(w)
-		return
-	}
-
-	params, err := parseRegisterPaylaod(r)
-	if err != nil {
-		http.Error(w, "invalid payload", http.StatusBadRequest)
-		return
-	}
-	if err := validateRegisterPayload(params); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	var count int
-	if err := c.App.DB.Model(database.User{}).Where("email = ?", params.Email).Count(&count).Error; err != nil {
-		HandleError(w, "checking duplicate user", err, http.StatusInternalServerError)
-		return
-	}
-	if count > 0 {
-		http.Error(w, "Duplicate email", http.StatusBadRequest)
-		return
-	}
-
-	user, err := c.App.CreateUser(params.Email, params.Password)
-	if err != nil {
-		HandleError(w, "creating user", err, http.StatusInternalServerError)
-		return
-	}
-
-	c.respondWithSession(c.App.DB, w, user.ID, http.StatusCreated)
-
-	if err := c.App.SendWelcomeEmail(params.Email); err != nil {
-		log.ErrorWrap(err, "sending welcome email")
-	}
 }
 
 // respondWithSession makes a HTTP response with the session from the user with the given userID.

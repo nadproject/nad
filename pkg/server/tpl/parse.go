@@ -2,7 +2,6 @@ package tpl
 
 import (
 	"html/template"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -24,8 +23,6 @@ func getWebTemplatePaths(dirpath string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	log.Println(paths)
 
 	return paths, nil
 }

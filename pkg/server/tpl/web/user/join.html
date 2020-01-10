@@ -1,3 +1,58 @@
 {{define "content"}}
-  join
+
+{{ if ne .Error "" }}
+  {{ .Error }}
+{{ end }}
+
+<h1>Register to NAD</h1>
+
+<form
+   action="/register"
+   method="POST"
+      id="T-join-form"
+      class="auth-form"
+      >
+        <div>
+          <label htmlFor="email-input" class={authStyles.label}>
+            Your email
+            <input
+              autoFocus
+              id="email-input"
+              type="email"
+              placeholder="you@example.com"
+              class="form-control"
+              value=""
+            />
+          </label>
+        </div>
+
+      <div>
+        <label htmlFor="password-input" class={authStyles.label}>
+          Password
+          <input
+            id="password-input"
+            type="password"
+            placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
+            class="form-control"
+          />
+        </label>
+      </div>
+
+      <div>
+        <label
+          htmlFor="password-confirmation-input"
+          class={authStyles.label}
+        >
+          Password confirmation
+          <input
+            id="password-confirmation-input"
+            type="password"
+            placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
+            class="form-control"
+          />
+        </label>
+      </div>
+
+      <input type="submit" value="join">
+    </form>
 {{end}}

@@ -392,7 +392,6 @@ func (c *Context) NewAPI() (*mux.Router, error) {
 		{"POST", "/v1/signin", cors(c.signin), true},
 		{"OPTIONS", "/v1/signout", cors(c.signoutOptions), true},
 		{"POST", "/v1/signout", cors(c.signout), true},
-		{"POST", "/v1/register", c.register, true},
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
@@ -416,8 +415,8 @@ func (c *Context) NewWeb() (*mux.Router, error) {
 	}
 
 	var routes = []Route{
-		{"GET", "/test", auth(c.renderSignup, nil), true},
-		{"GET", "/join", c.renderSignup, true},
+		{"GET", "/register", c.renderRegister, true},
+		{"POST", "/register", c.register, true},
 		{"GET", "/", c.renderHome, true},
 	}
 
