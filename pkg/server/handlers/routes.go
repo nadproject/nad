@@ -29,9 +29,11 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/nadproject/nad/pkg/server/app"
+	"github.com/nadproject/nad/pkg/server/controllers"
 	"github.com/nadproject/nad/pkg/server/database"
 	"github.com/nadproject/nad/pkg/server/helpers"
 	"github.com/nadproject/nad/pkg/server/log"
+	// "github.com/nadproject/nad/pkg/server/views"
 	"github.com/pkg/errors"
 	"github.com/stripe/stripe-go"
 )
@@ -40,7 +42,7 @@ import (
 type Route struct {
 	Method      string
 	Pattern     string
-	HandlerFunc http.HandlerFunc
+	HandlerFunc http.Handler
 	RateLimit   bool
 }
 
@@ -304,7 +306,7 @@ func setUser(inner http.Handler, db *gorm.DB) http.HandlerFunc {
 	})
 }
 
-func (c *Context) applyMiddleware(h http.HandlerFunc, rateLimit bool) http.Handler {
+func (c *Context) applyMiddleware(h http.Handler, rateLimit bool) http.Handler {
 	ret := h
 	ret = logging(ret)
 	ret = setUser(ret, c.App.DB)
@@ -348,64 +350,65 @@ func (c *Context) init() error {
 
 // NewAPI creates and returns a new router
 func (c *Context) NewAPI() (*mux.Router, error) {
-	if err := c.init(); err != nil {
-		return nil, errors.Wrap(err, "initializing app")
-	}
-
-	proOnly := AuthMiddlewareParams{ProOnly: true}
-
-	var routes = []Route{
-		// internal
-		{"GET", "/health", c.checkHealth, false},
-		{"GET", "/me", auth(c.getMe, nil), true},
-		// {"POST", "/verification-token", auth(c.createVerificationToken, nil), true},
-		// {"PATCH", "/verify-email", c.verifyEmail, true},
-		// {"POST", "/reset-token", c.createResetToken, true},
-		// {"PATCH", "/reset-password", c.resetPassword, true},
-		// {"PATCH", "/account/profile", auth(c.updateProfile, nil), true},
-		// {"PATCH", "/account/password", auth(c.updatePassword, nil), true},
-		// {"GET", "/account/email-preference", c.tokenAuth(c.getEmailPreference, database.TokenTypeEmailPreference, nil), true},
-		// {"PATCH", "/account/email-preference", c.tokenAuth(c.updateEmailPreference, database.TokenTypeEmailPreference, nil), true},
-		// {"POST", "/subscriptions", auth(c.createSub, nil), true},
-		// {"PATCH", "/subscriptions", auth(c.updateSub, nil), true},
-		//		{"GET", "/subscriptions", auth(c.getSub, nil), true},
-		//		{"GET", "/stripe_source", auth(c.getStripeSource, nil), true},
-		//		{"PATCH", "/stripe_source", auth(c.updateStripeSource, nil), true},
-		{"GET", "/notes", auth(c.getNotes, nil), false},
-		{"GET", "/notes/{noteUUID}", c.getNote, true},
-
-		{"POST", "/webhooks/stripe", c.stripeWebhook, true},
-
-		// v1
-		{"GET", "/v1/sync/fragment", cors(auth(c.GetSyncFragment, &proOnly)), false},
-		{"GET", "/v1/sync/state", cors(auth(c.GetSyncState, &proOnly)), false},
-		{"OPTIONS", "/v1/books", cors(c.BooksOptions), true},
-		{"GET", "/v1/books", cors(auth(c.GetBooks, nil)), true},
-		{"GET", "/v1/books/{bookUUID}", cors(auth(c.GetBook, nil)), true},
-		{"POST", "/v1/books", cors(auth(c.CreateBook, &proOnly)), false},
-		{"PATCH", "/v1/books/{bookUUID}", cors(auth(c.UpdateBook, &proOnly)), false},
-		{"DELETE", "/v1/books/{bookUUID}", cors(auth(c.DeleteBook, &proOnly)), false},
-		{"OPTIONS", "/v1/notes", cors(c.NotesOptions), true},
-		{"POST", "/v1/notes", cors(auth(c.CreateNote, &proOnly)), false},
-		{"PATCH", "/v1/notes/{noteUUID}", auth(c.UpdateNote, &proOnly), false},
-		{"DELETE", "/v1/notes/{noteUUID}", auth(c.DeleteNote, &proOnly), false},
-		{"POST", "/v1/signin", cors(c.signin), true},
-		{"OPTIONS", "/v1/signout", cors(c.signoutOptions), true},
-		{"POST", "/v1/signout", cors(c.signout), true},
-	}
-
-	router := mux.NewRouter().StrictSlash(true)
-
-	for _, route := range routes {
-		handler := route.HandlerFunc
-
-		router.
-			Methods(route.Method).
-			Path(route.Pattern).
-			Handler(c.applyMiddleware(handler, route.RateLimit))
-	}
-
-	return router, nil
+	return nil, nil
+	//	if err := c.init(); err != nil {
+	//		return nil, errors.Wrap(err, "initializing app")
+	//	}
+	//
+	//	proOnly := AuthMiddlewareParams{ProOnly: true}
+	//
+	//	var routes = []Route{
+	//		// internal
+	//		{"GET", "/health", c.checkHealth, false},
+	//		{"GET", "/me", auth(c.getMe, nil), true},
+	//		// {"POST", "/verification-token", auth(c.createVerificationToken, nil), true},
+	//		// {"PATCH", "/verify-email", c.verifyEmail, true},
+	//		// {"POST", "/reset-token", c.createResetToken, true},
+	//		// {"PATCH", "/reset-password", c.resetPassword, true},
+	//		// {"PATCH", "/account/profile", auth(c.updateProfile, nil), true},
+	//		// {"PATCH", "/account/password", auth(c.updatePassword, nil), true},
+	//		// {"GET", "/account/email-preference", c.tokenAuth(c.getEmailPreference, database.TokenTypeEmailPreference, nil), true},
+	//		// {"PATCH", "/account/email-preference", c.tokenAuth(c.updateEmailPreference, database.TokenTypeEmailPreference, nil), true},
+	//		// {"POST", "/subscriptions", auth(c.createSub, nil), true},
+	//		// {"PATCH", "/subscriptions", auth(c.updateSub, nil), true},
+	//		//		{"GET", "/subscriptions", auth(c.getSub, nil), true},
+	//		//		{"GET", "/stripe_source", auth(c.getStripeSource, nil), true},
+	//		//		{"PATCH", "/stripe_source", auth(c.updateStripeSource, nil), true},
+	//		{"GET", "/notes", auth(c.getNotes, nil), false},
+	//		{"GET", "/notes/{noteUUID}", c.getNote, true},
+	//
+	//		{"POST", "/webhooks/stripe", c.stripeWebhook, true},
+	//
+	//		// v1
+	//		{"GET", "/v1/sync/fragment", cors(auth(c.GetSyncFragment, &proOnly)), false},
+	//		{"GET", "/v1/sync/state", cors(auth(c.GetSyncState, &proOnly)), false},
+	//		{"OPTIONS", "/v1/books", cors(c.BooksOptions), true},
+	//		{"GET", "/v1/books", cors(auth(c.GetBooks, nil)), true},
+	//		{"GET", "/v1/books/{bookUUID}", cors(auth(c.GetBook, nil)), true},
+	//		{"POST", "/v1/books", cors(auth(c.CreateBook, &proOnly)), false},
+	//		{"PATCH", "/v1/books/{bookUUID}", cors(auth(c.UpdateBook, &proOnly)), false},
+	//		{"DELETE", "/v1/books/{bookUUID}", cors(auth(c.DeleteBook, &proOnly)), false},
+	//		{"OPTIONS", "/v1/notes", cors(c.NotesOptions), true},
+	//		{"POST", "/v1/notes", cors(auth(c.CreateNote, &proOnly)), false},
+	//		{"PATCH", "/v1/notes/{noteUUID}", auth(c.UpdateNote, &proOnly), false},
+	//		{"DELETE", "/v1/notes/{noteUUID}", auth(c.DeleteNote, &proOnly), false},
+	//		{"POST", "/v1/signin", cors(c.signin), true},
+	//		{"OPTIONS", "/v1/signout", cors(c.signoutOptions), true},
+	//		{"POST", "/v1/signout", cors(c.signout), true},
+	//	}
+	//
+	//	router := mux.NewRouter().StrictSlash(true)
+	//
+	//	for _, route := range routes {
+	//		handler := route.HandlerFunc
+	//
+	//		router.
+	//			Methods(route.Method).
+	//			Path(route.Pattern).
+	//			Handler(c.applyMiddleware(handler, route.RateLimit))
+	//	}
+	//
+	//	return router, nil
 }
 
 // NewWeb creates and returns a new router
@@ -414,10 +417,13 @@ func (c *Context) NewWeb() (*mux.Router, error) {
 		return nil, errors.Wrap(err, "initializing app")
 	}
 
+	staticC := controllers.NewStatic()
+
 	var routes = []Route{
-		{"GET", "/register", c.renderRegister, true},
-		{"POST", "/register", c.register, true},
-		{"GET", "/", c.renderHome, true},
+		//{"GET", "/register", c.renderRegister, true},
+		//{"POST", "/register", c.register, true},
+		{"GET", "/home", staticC.Home, true},
+		//{"GET", "/", c.renderHome, true},
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
@@ -426,9 +432,8 @@ func (c *Context) NewWeb() (*mux.Router, error) {
 		handler := route.HandlerFunc
 
 		router.
-			Methods(route.Method).
-			Path(route.Pattern).
-			Handler(c.applyMiddleware(handler, route.RateLimit))
+			Handle(route.Pattern, c.applyMiddleware(handler, route.RateLimit)).
+			Methods(route.Method)
 	}
 
 	return router, nil
