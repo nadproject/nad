@@ -32,7 +32,6 @@ import (
 	"github.com/nadproject/nad/pkg/server/dbconn"
 	"github.com/nadproject/nad/pkg/server/handlers"
 	"github.com/nadproject/nad/pkg/server/mailer"
-	"github.com/nadproject/nad/pkg/server/tpl"
 
 	"github.com/pkg/errors"
 )
@@ -77,15 +76,12 @@ func initDB() *gorm.DB {
 func initApp() app.App {
 	db := initDB()
 
-	t := tpl.ParseWeb(*templateDir)
-
 	return app.App{
 		DB:               db,
 		Clock:            clock.New(),
 		StripeAPIBackend: nil,
 		EmailTemplates:   mailer.NewTemplates(nil),
 		EmailBackend:     &mailer.SimpleBackendImplementation{},
-		Templates:        t,
 		Config: app.Config{
 			WebURL:              os.Getenv("WebURL"),
 			OnPremise:           true,

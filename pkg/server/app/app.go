@@ -22,7 +22,6 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/nadproject/nad/pkg/clock"
 	"github.com/nadproject/nad/pkg/server/mailer"
-	"github.com/nadproject/nad/pkg/server/tpl"
 	"github.com/pkg/errors"
 	"github.com/stripe/stripe-go"
 )
@@ -55,7 +54,6 @@ type App struct {
 	EmailTemplates   mailer.Templates
 	EmailBackend     mailer.Backend
 	Config           Config
-	Templates        tpl.Templates
 }
 
 // Validate validates the app configuration

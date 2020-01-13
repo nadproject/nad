@@ -323,16 +323,6 @@ type Context struct {
 	App *app.App
 }
 
-func (c Context) render(w http.ResponseWriter, tmpl string, data interface{}) error {
-	t := c.App.Templates
-
-	if err := t[tmpl].ExecuteTemplate(w, "base", data); err != nil {
-		return errors.Wrapf(err, "executing template %s", tmpl)
-	}
-
-	return nil
-}
-
 // init sets up the application based on the configuration
 func (c *Context) init() error {
 	if err := c.App.Validate(); err != nil {
