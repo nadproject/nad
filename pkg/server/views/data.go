@@ -54,11 +54,6 @@ func (d *Data) AlertError(msg string) {
 	}
 }
 
-type PublicError interface {
-	error
-	Public() string
-}
-
 func persistAlert(w http.ResponseWriter, alert Alert) {
 	expiresAt := time.Now().Add(5 * time.Minute)
 	lvl := http.Cookie{
@@ -117,4 +112,10 @@ func getAlert(r *http.Request) *Alert {
 func RedirectAlert(w http.ResponseWriter, r *http.Request, urlStr string, code int, alert Alert) {
 	persistAlert(w, alert)
 	http.Redirect(w, r, urlStr, code)
+}
+
+// PublicError is an error meant to be displayed to the public
+type PublicError interface {
+	error
+	Public() string
 }

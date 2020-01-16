@@ -32,6 +32,7 @@ import (
 	"github.com/nadproject/nad/pkg/server/dbconn"
 	"github.com/nadproject/nad/pkg/server/handlers"
 	"github.com/nadproject/nad/pkg/server/mailer"
+	"github.com/nadproject/nad/pkg/server/models"
 
 	"github.com/pkg/errors"
 )
@@ -91,6 +92,12 @@ func initApp() app.App {
 }
 
 func startCmd() {
+	services, err := models.NewServices(
+		models.WithGorm("postgres", dbCfg.ConnectionInfo()),
+		models.WithUser(),
+	)
+	must(err)
+
 	app := initApp()
 	defer app.DB.Close()
 
@@ -136,5 +143,11 @@ func main() {
 		versionCmd()
 	default:
 		fmt.Printf("Unknown command %s", cmd)
+	}
+}
+
+func must(err error) {
+	if err != nil {
+		panic(err)
 	}
 }

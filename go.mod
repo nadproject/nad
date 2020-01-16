@@ -14,6 +14,7 @@ require (
 	github.com/gorilla/csrf v1.6.2
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/gorilla/mux v1.7.2
+	github.com/gorilla/schema v1.1.0
 	github.com/jinzhu/gorm v1.9.9
 	github.com/joho/godotenv v1.3.0
 	github.com/justincampbell/bigduration v0.0.0-20160531141349-e45bf03c0666 // indirect
