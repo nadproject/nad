@@ -130,6 +130,8 @@ func (uv *userValidator) Create(user *User) error {
 	err := runUserValFuncs(user,
 		uv.passwordRequired,
 		uv.passwordMinLength,
+		uv.bcryptPassword,
+		uv.passwordHashRequired,
 		uv.normalizeEmail,
 		uv.requireEmail,
 		uv.emailFormat,
@@ -218,11 +220,34 @@ func (uv *userValidator) idValid() userValFunc {
 	})
 }
 
+// bcryptPassword hashes the given password for the user
+func (uv *userValidator) bcryptPassword(user *User) error {
+	if user.Password == "" {
+		return nil
+	}
+	pwBytes := []byte(user.Password)
+	hashedBytes, err := bcrypt.GenerateFromPassword(pwBytes, bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	user.PasswordHash = string(hashedBytes)
+	user.Password = ""
+
+	return nil
+}
+
 func (uv *userValidator) passwordRequired(user *User) error {
 	if user.Password == "" {
 		return ErrPasswordRequired
 	}
 
+	return nil
+}
+
+func (uv *userValidator) passwordHashRequired(user *User) error {
+	if user.PasswordHash == "" {
+		return ErrPasswordRequired
+	}
 	return nil
 }
 

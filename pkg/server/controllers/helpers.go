@@ -26,10 +26,14 @@ func parseURLParams(r *http.Request, dst interface{}) error {
 
 func parseValues(values url.Values, dst interface{}) error {
 	dec := schema.NewDecoder()
+
+	// Ignore CSRF token field
 	dec.IgnoreUnknownKeys(true)
+
 	if err := dec.Decode(dst, values); err != nil {
 		return err
 	}
+
 	return nil
 }
 

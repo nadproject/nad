@@ -8,13 +8,16 @@ import (
 )
 
 const (
-	AlertLvlError   = "danger"
+	// AlertLvlError is an alert level for error
+	AlertLvlError = "danger"
+	// AlertLvlWarning is an alert level for warning
 	AlertLvlWarning = "warning"
-	AlertLvlInfo    = "info"
+	// AlertLvlInfo is an alert level for info
+	AlertLvlInfo = "info"
+	// AlertLvlSuccess is an alert level for success
 	AlertLvlSuccess = "success"
 
-	// AlertMsgGeneric is displayed when any random error
-	// is encountered by our backend.
+	// AlertMsgGeneric is a generic message for a server error
 	AlertMsgGeneric = "Something went wrong. Please try again, and contact us if the problem persists."
 )
 
@@ -24,14 +27,14 @@ type Alert struct {
 	Message string
 }
 
-// Data is the top level structure that views expect data
-// to come in.
+// Data is the top level structure that views expect data to come in.
 type Data struct {
 	Alert *Alert
 	CSRF  template.HTML
 	Yield interface{}
 }
 
+// SetAlert sets alert in the given data for given error.
 func (d *Data) SetAlert(err error) {
 	if pErr, ok := err.(PublicError); ok {
 		d.Alert = &Alert{
@@ -47,6 +50,7 @@ func (d *Data) SetAlert(err error) {
 	}
 }
 
+// AlertError returns a new error alert using the given message.
 func (d *Data) AlertError(msg string) {
 	d.Alert = &Alert{
 		Level:   AlertLvlError,
@@ -105,10 +109,8 @@ func getAlert(r *http.Request) *Alert {
 	return &alert
 }
 
-// RedirectAlert accepts all the normal params for an
-// http.Redirect and performs a redirect, but only after
-// persisting the provided alert in a cookie so that it can
-// be displayed when the new page is loaded.
+// RedirectAlert redirects to a URL after persisting the provided alert data
+// into a cookie so that it can be displayed when the page is rendered.
 func RedirectAlert(w http.ResponseWriter, r *http.Request, urlStr string, code int, alert Alert) {
 	persistAlert(w, alert)
 	http.Redirect(w, r, urlStr, code)

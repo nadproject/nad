@@ -1,0 +1,32 @@
+{{define "yield"}}
+<div class="row">
+  <div class="col-md-4 col-md-offset-4">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h1>Join nad</h1>
+      </div>
+      <div class="panel-body">
+        {{template "signupForm" .}}
+      </div>
+      <div class="panel-footer">
+        <a href="/login">Already have an account?</a>
+      </div>
+    </div>
+  </div>
+</div>
+{{end}}
+
+{{define "signupForm"}}
+<form action="/register" method="POST">
+  {{csrfField}}
+  <div class="form-group">
+    <label for="email">Email address</label>
+    <input type="email" name="email" class="form-control" id="email" placeholder="Email" value="{{.Email}}">
+  </div>
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input type="password" name="password" class="form-control" id="password" placeholder="Password">
+  </div>
+  <button type="submit" class="btn btn-primary">Sign Up</button>
+</form>
+{{end}}

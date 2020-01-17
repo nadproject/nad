@@ -16,12 +16,12 @@ import (
 // initial setup.
 func NewUsers(us models.UserService, ss models.SessionService) *Users {
 	return &Users{
-		NewView:      views.NewView("bootstrap", "users/new"),
-		LoginView:    views.NewView("bootstrap", "users/login"),
-		ForgotPwView: views.NewView("bootstrap", "users/forgot_pw"),
-		ResetPwView:  views.NewView("bootstrap", "users/reset_pw"),
-		us:           us,
-		ss:           ss,
+		NewView:   views.NewView("base", "users/new"),
+		LoginView: views.NewView("base", "users/login"),
+		//		ForgotPwView: views.NewView("base", "users/forgot_pw"),
+		//		ResetPwView:  views.NewView("base", "users/reset_pw"),
+		us: us,
+		ss: ss,
 	}
 }
 
@@ -79,9 +79,9 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 
 	alert := views.Alert{
 		Level:   views.AlertLvlSuccess,
-		Message: "Welcome to LensLocked.com!",
+		Message: "Welcome",
 	}
-	views.RedirectAlert(w, r, "/galleries", http.StatusFound, alert)
+	views.RedirectAlert(w, r, "/", http.StatusFound, alert)
 }
 
 // LoginForm is the form data for log in

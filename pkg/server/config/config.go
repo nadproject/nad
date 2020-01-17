@@ -23,6 +23,7 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/nadproject/nad/pkg/server/crypt"
 	"github.com/pkg/errors"
 )
 
@@ -42,6 +43,8 @@ var (
 	ErrDBMissingUser = errors.New("DB User is empty")
 	// ErrWebURLInvalid is an error for an incomplete configuration missing the user
 	ErrWebURLInvalid = errors.New("DB invalid WebURL")
+	// ErrCSRFAuthKeyRequired  is an error for a missing CSRF auth key
+	ErrCSRFAuthKeyRequired = errors.New("CSRF auth key is required")
 )
 
 // PostgresConfig holds the postgres connection configuration.
@@ -59,6 +62,7 @@ type Config struct {
 	AppEnv              string
 	Port                string
 	WebURL              string
+	CSRFAuthKey         string
 	OnPremise           bool
 	DisableRegistration bool
 	DB                  PostgresConfig
@@ -90,6 +94,21 @@ func loadDBConfig() PostgresConfig {
 	}
 }
 
+func readCSRFAuthKey() string {
+	key := os.Getenv("CSRF_AUTH_KEY")
+	if key != "" {
+		return key
+	}
+
+	// If not specified, use a random byte
+	b, err := crypt.RandomBytes(32)
+	if err != nil {
+		panic(errors.Wrap(err, "generating CSRF token"))
+	}
+
+	return string(b)
+}
+
 // Load constructs and returns a new config based on the environment variables.
 func Load() Config {
 	port := os.Getenv("PORT")
@@ -100,6 +119,7 @@ func Load() Config {
 	c := Config{
 		AppEnv:              os.Getenv("APP_ENV"),
 		WebURL:              os.Getenv("WEB_URL"),
+		CSRFAuthKey:         readCSRFAuthKey(),
 		Port:                port,
 		OnPremise:           readBoolEnv("ON_PREMISE"),
 		DisableRegistration: readBoolEnv("DISABLE_REGISTRATION"),
@@ -121,6 +141,9 @@ func (c Config) IsProd() bool {
 func validate(c Config) error {
 	if _, err := url.ParseRequestURI(c.WebURL); err != nil {
 		return ErrWebURLInvalid
+	}
+	if c.CSRFAuthKey == "" {
+		return ErrCSRFAuthKeyRequired
 	}
 
 	if c.DB.Host == "" {
