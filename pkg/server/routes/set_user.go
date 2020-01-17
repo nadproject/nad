@@ -8,7 +8,7 @@ import (
 	"github.com/nadproject/nad/pkg/server/models"
 )
 
-func setUser(inner http.Handler, ss models.SessionService, us models.UserService) http.HandlerFunc {
+func userMw(inner http.Handler, ss models.SessionService, us models.UserService) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user, err := AuthWithSession(r, ss, us)
 		if err != nil {

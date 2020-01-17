@@ -92,9 +92,15 @@ func loadDBConfig() PostgresConfig {
 
 // Load constructs and returns a new config based on the environment variables.
 func Load() Config {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3000"
+	}
+
 	c := Config{
 		AppEnv:              os.Getenv("APP_ENV"),
 		WebURL:              os.Getenv("WEB_URL"),
+		Port:                port,
 		OnPremise:           readBoolEnv("ON_PREMISE"),
 		DisableRegistration: readBoolEnv("DISABLE_REGISTRATION"),
 		DB:                  loadDBConfig(),
@@ -105,6 +111,11 @@ func Load() Config {
 	}
 
 	return c
+}
+
+// IsProd checks if the app environment is configured to be production.
+func (c Config) IsProd() bool {
+	return c.AppEnv == AppEnvProduction
 }
 
 func validate(c Config) error {

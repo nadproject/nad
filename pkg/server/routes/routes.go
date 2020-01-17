@@ -17,15 +17,17 @@ type Route struct {
 	RateLimit   bool
 }
 
-// NewWeb creates and returns a new router
-func NewWeb(c config.Config, s *models.Services) *mux.Router {
+// New creates and returns a new router
+func New(c config.Config, s *models.Services) *mux.Router {
+	router := mux.NewRouter().StrictSlash(true)
+
 	staticC := controllers.NewStatic()
+	// usersC := controllers.NewUsers(s.User, s.Session)
 
 	var routes = []Route{
 		{"GET", "/", staticC.Home, true},
+		// {"GET", "/register", usersC.New, true},
 	}
-
-	router := mux.NewRouter().StrictSlash(true)
 
 	for _, route := range routes {
 		handler := route.HandlerFunc

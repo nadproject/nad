@@ -30,9 +30,9 @@ import (
 // ServerKDFIteration is the iteration count for PBKDF on the server
 var ServerKDFIteration = 100000
 
-// getRandomBytes generates a cryptographically secure pseudorandom numbers of the
-// given size in byte
-func getRandomBytes(numBytes int) ([]byte, error) {
+// RandomBytes generates a cryptographically secure pseudorandom bytes of the
+// given size
+func RandomBytes(numBytes int) ([]byte, error) {
 	b := make([]byte, numBytes)
 	if _, err := rand.Read(b); err != nil {
 		return nil, errors.Wrap(err, "reading random bits")
@@ -41,10 +41,10 @@ func getRandomBytes(numBytes int) ([]byte, error) {
 	return b, nil
 }
 
-// GetRandomStr generates a cryptographically secure pseudorandom numbers of the
-// given size in byte
+// GetRandomStr generates a cryptographically secure pseudorandom bytes of the
+// given size, encoded in base64
 func GetRandomStr(numBytes int) (string, error) {
-	b, err := getRandomBytes(numBytes)
+	b, err := RandomBytes(numBytes)
 	if err != nil {
 		return "", errors.Wrap(err, "generating random bits")
 	}

@@ -13,17 +13,19 @@ import (
 )
 
 var (
-	LayoutDir   string = "views/layouts/"
+	// LayoutDir is the layout directory
+	LayoutDir string = "views/layouts/"
+	// TemplateDir is the template directory
 	TemplateDir string = "views/"
+	// TemplateExt is the template extension
 	TemplateExt string = ".gohtml"
 )
 
+// NewView returns a new view by parsing  the given layout and files
 func NewView(layout string, files ...string) *View {
 	addTemplatePath(files)
 	addTemplateExt(files)
 	files = append(files, layoutFiles()...)
-
-	log.Println(files)
 
 	t, err := template.New("").Funcs(template.FuncMap{
 		"csrfField": func() (template.HTML, error) {
@@ -40,6 +42,7 @@ func NewView(layout string, files ...string) *View {
 	}
 }
 
+// View holds the information about a view
 type View struct {
 	Template *template.Template
 	Layout   string
@@ -52,6 +55,7 @@ func (v *View) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // Render is used to render the view with the predefined layout.
 func (v *View) Render(w http.ResponseWriter, r *http.Request, data interface{}) {
 	w.Header().Set("Content-Type", "text/html")
+
 	var vd Data
 	switch d := data.(type) {
 	case Data:

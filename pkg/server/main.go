@@ -32,21 +32,6 @@ import (
 var versionTag = "master"
 var templateDir = flag.String("templateDir", "tpl/web", "the path to a directory containing templates")
 
-func newServer(c config.Config, s *models.Services) *http.ServeMux {
-	//	apiRouter, err := c.NewAPI()
-	//	if err != nil {
-	//		panic(errors.Wrap(err, "initializing api router"))
-	//	}
-
-	webRouter := routes.NewWeb(c, s)
-
-	mux := http.NewServeMux()
-	// mux.Handle("/api/", http.StripPrefix("/api", apiRouter))
-	mux.Handle("/", webRouter)
-
-	return mux
-}
-
 func startCmd() {
 	c := config.Load()
 
@@ -60,9 +45,9 @@ func startCmd() {
 	err = services.AutoMigrate()
 	must(err)
 
-	srv := newServer(c, services)
+	r := routes.New(c, services)
 	log.Printf("nad version %s is running on port %s", versionTag, c.Port)
-	log.Fatalln(http.ListenAndServe(":"+c.Port, srv))
+	log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%s", c.Port), r))
 }
 
 func versionCmd() {
