@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/gorilla/schema"
 	"github.com/pkg/errors"
@@ -32,10 +33,10 @@ func parseValues(values url.Values, dst interface{}) error {
 	return nil
 }
 
-// getCredential extracts a session key from the request from the request header. Concretely,
+// GetCredential extracts a session key from the request from the request header. Concretely,
 // it first looks at the 'Cookie' and then the 'Authorization' header. If no credential is found,
 // it returns an empty string.
-func getCredential(r *http.Request) (string, error) {
+func GetCredential(r *http.Request) (string, error) {
 	ret, err := getSessionKeyFromCookie(r)
 	if err != nil {
 		return "", errors.Wrap(err, "getting session key from cookie")
@@ -102,4 +103,34 @@ func parseAuthHeader(h string) (authHeader, error) {
 type authHeader struct {
 	scheme     string
 	credential string
+}
+
+const (
+	sessionCookieName = "id"
+	sessionCookiePath = "/"
+)
+
+func setSessionCookie(w http.ResponseWriter, key string, expires time.Time) {
+	cookie := http.Cookie{
+		Name:     sessionCookieName,
+		Value:    key,
+		Expires:  expires,
+		Path:     sessionCookiePath,
+		HttpOnly: true,
+	}
+	http.SetCookie(w, &cookie)
+}
+
+func unsetSessionCookie(w http.ResponseWriter) {
+	expires := time.Now().Add(time.Hour * -24 * 30)
+	cookie := http.Cookie{
+		Name:     sessionCookieName,
+		Value:    "",
+		Expires:  expires,
+		Path:     sessionCookiePath,
+		HttpOnly: true,
+	}
+
+	w.Header().Set("Cache-Control", "no-cache")
+	http.SetCookie(w, &cookie)
 }

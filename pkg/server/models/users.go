@@ -19,7 +19,8 @@ type User struct {
 	MaxUSN           int        `json:"-" gorm:"default:0"`
 	Pro              bool       `json:"-" gorm:"default:false"`
 	Email            string     `json:"-" gorm:"index"`
-	Password         string     `json:"-"`
+	Password         string     `gorm:"-" json:"-"`
+	PasswordHash     string     `json:"-"`
 	EmailVerified    bool       `gorm:"default:false"`
 }
 
@@ -64,7 +65,7 @@ func (us *userService) Authenticate(email, password string) (*User, error) {
 		return nil, err
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(foundUser.Password), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(foundUser.PasswordHash), []byte(password))
 	if err != nil {
 		switch err {
 		case bcrypt.ErrMismatchedHashAndPassword:
@@ -279,5 +280,5 @@ func (ug *userGorm) Create(user *User) error {
 
 // Update will update the provided user with the provided data
 func (ug *userGorm) Update(user *User) error {
-	return ug.db.Save(user).Error
+	return ug.db.Save(&user).Error
 }

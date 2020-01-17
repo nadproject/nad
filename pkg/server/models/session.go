@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"github.com/nadproject/nad/pkg/server/crypt"
+	"github.com/pkg/errors"
 )
 
 // Session represents a user session
@@ -19,6 +21,9 @@ type Session struct {
 // related to sessions.
 type SessionDB interface {
 	ByKey(key string) (*Session, error)
+
+	Create(*Session) error
+	Delete(key string) error
 }
 
 // sessionGorm encapsulates the actual implementations of
@@ -30,10 +35,31 @@ type sessionGorm struct {
 // SessionService is a set of methods for interacting with the session model
 type SessionService interface {
 	SessionDB
+	Login(userID uint) (*Session, error)
 }
 
 type sessionService struct {
 	SessionDB
+}
+
+func (ss sessionService) Login(userID uint) (*Session, error) {
+	key, err := crypt.GetRandomStr(32)
+	if err != nil {
+		return nil, errors.Wrap(err, "generating key")
+	}
+
+	session := Session{
+		UserID:     userID,
+		Key:        key,
+		LastUsedAt: time.Now(),
+		ExpiresAt:  time.Now().Add(24 * 100 * time.Hour),
+	}
+
+	if err := ss.SessionDB.Create(&session); err != nil {
+		return nil, errors.Wrap(err, "saving session")
+	}
+
+	return &session, nil
 }
 
 // NewSessionService returns a new sessionService
@@ -64,6 +90,22 @@ func (sg *sessionGorm) ByKey(key string) (*Session, error) {
 	return &ret, err
 }
 
+func (sg *sessionGorm) Delete(key string) error {
+	if err := sg.db.Where("key = ?", key).Delete(&Session{}).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (sg *sessionGorm) Create(s *Session) error {
+	if err := sg.db.Save(s).Error; err != nil {
+		return errors.Wrap(err, "saving session")
+	}
+
+	return nil
+}
+
 type sessionValFunc func(*Session) error
 
 func runSessionValFuncs(session *Session, fns ...sessionValFunc) error {
@@ -72,6 +114,15 @@ func runSessionValFuncs(session *Session, fns ...sessionValFunc) error {
 			return err
 		}
 	}
+	return nil
+}
+
+// Create validates the parameters for retreiving a sesison by key.
+func (sv *sessionValidator) Create(s *Session) error {
+	if err := runSessionValFuncs(s, sv.requireKey, sv.requireUserID); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -89,6 +140,14 @@ func (sv *sessionValidator) ByKey(key string) (*Session, error) {
 
 func (sv *sessionValidator) requireKey(s *Session) error {
 	if s.Key == "" {
+		return ErrSessionKeyRequired
+	}
+
+	return nil
+}
+
+func (sv *sessionValidator) requireUserID(s *Session) error {
+	if s.UserID == 0 {
 		return ErrSessionKeyRequired
 	}
 

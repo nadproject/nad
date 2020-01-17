@@ -33,15 +33,15 @@ const (
 
 var (
 	// ErrDBMissingHost is an error for an incomplete configuration missing the host
-	ErrDBMissingHost = errors.New("Host is empty")
+	ErrDBMissingHost = errors.New("DB Host is empty")
 	// ErrDBMissingPort is an error for an incomplete configuration missing the port
-	ErrDBMissingPort = errors.New("Port is empty")
+	ErrDBMissingPort = errors.New("DB Port is empty")
 	// ErrDBMissingName is an error for an incomplete configuration missing the name
-	ErrDBMissingName = errors.New("Name is empty")
+	ErrDBMissingName = errors.New("DB Name is empty")
 	// ErrDBMissingUser is an error for an incomplete configuration missing the user
-	ErrDBMissingUser = errors.New("User is empty")
+	ErrDBMissingUser = errors.New("DB User is empty")
 	// ErrWebURLInvalid is an error for an incomplete configuration missing the user
-	ErrWebURLInvalid = errors.New("invalid WebURL")
+	ErrWebURLInvalid = errors.New("DB invalid WebURL")
 )
 
 // PostgresConfig holds the postgres connection configuration.
