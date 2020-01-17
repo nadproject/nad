@@ -7,6 +7,10 @@
 
   <body>
     <div class="container-fluid">
+      {{if .Alert}}
+        {{template "alert" .Alert}}
+      {{end}}
+
       {{template "yield" .Yield}}
     </div>
 

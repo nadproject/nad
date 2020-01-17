@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"time"
 
-	// "github.com/nadproject/nad/pkg/server/context"
 	"github.com/nadproject/nad/pkg/server/models"
 	"github.com/nadproject/nad/pkg/server/views"
 	"github.com/pkg/errors"
@@ -67,7 +66,7 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 		Password: form.Password,
 	}
 	if err := u.us.Create(&user); err != nil {
-		vd.SetAlert(err)
+		handleError(w, http.StatusInternalServerError, &vd, err)
 		u.NewView.Render(w, r, vd)
 		return
 	}

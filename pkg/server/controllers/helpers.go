@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/gorilla/schema"
+	"github.com/nadproject/nad/pkg/server/log"
+	"github.com/nadproject/nad/pkg/server/views"
 	"github.com/pkg/errors"
 )
 
@@ -137,4 +139,11 @@ func unsetSessionCookie(w http.ResponseWriter) {
 
 	w.Header().Set("Cache-Control", "no-cache")
 	http.SetCookie(w, &cookie)
+}
+
+// handleError writes the error to the log and sets the error message in the data.
+func handleError(w http.ResponseWriter, statusCode int, d *views.Data, err error) {
+	w.WriteHeader(statusCode)
+	log.ErrorWrap(err, "[error]")
+	d.SetAlert(err)
 }

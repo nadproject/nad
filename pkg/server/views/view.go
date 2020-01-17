@@ -2,13 +2,14 @@ package views
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"io"
-	"log"
 	"net/http"
 	"path/filepath"
 
 	"github.com/gorilla/csrf"
+	"github.com/nadproject/nad/pkg/server/log"
 	"github.com/pkg/errors"
 )
 
@@ -79,7 +80,7 @@ func (v *View) Render(w http.ResponseWriter, r *http.Request, data interface{}) 
 		},
 	})
 	if err := tpl.ExecuteTemplate(&buf, v.Layout, vd); err != nil {
-		log.Println(err)
+		log.ErrorWrap(err, fmt.Sprintf("executing a template %s", v.Template.Name()))
 		http.Error(w, AlertMsgGeneric, http.StatusInternalServerError)
 		return
 	}
