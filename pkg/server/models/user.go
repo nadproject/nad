@@ -11,7 +11,7 @@ import (
 
 // User is a user model
 type User struct {
-	gorm.Model
+	Model
 	UUID             string     `json:"uuid" gorm:"type:uuid;index;default:uuid_generate_v4()"`
 	StripeCustomerID string     `json:"-"`
 	BillingCountry   string     `json:"-"`

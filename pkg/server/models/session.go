@@ -10,7 +10,7 @@ import (
 
 // Session represents a user session
 type Session struct {
-	gorm.Model
+	Model
 	UserID     uint   `gorm:"index"`
 	Key        string `gorm:"index"`
 	LastUsedAt time.Time

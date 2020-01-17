@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"github.com/jinzhu/gorm"
 )
 
@@ -13,4 +15,11 @@ func First(db *gorm.DB, dst interface{}) error {
 	}
 
 	return err
+}
+
+// Model is the base for the database model definitions.
+type Model struct {
+	ID        uint `gorm:"primary_key"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

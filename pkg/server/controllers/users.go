@@ -67,7 +67,7 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 		Password: form.Password,
 	}
 	if err := u.us.Create(&user); err != nil {
-		handleError(w, http.StatusInternalServerError, &vd, err)
+		handleError(w, &vd, err)
 		u.NewView.Render(w, r, vd)
 		return
 	}

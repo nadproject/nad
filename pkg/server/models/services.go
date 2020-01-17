@@ -72,5 +72,5 @@ func (s *Services) Close() error {
 // AutoMigrate automatically migrates all tables using a set of model
 // definitions.
 func (s *Services) AutoMigrate() error {
-	return s.db.AutoMigrate(&User{}).Error
+	return s.db.AutoMigrate(&User{}, &Session{}).Error
 }
