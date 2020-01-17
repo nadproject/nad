@@ -25,12 +25,20 @@ import (
 	"github.com/stripe/stripe-go"
 )
 
-// App is an application context
+// App is an application context.
 type App struct {
+	Config           config.Config
 	Clock            clock.Clock
 	StripeAPIBackend stripe.Backend
-	EmailTemplates   mailer.Templates
 	EmailBackend     mailer.Backend
+}
 
-	Config config.Config
+// New instantiates a new App.
+func New(cfg config.Config, cl clock.Clock, stripeBackend stripe.Backend, emailBackend mailer.Backend) App {
+	return App{
+		Config:           cfg,
+		Clock:            cl,
+		StripeAPIBackend: stripeBackend,
+		EmailBackend:     emailBackend,
+	}
 }

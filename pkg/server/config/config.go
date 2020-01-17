@@ -57,6 +57,7 @@ type PostgresConfig struct {
 // Config holds the application configuration
 type Config struct {
 	AppEnv              string
+	Port                string
 	WebURL              string
 	OnPremise           bool
 	DisableRegistration bool
@@ -127,14 +128,9 @@ func validate(c Config) error {
 	return nil
 }
 
-func (c PostgresConfig) getConnectionStr() (string, error) {
+// GetConnectionStr returns a postgres connection string.
+func (c PostgresConfig) GetConnectionStr() string {
 	return fmt.Sprintf(
 		"sslmode=%s host=%s port=%s dbname=%s user=%s password=%s",
-		c.SSLMode,
-		c.Host,
-		c.Port,
-		c.Name,
-		c.User,
-		c.Password,
-	), nil
+		c.SSLMode, c.Host, c.Port, c.Name, c.User, c.Password)
 }

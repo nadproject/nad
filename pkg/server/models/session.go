@@ -9,7 +9,7 @@ import (
 // Session represents a user session
 type Session struct {
 	gorm.Model
-	UserID     int    `gorm:"index"`
+	UserID     uint   `gorm:"index"`
 	Key        string `gorm:"index"`
 	LastUsedAt time.Time
 	ExpiresAt  time.Time
@@ -59,7 +59,7 @@ func newSessionValidator(sdb SessionDB) *sessionValidator {
 // ByKey looks up a session with the given key.
 func (sg *sessionGorm) ByKey(key string) (*Session, error) {
 	var ret Session
-	err := first(sg.db.Where("key = ?", key), &ret)
+	err := First(sg.db.Where("key = ?", key), &ret)
 
 	return &ret, err
 }

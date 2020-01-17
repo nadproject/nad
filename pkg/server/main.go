@@ -23,95 +23,50 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
-	"github.com/jinzhu/gorm"
-	"github.com/nadproject/nad/pkg/clock"
-	"github.com/nadproject/nad/pkg/server/app"
-	"github.com/nadproject/nad/pkg/server/database"
-	"github.com/nadproject/nad/pkg/server/dbconn"
-	"github.com/nadproject/nad/pkg/server/handlers"
-	"github.com/nadproject/nad/pkg/server/mailer"
+	"github.com/nadproject/nad/pkg/server/config"
 	"github.com/nadproject/nad/pkg/server/models"
 
 	"github.com/pkg/errors"
 )
 
 var versionTag = "master"
-var port = flag.String("port", "3000", "port to connect to")
 var templateDir = flag.String("templateDir", "tpl/web", "the path to a directory containing templates")
 
-func initServer(a app.App) (*http.ServeMux, error) {
-	c := handlers.Context{App: &a}
+func newServer(s *models.Services) *http.ServeMux {
+	//	apiRouter, err := c.NewAPI()
+	//	if err != nil {
+	//		panic(errors.Wrap(err, "initializing api router"))
+	//	}
 
-	apiRouter, err := c.NewAPI()
+	webRouter, err := c.NewWeb(s)
 	if err != nil {
-		return nil, errors.Wrap(err, "initializing api router")
-	}
-
-	webRouter, err := c.NewWeb()
-	if err != nil {
-		return nil, errors.Wrap(err, "initializing web router")
+		panic(errors.Wrap(err, "initializing web router"))
 	}
 
 	mux := http.NewServeMux()
-	mux.Handle("/api/", http.StripPrefix("/api", apiRouter))
+	// mux.Handle("/api/", http.StripPrefix("/api", apiRouter))
 	mux.Handle("/", webRouter)
 
-	return mux, nil
-}
-
-func initDB() *gorm.DB {
-	db := dbconn.Open(dbconn.Config{
-		Host:     os.Getenv("DBHost"),
-		Port:     os.Getenv("DBPort"),
-		Name:     os.Getenv("DBName"),
-		User:     os.Getenv("DBUser"),
-		Password: os.Getenv("DBPassword"),
-	})
-	database.InitSchema(db)
-
-	return db
-}
-
-func initApp() app.App {
-	db := initDB()
-
-	return app.App{
-		DB:               db,
-		Clock:            clock.New(),
-		StripeAPIBackend: nil,
-		EmailTemplates:   mailer.NewTemplates(nil),
-		EmailBackend:     &mailer.SimpleBackendImplementation{},
-		Config: app.Config{
-			WebURL:              os.Getenv("WebURL"),
-			OnPremise:           true,
-			DisableRegistration: os.Getenv("DisableRegistration") == "true",
-		},
-	}
+	return mux
 }
 
 func startCmd() {
+	c := config.Load()
+
 	services, err := models.NewServices(
-		models.WithGorm("postgres", dbCfg.ConnectionInfo()),
+		models.WithGorm("postgres", c.DB.GetConnectionStr()),
 		models.WithUser(),
 	)
 	must(err)
+	defer services.Close()
 
-	app := initApp()
-	defer app.DB.Close()
+	err = services.AutoMigrate()
+	must(err)
 
-	if err := database.Migrate(app.DB); err != nil {
-		panic(errors.Wrap(err, "running migrations"))
-	}
-
-	srv, err := initServer(app)
-	if err != nil {
-		panic(errors.Wrap(err, "initializing server"))
-	}
-
-	log.Printf("nad version %s is running on port %s", versionTag, *port)
-	log.Fatalln(http.ListenAndServe(":"+*port, srv))
+	srv := newServer(services)
+	log.Printf("nad version %s is running on port %s", versionTag, c.Port)
+	log.Fatalln(http.ListenAndServe(":"+c.Port, srv))
 }
 
 func versionCmd() {

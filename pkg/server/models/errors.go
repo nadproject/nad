@@ -21,6 +21,8 @@ const (
 	ErrPasswordRequired modelError = "password is required"
 	// ErrSessionKeyRequired is an error for missing session key
 	ErrSessionKeyRequired modelError = "session key is required"
+	// ErrIDInvalid is an error for missing session key
+	ErrIDInvalid modelError = "invalid id"
 )
 
 // Error returns a string repsentation of the error.

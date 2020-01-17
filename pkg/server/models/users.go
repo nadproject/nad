@@ -26,6 +26,7 @@ type User struct {
 // UserDB is an interface for database operations
 // related to users.
 type UserDB interface {
+	ByID(id uint) (*User, error)
 	ByUUID(uuid string) (*User, error)
 	ByEmail(email string) (*User, error)
 	BySession(token string) (*User, error)
@@ -97,6 +98,18 @@ func newUserValidator(udb UserDB) *userValidator {
 type userValidator struct {
 	UserDB
 	emailRegex *regexp.Regexp
+}
+
+// ByID validates the params for ByID
+func (uv *userValidator) ByID(id uint) (*User, error) {
+	var user User
+	user.ID = id
+	err := runUserValFuncs(&user, uv.idValid())
+	if err != nil {
+		return nil, err
+	}
+
+	return uv.UserDB.ByID(id)
 }
 
 // ByEmail normalizes the given email address.
@@ -195,6 +208,15 @@ func (uv *userValidator) passwordMinLength(user *User) error {
 	return nil
 }
 
+func (uv *userValidator) idValid() userValFunc {
+	return userValFunc(func(user *User) error {
+		if user.ID <= 0 {
+			return ErrIDInvalid
+		}
+		return nil
+	})
+}
+
 func (uv *userValidator) passwordRequired(user *User) error {
 	if user.Password == "" {
 		return ErrPasswordRequired
@@ -209,10 +231,18 @@ type userGorm struct {
 	db *gorm.DB
 }
 
+// ByID looks up the user with the given uuid
+func (ug *userGorm) ByID(id uint) (*User, error) {
+	var user User
+	err := First(ug.db.Where("id = ?", id), &user)
+
+	return &user, err
+}
+
 // ByUUID looks up the user with the given uuid
 func (ug *userGorm) ByUUID(uuid string) (*User, error) {
 	var user User
-	err := first(ug.db.Where("uuid = ?", uuid), &user)
+	err := First(ug.db.Where("uuid = ?", uuid), &user)
 
 	return &user, err
 }
@@ -220,7 +250,7 @@ func (ug *userGorm) ByUUID(uuid string) (*User, error) {
 // ByEmail looks up a user with the given email address and returns that user.
 func (ug *userGorm) ByEmail(email string) (*User, error) {
 	var user User
-	err := first(ug.db.Where("email = ?", email), &user)
+	err := First(ug.db.Where("email = ?", email), &user)
 
 	return &user, err
 }
@@ -228,13 +258,13 @@ func (ug *userGorm) ByEmail(email string) (*User, error) {
 // BySessionKey looks up a user with the given session key.
 func (ug *userGorm) BySession(sessionKey string) (*User, error) {
 	var session Session
-	err := first(ug.db.Where("key = ?", sessionKey), session)
+	err := First(ug.db.Where("key = ?", sessionKey), session)
 	if err != nil {
 		return nil, err
 	}
 
 	var user User
-	err = first(ug.db.Where("id = ?", session.UserID), &user)
+	err = First(ug.db.Where("id = ?", session.UserID), &user)
 	if err != nil {
 		return nil, err
 	}
