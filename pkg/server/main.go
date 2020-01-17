@@ -38,6 +38,7 @@ func startCmd() {
 	services, err := models.NewServices(
 		models.WithGorm("postgres", c.DB.GetConnectionStr()),
 		models.WithUser(),
+		models.WithSession(),
 	)
 	must(err)
 	defer services.Close()

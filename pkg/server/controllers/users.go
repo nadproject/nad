@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -243,6 +244,8 @@ func (u *Users) signIn(w http.ResponseWriter, user *models.User) error {
 	if err != nil {
 		return errors.Wrap(err, "logging in")
 	}
+
+	fmt.Println("HERE")
 
 	setSessionCookie(w, s.Key, s.ExpiresAt)
 
