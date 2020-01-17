@@ -1,27 +1,14 @@
 package models
 
-import "strings"
+import (
+	"strings"
+)
 
 type modelError string
 
-type badRequestError struct {
-	modelError
-}
-type conflictError struct {
-	modelError
-}
-
-// IsConflictError indicates that the error should return http status code conflict
-func (e conflictError) IsConflictError() bool {
-	return true
-}
-
-const (
-	// ErrNotFound an error that indicates that the given resource is not found
-	ErrNotFound modelError = "not found"
-)
-
 var (
+	// ErrNotFound an error that indicates that the given resource is not found
+	ErrNotFound notFoundError = notFoundError{"not found"}
 	// ErrEmailDuplicate is an error for duplicate email
 	ErrEmailDuplicate conflictError = conflictError{"duplicate email exists"}
 	// ErrLoginInvalid is an error for invalid login
@@ -54,8 +41,30 @@ func (e modelError) Public() string {
 	return strings.Title(s)
 }
 
+type badRequestError struct {
+	modelError
+}
+
 // IsBadRequest implements that the error is a bad request
 func (e badRequestError) IsBadRequest() bool {
+	return true
+}
+
+type conflictError struct {
+	modelError
+}
+
+// IsConflictError indicates that the error should return http status code conflict
+func (e conflictError) IsConflictError() bool {
+	return true
+}
+
+type notFoundError struct {
+	modelError
+}
+
+// IsNotFoundError indicates that the error should return http status code conflict
+func (e notFoundError) IsNotFoundError() bool {
 	return true
 }
 

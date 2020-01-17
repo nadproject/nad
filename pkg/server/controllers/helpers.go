@@ -143,11 +143,12 @@ func unsetSessionCookie(w http.ResponseWriter) {
 
 // handleError writes the error to the log and sets the error message in the data.
 func handleError(w http.ResponseWriter, d *views.Data, err error) {
-	if _, ok := err.(views.BadRequestError); ok {
+	switch err.(type) {
+	case views.BadRequestError:
 		w.WriteHeader(http.StatusBadRequest)
-	} else if _, ok := err.(views.ConflictError); ok {
+	case views.ConflictError:
 		w.WriteHeader(http.StatusConflict)
-	} else {
+	default:
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 

@@ -131,3 +131,9 @@ type ConflictError interface {
 	error
 	IsConflictError() bool
 }
+
+// NotFoundError is an error for bad request
+type NotFoundError interface {
+	error
+	IsNotFoundError() bool
+}
