@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/nadproject/nad/pkg/server/config"
 	"github.com/nadproject/nad/pkg/server/controllers"
+	"github.com/nadproject/nad/pkg/server/models"
 )
 
 // Route represents a single route
@@ -17,7 +18,7 @@ type Route struct {
 }
 
 // NewWeb creates and returns a new router
-func NewWeb(c config.Config) (*mux.Router, error) {
+func NewWeb(c config.Config, s *models.Services) *mux.Router {
 	staticC := controllers.NewStatic()
 
 	var routes = []Route{
@@ -30,9 +31,9 @@ func NewWeb(c config.Config) (*mux.Router, error) {
 		handler := route.HandlerFunc
 
 		router.
-			Handle(route.Pattern, applyMiddlewares(handler, c, route.RateLimit)).
+			Handle(route.Pattern, applyMiddlewares(handler, c, s, route.RateLimit)).
 			Methods(route.Method)
 	}
 
-	return router, nil
+	return router
 }

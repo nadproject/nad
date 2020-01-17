@@ -26,23 +26,19 @@ import (
 
 	"github.com/nadproject/nad/pkg/server/config"
 	"github.com/nadproject/nad/pkg/server/models"
-
-	"github.com/pkg/errors"
+	"github.com/nadproject/nad/pkg/server/routes"
 )
 
 var versionTag = "master"
 var templateDir = flag.String("templateDir", "tpl/web", "the path to a directory containing templates")
 
-func newServer(s *models.Services) *http.ServeMux {
+func newServer(c config.Config, s *models.Services) *http.ServeMux {
 	//	apiRouter, err := c.NewAPI()
 	//	if err != nil {
 	//		panic(errors.Wrap(err, "initializing api router"))
 	//	}
 
-	webRouter, err := c.NewWeb(s)
-	if err != nil {
-		panic(errors.Wrap(err, "initializing web router"))
-	}
+	webRouter := routes.NewWeb(c, s)
 
 	mux := http.NewServeMux()
 	// mux.Handle("/api/", http.StripPrefix("/api", apiRouter))
@@ -64,7 +60,7 @@ func startCmd() {
 	err = services.AutoMigrate()
 	must(err)
 
-	srv := newServer(services)
+	srv := newServer(c, services)
 	log.Printf("nad version %s is running on port %s", versionTag, c.Port)
 	log.Fatalln(http.ListenAndServe(":"+c.Port, srv))
 }
