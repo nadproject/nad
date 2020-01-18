@@ -21,11 +21,11 @@ type Route struct {
 func New(c config.Config, s *models.Services) http.Handler {
 	router := mux.NewRouter().StrictSlash(true)
 
-	staticC := controllers.NewStatic()
 	usersC := controllers.NewUsers(s.User, s.Session)
+	notesC := controllers.NewNotes(s.Note)
 
 	var routes = []Route{
-		{"GET", "/", staticC.Home, true},
+		{"GET", "/", http.HandlerFunc(notesC.Index), true},
 		{"GET", "/register", http.HandlerFunc(usersC.New), true},
 		{"POST", "/register", http.HandlerFunc(usersC.Create), true},
 	}

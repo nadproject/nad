@@ -42,6 +42,15 @@ func WithSession() ServicesConfig {
 	}
 }
 
+// WithNote returns a service configuration procedure that configures
+// a user service.
+func WithNote() ServicesConfig {
+	return func(s *Services) error {
+		s.Note = NewNoteService(s.db)
+		return nil
+	}
+}
+
 // NewServices instantiates a new Services by using the given slice of
 // service configuration procedures.
 func NewServices(cfgs ...ServicesConfig) (*Services, error) {
@@ -61,6 +70,7 @@ func NewServices(cfgs ...ServicesConfig) (*Services, error) {
 type Services struct {
 	User    UserService
 	Session SessionService
+	Note    NoteService
 	db      *gorm.DB
 }
 

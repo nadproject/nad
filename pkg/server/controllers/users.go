@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -10,10 +9,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-// NewUsers is used to create a new Users controller.
-// This function will panic if the templates are not
-// parsed correctly, and should only be used during
-// initial setup.
+// NewUsers creates a new Users controller.
+// It panics if the necessary templates are not parsed.
 func NewUsers(us models.UserService, ss models.SessionService) *Users {
 	return &Users{
 		NewView:   views.NewView("base", "users/new"),
@@ -244,8 +241,6 @@ func (u *Users) signIn(w http.ResponseWriter, user *models.User) error {
 	if err != nil {
 		return errors.Wrap(err, "logging in")
 	}
-
-	fmt.Println("HERE")
 
 	setSessionCookie(w, s.Key, s.ExpiresAt)
 

@@ -79,6 +79,9 @@ func (v *View) Render(w http.ResponseWriter, r *http.Request, data interface{}) 
 			return csrfField
 		},
 	})
+
+	fmt.Printf("our view data is: %+v", vd)
+
 	if err := tpl.ExecuteTemplate(&buf, v.Layout, vd); err != nil {
 		log.ErrorWrap(err, fmt.Sprintf("executing a template %s", v.Template.Name()))
 		http.Error(w, AlertMsgGeneric, http.StatusInternalServerError)

@@ -27,6 +27,10 @@ var (
 	ErrIDInvalid badRequestError = badRequestError{"invalid id"}
 	// ErrSessionUserIDRequired is an error for missing session key
 	ErrSessionUserIDRequired badRequestError = badRequestError{"user_id is required"}
+	// ErrNoteUUIDRequired is an error for missing session key
+	ErrNoteUUIDRequired badRequestError = badRequestError{"note uuid is required"}
+	// ErrNoteUserIDRequired is an error for missing session key
+	ErrNoteUserIDRequired badRequestError = badRequestError{"note user_id is required"}
 )
 
 // Error returns a string repsentation of the error.
