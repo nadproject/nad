@@ -83,15 +83,16 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 
 // LoginForm is the form data for log in
 type LoginForm struct {
-	Email    string `schema:"email"`
-	Password string `schema:"password"`
+	Email    string `schema:"email" json:"email"`
+	Password string `schema:"password" json:"password"`
 }
 
 // Login handles a request to POST /login
 func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 	vd := views.Data{}
 	form := LoginForm{}
-	if err := parseForm(r, &form); err != nil {
+
+	if err := parseRequestContent(r, &form); err != nil {
 		handleError(w, &vd, err)
 		u.LoginView.Render(w, r, vd)
 		return

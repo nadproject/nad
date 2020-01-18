@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/url"
 	"strings"
@@ -11,6 +12,33 @@ import (
 	"github.com/nadproject/nad/pkg/server/views"
 	"github.com/pkg/errors"
 )
+
+const (
+	contentTypeForm = "application/x-www-form-urlencoded"
+	contentTypeJSON = "application/json"
+)
+
+func parseRequestContent(r *http.Request, dst interface{}) error {
+	ct := r.Header.Get("Content-Type")
+
+	if ct == contentTypeForm {
+		if err := parseForm(r, dst); err != nil {
+			return errors.Wrap(err, "parsing form")
+		}
+
+		return nil
+	}
+
+	if ct == contentTypeJSON {
+		if err := parseJSON(r, dst); err != nil {
+			return errors.Wrap(err, "parsing JSON")
+		}
+
+		return nil
+	}
+
+	return errors.Errorf("Unrecognized content type: %s", ct)
+}
 
 func parseForm(r *http.Request, dst interface{}) error {
 	if err := r.ParseForm(); err != nil {
@@ -33,6 +61,16 @@ func parseValues(values url.Values, dst interface{}) error {
 	dec.IgnoreUnknownKeys(true)
 
 	if err := dec.Decode(dst, values); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func parseJSON(r *http.Request, dst interface{}) error {
+	dec := json.NewDecoder(r.Body)
+
+	if err := dec.Decode(dst); err != nil {
 		return err
 	}
 
