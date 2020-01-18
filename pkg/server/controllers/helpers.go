@@ -141,6 +141,11 @@ func unsetSessionCookie(w http.ResponseWriter) {
 	http.SetCookie(w, &cookie)
 }
 
+func logError(d *views.Data, err error) {
+	log.ErrorWrap(err, "[error]")
+	d.SetAlert(err)
+}
+
 // handleError writes the error to the log and sets the error message in the data.
 func handleError(w http.ResponseWriter, d *views.Data, err error) {
 	switch err.(type) {
@@ -152,6 +157,5 @@ func handleError(w http.ResponseWriter, d *views.Data, err error) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	log.ErrorWrap(err, "[error]")
-	d.SetAlert(err)
+	logError(d, err)
 }

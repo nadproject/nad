@@ -25,9 +25,12 @@ func New(c config.Config, s *models.Services) http.Handler {
 	notesC := controllers.NewNotes(s.Note)
 
 	var routes = []Route{
-		{"GET", "/", http.HandlerFunc(notesC.Index), true},
+		{"GET", "/", requireUserMw(http.HandlerFunc(notesC.Index), s.User), true},
 		{"GET", "/register", http.HandlerFunc(usersC.New), true},
 		{"POST", "/register", http.HandlerFunc(usersC.Create), true},
+		{"POST", "/logout", http.HandlerFunc(usersC.Logout), true},
+		{"GET", "/login", usersC.LoginView, true},
+		{"POST", "/login", http.HandlerFunc(usersC.Login), true},
 	}
 
 	for _, route := range routes {

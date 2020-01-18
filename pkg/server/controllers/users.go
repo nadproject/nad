@@ -22,7 +22,7 @@ func NewUsers(us models.UserService, ss models.SessionService) *Users {
 	}
 }
 
-// Users is a user controller
+// Users is a user controller.
 type Users struct {
 	NewView      *views.View
 	LoginView    *views.View
@@ -87,62 +87,52 @@ type LoginForm struct {
 	Password string `schema:"password"`
 }
 
-// Login is used to verify the provided email address and
-// password and then log the user in if they are correct.
-//
-// POST /login
-// func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
-// 	vd := views.Data{}
-// 	form := LoginForm{}
-// 	if err := parseForm(r, &form); err != nil {
-// 		vd.SetAlert(err)
-// 		u.LoginView.Render(w, r, vd)
-// 		return
-// 	}
-//
-// 	user, err := u.us.Authenticate(form.Email, form.Password)
-// 	if err != nil {
-// 		switch err {
-// 		case models.ErrNotFound:
-// 			vd.AlertError("Invalid email address")
-// 		default:
-// 			vd.SetAlert(err)
-// 		}
-// 		u.LoginView.Render(w, r, vd)
-// 		return
-// 	}
-//
-// 	err = u.signIn(w, user)
-// 	if err != nil {
-// 		vd.SetAlert(err)
-// 		u.LoginView.Render(w, r, vd)
-// 		return
-// 	}
-//
-// 	http.Redirect(w, r, "/galleries", http.StatusFound)
-// }
+// Login handles a request to POST /login
+func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
+	vd := views.Data{}
+	form := LoginForm{}
+	if err := parseForm(r, &form); err != nil {
+		handleError(w, &vd, err)
+		u.LoginView.Render(w, r, vd)
+		return
+	}
+
+	user, err := u.us.Authenticate(form.Email, form.Password)
+	if err != nil {
+		handleError(w, &vd, err)
+		u.LoginView.Render(w, r, vd)
+		return
+	}
+
+	err = u.signIn(w, user)
+	if err != nil {
+		handleError(w, &vd, err)
+		u.LoginView.Render(w, r, vd)
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusFound)
+}
 
 // Logout deletes a users session.
 func (u *Users) Logout(w http.ResponseWriter, r *http.Request) {
-	key, err := GetCredential(r)
-
 	var vd views.Data
+
+	key, err := GetCredential(r)
 	if err != nil {
-		vd.SetAlert(err)
-		u.LoginView.Render(w, r, vd)
+		logError(&vd, err)
+		views.RedirectAlert(w, r, "/", http.StatusFound, *vd.Alert)
 		return
 	}
 
 	if err = u.ss.Delete(key); err != nil {
-		vd.SetAlert(err)
-		u.LoginView.Render(w, r, vd)
+		logError(&vd, err)
+		views.RedirectAlert(w, r, "/", http.StatusFound, *vd.Alert)
 		return
 	}
 
 	unsetSessionCookie(w)
-	w.WriteHeader(http.StatusNoContent)
-
-	http.Redirect(w, r, "/", http.StatusFound)
+	http.Redirect(w, r, "/login", http.StatusFound)
 }
 
 // ResetPwForm is used to process the forgot password form

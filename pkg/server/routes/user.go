@@ -22,3 +22,16 @@ func userMw(inner http.Handler, ss models.SessionService, us models.UserService)
 		inner.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
+
+// requireUserMw redirects the request to the login page if user is not set
+func requireUserMw(inner http.Handler, us models.UserService) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user := context.User(r.Context())
+		if user == nil {
+			http.Redirect(w, r, "/login", http.StatusFound)
+			return
+		}
+
+		inner.ServeHTTP(w, r)
+	})
+}

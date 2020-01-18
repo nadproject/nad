@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/gorilla/csrf"
+	"github.com/nadproject/nad/pkg/server/context"
 	"github.com/nadproject/nad/pkg/server/log"
 	"github.com/pkg/errors"
 )
@@ -71,7 +72,7 @@ func (v *View) Render(w http.ResponseWriter, r *http.Request, data interface{}) 
 		vd.Alert = alert
 		clearAlert(w)
 	}
-	// vd.User = context.User(r.Context())
+	vd.User = context.User(r.Context())
 	var buf bytes.Buffer
 	csrfField := csrf.TemplateField(r)
 	tpl := v.Template.Funcs(template.FuncMap{
@@ -79,8 +80,6 @@ func (v *View) Render(w http.ResponseWriter, r *http.Request, data interface{}) 
 			return csrfField
 		},
 	})
-
-	fmt.Printf("our view data is: %+v", vd)
 
 	if err := tpl.ExecuteTemplate(&buf, v.Layout, vd); err != nil {
 		log.ErrorWrap(err, fmt.Sprintf("executing a template %s", v.Template.Name()))

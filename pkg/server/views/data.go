@@ -4,6 +4,8 @@ import (
 	"html/template"
 	"net/http"
 	"time"
+
+	"github.com/nadproject/nad/pkg/server/models"
 )
 
 const (
@@ -30,6 +32,7 @@ type Alert struct {
 type Data struct {
 	Alert *Alert
 	CSRF  template.HTML
+	User  *models.User
 	Yield interface{}
 }
 
