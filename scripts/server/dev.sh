@@ -16,7 +16,7 @@ set +a
 
 # run server
 moduleName="github.com/nadproject/nad"
-ldflags="-X '$moduleName/pkg/server/build.CSSFiles=nad' -X '$moduleName/pkg/server/build.JSFiles=nad' -X '$moduleName/pkg/server/build.Version=dev'"
+ldflags="-X '$moduleName/pkg/server/build.CSSFiles=nad' -X '$moduleName/pkg/server/build.JSFiles=nad' -X '$moduleName/pkg/server/build.Version=dev' "
 task="go run -ldflags \"$ldflags\" main.go start"
 
 #cd "$serverPath" && eval "${task}"
