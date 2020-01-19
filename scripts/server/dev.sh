@@ -15,8 +15,9 @@ source "$dotenvPath"
 set +a
 
 # run server
-task="go run -ldflags \"-X github.com/nadproject/nad/pkg/server/build.CSSFiles=watt,wat\" main.go start"
-
+moduleName="github.com/nadproject/nad"
+ldflags="-X '$moduleName/pkg/server/build.CSSFiles=nad' -X '$moduleName/pkg/server/build.JSFiles=nad' -X '$moduleName/pkg/server/build.Version=dev'"
+task="go run -ldflags \"$ldflags\" main.go start"
 
 #cd "$serverPath" && eval "${task}"
 (

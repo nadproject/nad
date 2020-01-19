@@ -25,6 +25,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"regexp"
 	"strings"
 	"syscall"
 	"time"
@@ -36,7 +37,10 @@ import (
 // splitCommandParts splits the given commad string at space, except
 // when inside a double quotation mark.
 func splitCommandParts(cmd string) []string {
-	r := csv.NewReader(strings.NewReader(cmd))
+	re := regexp.MustCompile(`\r?\n`)
+	s := re.ReplaceAllString(cmd, " ")
+
+	r := csv.NewReader(strings.NewReader(s))
 	r.Comma = ' '
 
 	fields, err := r.Read()
