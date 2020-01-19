@@ -19,7 +19,7 @@ const (
 	AlertLvlSuccess = "success"
 
 	// AlertMsgGeneric is a generic message for a server error
-	AlertMsgGeneric = "Something went wrong. Please try again, and contact us if the problem persists."
+	AlertMsgGeneric = "Something went wrong. Please try again."
 )
 
 // Alert is used to render Bootstrap Alert messages in templates

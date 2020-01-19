@@ -7,8 +7,10 @@ import (
 	"io"
 	"net/http"
 	"path/filepath"
+	"strings"
 
 	"github.com/gorilla/csrf"
+	"github.com/nadproject/nad/pkg/server/build"
 	"github.com/nadproject/nad/pkg/server/context"
 	"github.com/nadproject/nad/pkg/server/log"
 	"github.com/pkg/errors"
@@ -32,6 +34,9 @@ func NewView(layout string, files ...string) *View {
 	t, err := template.New("").Funcs(template.FuncMap{
 		"csrfField": func() (template.HTML, error) {
 			return "", errors.New("csrfField is not implemented")
+		},
+		"css": func() []string {
+			return strings.Split(build.CSSFiles, ",")
 		},
 	}).ParseFiles(files...)
 	if err != nil {
@@ -68,11 +73,14 @@ func (v *View) Render(w http.ResponseWriter, r *http.Request, data interface{}) 
 			Yield: data,
 		}
 	}
+
 	if alert := getAlert(r); alert != nil {
 		vd.Alert = alert
 		clearAlert(w)
 	}
+
 	vd.User = context.User(r.Context())
+
 	var buf bytes.Buffer
 	csrfField := csrf.TemplateField(r)
 	tpl := v.Template.Funcs(template.FuncMap{

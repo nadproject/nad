@@ -24,12 +24,12 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/nadproject/nad/pkg/server/build"
 	"github.com/nadproject/nad/pkg/server/config"
 	"github.com/nadproject/nad/pkg/server/models"
 	"github.com/nadproject/nad/pkg/server/routes"
 )
 
-var versionTag = "master"
 var templateDir = flag.String("templateDir", "tpl/web", "the path to a directory containing templates")
 
 func startCmd() {
@@ -48,12 +48,12 @@ func startCmd() {
 	must(err)
 
 	r := routes.New(c, services)
-	log.Printf("nad version %s is running on port %s", versionTag, c.Port)
+	log.Printf("nad version %s is running on port %s", build.Version, c.Port)
 	log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%s", c.Port), r))
 }
 
 func versionCmd() {
-	fmt.Printf("nad-server-%s\n", versionTag)
+	fmt.Printf("nad-server-%s\n", build.Version)
 }
 
 func rootCmd() {
