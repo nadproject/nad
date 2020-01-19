@@ -41,5 +41,9 @@ func New(c config.Config, s *models.Services) http.Handler {
 			Methods(route.Method)
 	}
 
+	staticHandler := http.FileServer(http.Dir("./static/"))
+	staticHandler = http.StripPrefix("/static/", staticHandler)
+	router.PathPrefix("/static/").Handler(staticHandler)
+
 	return router
 }
