@@ -23,6 +23,7 @@ func New(c config.Config, s *models.Services) http.Handler {
 
 	usersC := controllers.NewUsers(s.User, s.Session)
 	notesC := controllers.NewNotes(s.Note)
+	staticC := controllers.NewStatic()
 
 	var routes = []Route{
 		{"GET", "/", requireUserMw(http.HandlerFunc(notesC.Index), s.User), true},
@@ -41,9 +42,10 @@ func New(c config.Config, s *models.Services) http.Handler {
 			Methods(route.Method)
 	}
 
-	staticHandler := http.FileServer(http.Dir("./static/"))
-	staticHandler = http.StripPrefix("/static/", staticHandler)
+	staticHandler := http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))
 	router.PathPrefix("/static/").Handler(staticHandler)
 
-	return router
+	router.PathPrefix("/").HandlerFunc(staticC.NotFound)
+
+	return loggingMw(router)
 }

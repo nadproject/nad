@@ -16,6 +16,11 @@ type logResponseWriter struct {
 	statusCode int
 }
 
+func (w *logResponseWriter) WriteHeader(code int) {
+	w.statusCode = code
+	w.ResponseWriter.WriteHeader(code)
+}
+
 func loggingMw(inner http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()

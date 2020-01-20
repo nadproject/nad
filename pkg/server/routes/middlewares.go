@@ -14,7 +14,6 @@ func applyMiddlewares(h http.Handler, c config.Config, s *models.Services, rateL
 	ret := h
 	ret = userMw(ret, s.Session, s.User)
 	ret = csrfMw(ret)
-	ret = loggingMw(ret)
 
 	if rateLimit && c.AppEnv != "TEST" {
 		ret = limitMw(ret)
