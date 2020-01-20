@@ -13,8 +13,8 @@ import (
 // It panics if the necessary templates are not parsed.
 func NewUsers(us models.UserService, ss models.SessionService) *Users {
 	return &Users{
-		NewView:   views.NewView("base", "users/new"),
-		LoginView: views.NewView("base", "users/login"),
+		NewView:   views.NewView(views.Config{Title: "Register", Layout: "base"}, "users/new"),
+		LoginView: views.NewView(views.Config{Title: "Sign in to NAD", Layout: "base"}, "users/login"),
 		//		ForgotPwView: views.NewView("base", "users/forgot_pw"),
 		//		ResetPwView:  views.NewView("base", "users/reset_pw"),
 		us: us,

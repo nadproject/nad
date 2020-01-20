@@ -5,7 +5,7 @@ import "github.com/nadproject/nad/pkg/server/views"
 // NewStatic creates a new Static controller.
 func NewStatic() *Static {
 	return &Static{
-		Home: views.NewView("base", "static/home"),
+		// Home: views.NewView("Home", "base", "static/home"),
 	}
 }
 

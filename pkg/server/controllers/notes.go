@@ -11,7 +11,7 @@ import (
 // NewNotes creates a new Notes controller.
 func NewNotes(ns models.NoteService) *Notes {
 	return &Notes{
-		IndexView: views.NewView("base", "notes/index"),
+		IndexView: views.NewView(views.Config{Title: "", Layout: "base"}, "notes/index"),
 		ns:        ns,
 	}
 }

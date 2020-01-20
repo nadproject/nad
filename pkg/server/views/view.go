@@ -16,7 +16,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-var (
+const (
 	// LayoutDir is the layout directory
 	LayoutDir string = "views/layouts/"
 	// TemplateDir is the template directory
@@ -25,8 +25,27 @@ var (
 	TemplateExt string = ".gohtml"
 )
 
+const (
+	siteTitle = "NAD"
+)
+
+// Config is a view config
+type Config struct {
+	Title          string
+	Layout         string
+	HeaderTemplate string
+}
+
+func (c Config) getLayout() string {
+	if c.Layout == "" {
+		return "base"
+	}
+
+	return c.Layout
+}
+
 // NewView returns a new view by parsing  the given layout and files
-func NewView(layout string, files ...string) *View {
+func NewView(c Config, files ...string) *View {
 	addTemplatePath(files)
 	addTemplateExt(files)
 	files = append(files, layoutFiles()...)
@@ -38,6 +57,16 @@ func NewView(layout string, files ...string) *View {
 		"css": func() []string {
 			return strings.Split(build.CSSFiles, ",")
 		},
+		"title": func() string {
+			if c.Title != "" {
+				return fmt.Sprintf("%s | %s", c.Title, siteTitle)
+			}
+
+			return siteTitle
+		},
+		"headerTemplate": func() string {
+			return c.HeaderTemplate
+		},
 	}).ParseFiles(files...)
 	if err != nil {
 		panic(errors.Wrap(err, "instantiating view."))
@@ -45,7 +74,7 @@ func NewView(layout string, files ...string) *View {
 
 	return &View{
 		Template: t,
-		Layout:   layout,
+		Layout:   c.getLayout(),
 	}
 }
 
