@@ -1,5 +1,5 @@
 {{define "yield"}}
-<div class="login-page">
+<div class="auth-page">
   <div class="container">
     <h1 class="heading">Sign in to NAD</h1>
 
@@ -25,13 +25,13 @@
 <form action="/login" method="POST">
   {{csrfField}}
 
-
   <div class="input-row">
-    <label htmlFor="email-input" class="label">
+    <label for="email-input" class="label">
       Email
       <input
         tabindex="1"
         id="email-input"
+        name="email"
         type="email"
         placeholder="you@example.com"
         class="form-control"
@@ -40,7 +40,7 @@
   </div>
 
   <div class="input-row">
-    <label htmlFor="password-input" class="label">
+    <label for="password-input" class="label">
       Password
       <a href="/forgot" class="forgot">
         Forgot?
@@ -48,6 +48,7 @@
       <input
         tabindex="2"
         id="password-input"
+        name="password"
         type="password"
         placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
         class="form-control"

@@ -35,13 +35,11 @@
   vertical-align: middle;
   user-select: none;
   border-image: initial;
-  border-radius: 0.25rem;
   transition-property: color, box-shadow;
   transition-duration: 0.2s;
   transition-timing-function: ease-in-out;
-
   text-decoration: none;
-  border-radius: 5px;
+  border-radius: 2px;
   cursor: pointer;
 
   &:not(.button-no-ui) {

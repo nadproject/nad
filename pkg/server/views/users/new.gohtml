@@ -1,16 +1,19 @@
 {{define "yield"}}
-<div class="row">
-  <div class="col-md-4 col-md-offset-4">
-    <div class="panel panel-primary">
-      <div class="panel-heading">
-        <h1>Join nad</h1>
+<div class="auth-page">
+  <div class="container">
+    <h1 class="heading">Register</h1>
+
+    <div class="body">
+      <div class="panel">
+        {{template "signupForm"}}
       </div>
-      <div class="panel-body">
-        {{template "signupForm" .}}
-      </div>
-      <div class="panel-footer">
-        <a href="/login">Already have an account?</a>
-      </div>
+    </div>
+
+    <div class="footer">
+      <div class="callout">Already have an account?</div>
+      <a href="/login" class="cta">
+        Sign in
+      </a>
     </div>
   </div>
 </div>
@@ -19,14 +22,37 @@
 {{define "signupForm"}}
 <form action="/register" method="POST">
   {{csrfField}}
+
   <div class="form-group">
-    <label for="email">Email address</label>
-    <input type="email" name="email" class="form-control" id="email" placeholder="Email" value="{{.Email}}">
+    <div class="input-row">
+      <label for="email-input" class="label">
+        Email
+        <input
+          id="email-input"
+          name="email"
+          type="email"
+          placeholder="you@example.com"
+          class="form-control"
+          value="{{.Email}}"
+        />
+      </label>
+    </div>
+
+    <div class="input-row">
+      <label for="password-input" class="label">
+        Password
+        <input
+          tabindex="2"
+          id="password-input"
+          name="password"
+          type="password"
+          placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
+          class="form-control"
+        />
+      </label>
+    </div>
+
+    <button  type="submit" class="auth-button button button-normal button-stretch button-third">Register</button>
   </div>
-  <div class="form-group">
-    <label for="password">Password</label>
-    <input type="password" name="password" class="form-control" id="password" placeholder="Password">
-  </div>
-  <button type="submit" class="btn btn-primary">Sign Up</button>
 </form>
 {{end}}

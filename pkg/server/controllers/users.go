@@ -13,8 +13,8 @@ import (
 // It panics if the necessary templates are not parsed.
 func NewUsers(us models.UserService, ss models.SessionService) *Users {
 	return &Users{
-		NewView:   views.NewView(views.Config{Title: "Register", Layout: "base"}, "users/new"),
-		LoginView: views.NewView(views.Config{Title: "Sign in to NAD", Layout: "base"}, "users/login"),
+		NewView:   views.NewView(views.Config{Title: "Join", Layout: "base"}, "users/new"),
+		LoginView: views.NewView(views.Config{Title: "Sign in", Layout: "base"}, "users/login"),
 		//		ForgotPwView: views.NewView("base", "users/forgot_pw"),
 		//		ResetPwView:  views.NewView("base", "users/reset_pw"),
 		us: us,
@@ -50,7 +50,7 @@ type SignupForm struct {
 
 // Create creates a new user.
 func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
-	var vd views.Data
+	vd := views.Data{}
 	var form SignupForm
 	vd.Yield = &form
 	if err := parseForm(r, &form); err != nil {
