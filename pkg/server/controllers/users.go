@@ -111,8 +111,7 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = u.signIn(w, user)
-	if err != nil {
+	if err = u.signIn(w, user); err != nil {
 		handleError(w, &vd, err)
 		u.LoginView.Render(w, r, vd)
 		return

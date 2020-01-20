@@ -19,7 +19,9 @@ moduleName="github.com/nadproject/nad"
 ldflags="-X '$moduleName/pkg/server/build.CSSFiles=nad.css' -X '$moduleName/pkg/server/build.JSFiles=nad.js' -X '$moduleName/pkg/server/build.Version=dev' "
 task="go run -ldflags \"$ldflags\" main.go start"
 
-#cd "$serverPath" && eval "${task}"
+# run asset pipeline in the background
+(cd "$serverPath/assets/" && "$serverPath/assets/scripts/sass.sh" ) &
+
 (
   cd "$basePath/pkg/watcher" && \
   go run main.go \
