@@ -51,6 +51,7 @@ func getReq(ctx context.NadCtx, path, method, body string) (*http.Request, error
 	}
 
 	req.Header.Set("CLI-Version", ctx.Version)
+	req.Header.Set("Content-Type", "application/json")
 
 	if ctx.SessionKey != "" {
 		credential := fmt.Sprintf("Bearer %s", ctx.SessionKey)
@@ -125,7 +126,7 @@ type GetSyncStateResp struct {
 func GetSyncState(ctx context.NadCtx) (GetSyncStateResp, error) {
 	var ret GetSyncStateResp
 
-	res, err := doAuthorizedReq(ctx, "GET", "/v3/sync/state", "", nil)
+	res, err := doAuthorizedReq(ctx, "GET", "/v1/sync/state", "", nil)
 	if err != nil {
 		return ret, errors.Wrap(err, "constructing http request")
 	}
@@ -191,7 +192,7 @@ func GetSyncFragment(ctx context.NadCtx, afterUSN int) (GetSyncFragmentResp, err
 	v.Set("after_usn", strconv.Itoa(afterUSN))
 	queryStr := v.Encode()
 
-	path := fmt.Sprintf("/v3/sync/fragment?%s", queryStr)
+	path := fmt.Sprintf("/v1/sync/fragment?%s", queryStr)
 	res, err := doAuthorizedReq(ctx, "GET", path, "", nil)
 
 	body, err := ioutil.ReadAll(res.Body)
@@ -237,7 +238,7 @@ func CreateBook(ctx context.NadCtx, label string) (CreateBookResp, error) {
 		return CreateBookResp{}, errors.Wrap(err, "marshaling payload")
 	}
 
-	res, err := doAuthorizedReq(ctx, "POST", "/v3/books", string(b), nil)
+	res, err := doAuthorizedReq(ctx, "POST", "/v1/books", string(b), nil)
 	if err != nil {
 		return CreateBookResp{}, errors.Wrap(err, "posting a book to the server")
 	}
@@ -269,7 +270,7 @@ func UpdateBook(ctx context.NadCtx, label, uuid string) (UpdateBookResp, error) 
 		return UpdateBookResp{}, errors.Wrap(err, "marshaling payload")
 	}
 
-	endpoint := fmt.Sprintf("/v3/books/%s", uuid)
+	endpoint := fmt.Sprintf("/v1/books/%s", uuid)
 	res, err := doAuthorizedReq(ctx, "PATCH", endpoint, string(b), nil)
 	if err != nil {
 		return UpdateBookResp{}, errors.Wrap(err, "posting a book to the server")
@@ -291,7 +292,7 @@ type DeleteBookResp struct {
 
 // DeleteBook deletes a book in the server
 func DeleteBook(ctx context.NadCtx, uuid string) (DeleteBookResp, error) {
-	endpoint := fmt.Sprintf("/v3/books/%s", uuid)
+	endpoint := fmt.Sprintf("/v1/books/%s", uuid)
 	res, err := doAuthorizedReq(ctx, "DELETE", endpoint, "", nil)
 	if err != nil {
 		return DeleteBookResp{}, errors.Wrap(err, "deleting a book in the server")
@@ -349,7 +350,7 @@ func CreateNote(ctx context.NadCtx, bookUUID, content string) (CreateNoteResp, e
 		return CreateNoteResp{}, errors.Wrap(err, "marshaling payload")
 	}
 
-	res, err := doAuthorizedReq(ctx, "POST", "/v3/notes", string(b), nil)
+	res, err := doAuthorizedReq(ctx, "POST", "/v1/notes", string(b), nil)
 	if err != nil {
 		return CreateNoteResp{}, errors.Wrap(err, "posting a book to the server")
 	}
@@ -386,7 +387,7 @@ func UpdateNote(ctx context.NadCtx, uuid, bookUUID, content string, public bool)
 		return UpdateNoteResp{}, errors.Wrap(err, "marshaling payload")
 	}
 
-	endpoint := fmt.Sprintf("/v3/notes/%s", uuid)
+	endpoint := fmt.Sprintf("/v1/notes/%s", uuid)
 	res, err := doAuthorizedReq(ctx, "PATCH", endpoint, string(b), nil)
 	if err != nil {
 		return UpdateNoteResp{}, errors.Wrap(err, "patching a note to the server")
@@ -408,7 +409,7 @@ type DeleteNoteResp struct {
 
 // DeleteNote removes a note in the server
 func DeleteNote(ctx context.NadCtx, uuid string) (DeleteNoteResp, error) {
-	endpoint := fmt.Sprintf("/v3/notes/%s", uuid)
+	endpoint := fmt.Sprintf("/v1/notes/%s", uuid)
 	res, err := doAuthorizedReq(ctx, "DELETE", endpoint, "", nil)
 	if err != nil {
 		return DeleteNoteResp{}, errors.Wrap(err, "patching a note to the server")
@@ -430,7 +431,7 @@ type GetBooksResp []struct {
 
 // GetBooks gets books from the server
 func GetBooks(ctx context.NadCtx, sessionKey string) (GetBooksResp, error) {
-	res, err := doAuthorizedReq(ctx, "GET", "/v3/books", "", nil)
+	res, err := doAuthorizedReq(ctx, "GET", "/v1/books", "", nil)
 	if err != nil {
 		return GetBooksResp{}, errors.Wrap(err, "making http request")
 	}
@@ -443,33 +444,13 @@ func GetBooks(ctx context.NadCtx, sessionKey string) (GetBooksResp, error) {
 	return resp, nil
 }
 
-// PresigninResponse is a reponse from /v3/presignin endpoint
-type PresigninResponse struct {
-	Iteration int `json:"iteration"`
-}
-
-// GetPresignin gets presignin credentials
-func GetPresignin(ctx context.NadCtx, email string) (PresigninResponse, error) {
-	res, err := doReq(ctx, "GET", fmt.Sprintf("/v3/presignin?email=%s", email), "", nil)
-	if err != nil {
-		return PresigninResponse{}, errors.Wrap(err, "making http request")
-	}
-
-	var resp PresigninResponse
-	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
-		return PresigninResponse{}, errors.Wrap(err, "decoding payload")
-	}
-
-	return resp, nil
-}
-
-// SigninPayload is a payload for /v3/signin
+// SigninPayload is a payload for /v1/signin
 type SigninPayload struct {
 	Email    string `json:"email"`
 	Passowrd string `json:"password"`
 }
 
-// SigninResponse is a response from /v3/signin endpoint
+// SigninResponse is a response from /v1/signin endpoint
 type SigninResponse struct {
 	Key       string `json:"key"`
 	ExpiresAt int64  `json:"expires_at"`
@@ -485,7 +466,7 @@ func Signin(ctx context.NadCtx, email, password string) (SigninResponse, error) 
 	if err != nil {
 		return SigninResponse{}, errors.Wrap(err, "marshaling payload")
 	}
-	res, err := doReq(ctx, "POST", "/v3/signin", string(b), nil)
+	res, err := doReq(ctx, "POST", "/v1/signin", string(b), nil)
 	if err != nil {
 		return SigninResponse{}, errors.Wrap(err, "making http request")
 	}
@@ -514,7 +495,7 @@ func Signout(ctx context.NadCtx, sessionKey string) error {
 	opts := requestOptions{
 		HTTPClient: &hc,
 	}
-	_, err := doAuthorizedReq(ctx, "POST", "/v3/signout", "", &opts)
+	_, err := doAuthorizedReq(ctx, "POST", "/v1/signout", "", &opts)
 	if err != nil {
 		return errors.Wrap(err, "making http request")
 	}

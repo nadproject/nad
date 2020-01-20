@@ -17,6 +17,16 @@ type Route struct {
 	RateLimit bool
 }
 
+func registerRoutes(router *mux.Router, mw middleware, c config.Config, s *models.Services, routes []Route) {
+	for _, route := range routes {
+		wrappedHandler := mw(route.Handler, c, s, route.RateLimit)
+
+		router.
+			Handle(route.Pattern, wrappedHandler).
+			Methods(route.Method)
+	}
+}
+
 // New creates and returns a new router
 func New(c config.Config, s *models.Services) http.Handler {
 	router := mux.NewRouter().StrictSlash(true)
@@ -25,7 +35,7 @@ func New(c config.Config, s *models.Services) http.Handler {
 	notesC := controllers.NewNotes(s.Note)
 	staticC := controllers.NewStatic()
 
-	var routes = []Route{
+	var webRoutes = []Route{
 		{"GET", "/", requireUserMw(http.HandlerFunc(notesC.Index), s.User), true},
 		{"GET", "/register", http.HandlerFunc(usersC.New), true},
 		{"POST", "/register", http.HandlerFunc(usersC.Create), true},
@@ -33,18 +43,20 @@ func New(c config.Config, s *models.Services) http.Handler {
 		{"GET", "/login", usersC.LoginView, true},
 		{"POST", "/login", http.HandlerFunc(usersC.Login), true},
 	}
+	webRouter := router.PathPrefix("/").Subrouter()
+	registerRoutes(webRouter, webMw, c, s, webRoutes)
 
-	for _, route := range routes {
-		wrapperHandler := applyMiddlewares(route.Handler, c, s, route.RateLimit)
-
-		router.
-			Handle(route.Pattern, wrapperHandler).
-			Methods(route.Method)
+	var apiRoutes = []Route{
+		{"POST", "/v1/signin", http.HandlerFunc(usersC.Login), true},
 	}
+	apiRouter := router.PathPrefix("/api").Subrouter()
+	registerRoutes(apiRouter, apiMw, c, s, apiRoutes)
 
+	// static
 	staticHandler := http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))
 	router.PathPrefix("/static/").Handler(staticHandler)
 
+	// catch-all
 	router.PathPrefix("/").HandlerFunc(staticC.NotFound)
 
 	return loggingMw(router)

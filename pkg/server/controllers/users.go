@@ -87,7 +87,7 @@ type LoginForm struct {
 	Password string `schema:"password" json:"password"`
 }
 
-// Login handles a request to POST /login
+// Login handles POST: /login and POST: /v1/login
 func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 	vd := views.Data{}
 	form := LoginForm{}
@@ -100,7 +100,13 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 
 	user, err := u.us.Authenticate(form.Email, form.Password)
 	if err != nil {
-		handleError(w, &vd, err)
+		// If the user is not found, treat it as invalid login
+		if err == models.ErrNotFound {
+			handleError(w, &vd, models.ErrLoginInvalid)
+		} else {
+			handleError(w, &vd, err)
+		}
+
 		u.LoginView.Render(w, r, vd)
 		return
 	}
