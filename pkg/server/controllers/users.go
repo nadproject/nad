@@ -15,10 +15,8 @@ func NewUsers(us models.UserService, ss models.SessionService) *Users {
 	return &Users{
 		NewView:   views.NewView(views.Config{Title: "Join", Layout: "base"}, "users/new"),
 		LoginView: views.NewView(views.Config{Title: "Sign in", Layout: "base"}, "users/login"),
-		//		ForgotPwView: views.NewView("base", "users/forgot_pw"),
-		//		ResetPwView:  views.NewView("base", "users/reset_pw"),
-		us: us,
-		ss: ss,
+		us:        us,
+		ss:        ss,
 	}
 }
 
@@ -32,26 +30,23 @@ type Users struct {
 	ss           models.SessionService
 }
 
-// New is used to render the form where a user can
-// create a new user account.
-//
-// GET /signup
+// New handles GET /register
 func (u *Users) New(w http.ResponseWriter, r *http.Request) {
-	var form SignupForm
+	var form RegistrationForm
 	parseURLParams(r, &form)
 	u.NewView.Render(w, r, form)
 }
 
-// SignupForm is the form data for sign up
-type SignupForm struct {
+// RegistrationForm is the form data for registering
+type RegistrationForm struct {
 	Email    string `schema:"email"`
 	Password string `schema:"password"`
 }
 
-// Create creates a new user.
+// Create handles POST /register
 func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 	vd := views.Data{}
-	var form SignupForm
+	var form RegistrationForm
 	vd.Yield = &form
 	if err := parseForm(r, &form); err != nil {
 		vd.SetAlert(err)
@@ -64,15 +59,18 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 		Password: form.Password,
 	}
 	if err := u.us.Create(&user); err != nil {
-		handleError(w, &vd, err)
+		handleHTMLError(w, err, "creating user", &vd)
 		u.NewView.Render(w, r, vd)
 		return
 	}
 
-	if err := u.signIn(w, &user); err != nil {
+	s, err := u.signIn(&user)
+	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusFound)
 		return
 	}
+
+	setSessionCookie(w, s.Key, s.ExpiresAt)
 
 	alert := views.Alert{
 		Level:   views.AlertLvlSuccess,
@@ -87,58 +85,94 @@ type LoginForm struct {
 	Password string `schema:"password" json:"password"`
 }
 
-// Login handles POST: /login and POST: /v1/login
-func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
-	vd := views.Data{}
+func (u *Users) login(r *http.Request) (*models.Session, error) {
 	form := LoginForm{}
 
 	if err := parseRequestContent(r, &form); err != nil {
-		handleError(w, &vd, err)
-		u.LoginView.Render(w, r, vd)
-		return
+		return nil, err
 	}
 
 	user, err := u.us.Authenticate(form.Email, form.Password)
 	if err != nil {
 		// If the user is not found, treat it as invalid login
 		if err == models.ErrNotFound {
-			handleError(w, &vd, models.ErrLoginInvalid)
-		} else {
-			handleError(w, &vd, err)
+			return nil, models.ErrLoginInvalid
 		}
 
+		return nil, err
+	}
+
+	s, err := u.signIn(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return s, nil
+}
+
+// Login handles POST: /login
+func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
+	vd := views.Data{}
+
+	s, err := u.login(r)
+	if err != nil {
+		handleHTMLError(w, err, "logging in user", &vd)
 		u.LoginView.Render(w, r, vd)
 		return
 	}
 
-	if err = u.signIn(w, user); err != nil {
-		handleError(w, &vd, err)
-		u.LoginView.Render(w, r, vd)
-		return
-	}
-
+	setSessionCookie(w, s.Key, s.ExpiresAt)
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-// Logout deletes a users session.
-func (u *Users) Logout(w http.ResponseWriter, r *http.Request) {
-	var vd views.Data
-
-	key, err := GetCredential(r)
+// V1Login handles POST /v1/login
+func (u *Users) V1Login(w http.ResponseWriter, r *http.Request) {
+	s, err := u.login(r)
 	if err != nil {
-		logError(&vd, err)
-		views.RedirectAlert(w, r, "/", http.StatusFound, *vd.Alert)
+		handleJSONError(w, err, "logging in user")
 		return
 	}
 
+	respondWithSession(w, http.StatusOK, *s)
+}
+
+// logout deletes a users session.
+func (u *Users) logout(r *http.Request) error {
+	key, err := GetCredential(r)
+	if err != nil {
+		return errors.Wrap(err, "getting credential")
+	}
+
 	if err = u.ss.Delete(key); err != nil {
-		logError(&vd, err)
+		return errors.Wrap(err, "deleting user")
+	}
+
+	return nil
+}
+
+// Logout handles POST /logout
+func (u *Users) Logout(w http.ResponseWriter, r *http.Request) {
+	if err := u.logout(r); err != nil {
+		logError(err, "")
+
+		var vd views.Data
+		vd.SetAlert(err)
 		views.RedirectAlert(w, r, "/", http.StatusFound, *vd.Alert)
 		return
 	}
 
 	unsetSessionCookie(w)
 	http.Redirect(w, r, "/login", http.StatusFound)
+}
+
+// V1Logout handles POST /v1/logout
+func (u *Users) V1Logout(w http.ResponseWriter, r *http.Request) {
+	if err := u.logout(r); err != nil {
+		handleJSONError(w, err, "logging out")
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // ResetPwForm is used to process the forgot password form
@@ -148,38 +182,6 @@ type ResetPwForm struct {
 	Token    string `schema:"token"`
 	Password string `schema:"password"`
 }
-
-// POST /forgot
-// func (u *Users) InitiateReset(w http.ResponseWriter, r *http.Request) {
-// 	// TODO: Process the forgot password form and iniiate that process
-// 	var vd views.Data
-// 	var form ResetPwForm
-// 	vd.Yield = &form
-// 	if err := parseForm(r, &form); err != nil {
-// 		vd.SetAlert(err)
-// 		u.ForgotPwView.Render(w, r, vd)
-// 		return
-// 	}
-//
-// 	token, err := u.us.InitiateReset(form.Email)
-// 	if err != nil {
-// 		vd.SetAlert(err)
-// 		u.ForgotPwView.Render(w, r, vd)
-// 		return
-// 	}
-//
-// 	err = u.emailer.ResetPw(form.Email, token)
-// 	if err != nil {
-// 		vd.SetAlert(err)
-// 		u.ForgotPwView.Render(w, r, vd)
-// 		return
-// 	}
-//
-// 	views.RedirectAlert(w, r, "/reset", http.StatusFound, views.Alert{
-// 		Level:   views.AlertLvlSuccess,
-// 		Message: "Instructions for resetting your password have been emailed to you.",
-// 	})
-// }
 
 // ResetPw displays the reset password form and has a method
 // so that we can prefill the form data with a token provided
@@ -196,49 +198,19 @@ func (u *Users) ResetPw(w http.ResponseWriter, r *http.Request) {
 	u.ResetPwView.Render(w, r, vd)
 }
 
-// CompleteReset processed the reset password form
-//
-// POST /reset
-// func (u *Users) CompleteReset(w http.ResponseWriter, r *http.Request) {
-// 	var vd views.Data
-// 	var form ResetPwForm
-// 	vd.Yield = &form
-// 	if err := parseForm(r, &form); err != nil {
-// 		vd.SetAlert(err)
-// 		u.ResetPwView.Render(w, r, vd)
-// 		return
-// 	}
-//
-// 	user, err := u.us.CompleteReset(form.Token, form.Password)
-// 	if err != nil {
-// 		vd.SetAlert(err)
-// 		u.ResetPwView.Render(w, r, vd)
-// 		return
-// 	}
-//
-// 	u.signIn(w, user)
-// 	views.RedirectAlert(w, r, "/galleries", http.StatusFound, views.Alert{
-// 		Level:   views.AlertLvlSuccess,
-// 		Message: "Your password has been reset and you have been logged in!",
-// 	})
-// }
-//
-// signIn is used to sign the given user in via cookies
-
-func (u *Users) signIn(w http.ResponseWriter, user *models.User) error {
+// signIn is used to sign the given user by creating a session
+func (u *Users) signIn(user *models.User) (*models.Session, error) {
 	t := time.Now()
 
 	user.LastLoginAt = &t
 	if err := u.us.Update(user); err != nil {
-		return errors.Wrap(err, "updating last_login_at")
+		return nil, errors.Wrap(err, "updating last_login_at")
 	}
 
 	s, err := u.ss.Login(user.ID)
 	if err != nil {
-		return errors.Wrap(err, "logging in")
+		return nil, errors.Wrap(err, "logging in")
 	}
 
-	setSessionCookie(w, s.Key, s.ExpiresAt)
-
-	return nil
+	return s, nil
 }

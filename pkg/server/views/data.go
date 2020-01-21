@@ -36,6 +36,14 @@ type Data struct {
 	Yield interface{}
 }
 
+func getErrMessage(err error) string {
+	if pErr, ok := err.(PublicError); ok {
+		return pErr.Public()
+	}
+
+	return AlertMsgGeneric
+}
+
 // SetAlert sets alert in the given data for given error.
 func (d *Data) SetAlert(err error) {
 	if pErr, ok := err.(PublicError); ok {

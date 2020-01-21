@@ -11,7 +11,7 @@ import (
 // NewNotes creates a new Notes controller.
 func NewNotes(ns models.NoteService) *Notes {
 	return &Notes{
-		IndexView: views.NewView(views.Config{Title: "", Layout: "base"}, "notes/index"),
+		IndexView: views.NewView(views.Config{Title: "", Layout: "base", HeaderTemplate: "navbar"}, "notes/index"),
 		ns:        ns,
 	}
 }
@@ -35,7 +35,7 @@ func (n *Notes) Index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		handleError(w, &vd, err)
+		handleHTMLError(w, err, "getting notes", &vd)
 		n.IndexView.Render(w, r, vd)
 		return
 	}

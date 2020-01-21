@@ -444,13 +444,13 @@ func GetBooks(ctx context.NadCtx, sessionKey string) (GetBooksResp, error) {
 	return resp, nil
 }
 
-// SigninPayload is a payload for /v1/signin
+// SigninPayload is a payload for /v1/login
 type SigninPayload struct {
 	Email    string `json:"email"`
 	Passowrd string `json:"password"`
 }
 
-// SigninResponse is a response from /v1/signin endpoint
+// SigninResponse is a response from /v1/login endpoint
 type SigninResponse struct {
 	Key       string `json:"key"`
 	ExpiresAt int64  `json:"expires_at"`
@@ -466,7 +466,7 @@ func Signin(ctx context.NadCtx, email, password string) (SigninResponse, error) 
 	if err != nil {
 		return SigninResponse{}, errors.Wrap(err, "marshaling payload")
 	}
-	res, err := doReq(ctx, "POST", "/v1/signin", string(b), nil)
+	res, err := doReq(ctx, "POST", "/v1/login", string(b), nil)
 	if err != nil {
 		return SigninResponse{}, errors.Wrap(err, "making http request")
 	}
@@ -495,7 +495,7 @@ func Signout(ctx context.NadCtx, sessionKey string) error {
 	opts := requestOptions{
 		HTTPClient: &hc,
 	}
-	_, err := doAuthorizedReq(ctx, "POST", "/v1/signout", "", &opts)
+	_, err := doAuthorizedReq(ctx, "POST", "/v1/logout", "", &opts)
 	if err != nil {
 		return errors.Wrap(err, "making http request")
 	}

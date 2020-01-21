@@ -9,6 +9,7 @@ import (
 
 	"github.com/gorilla/schema"
 	"github.com/nadproject/nad/pkg/server/log"
+	"github.com/nadproject/nad/pkg/server/models"
 	"github.com/nadproject/nad/pkg/server/views"
 	"github.com/pkg/errors"
 )
@@ -179,21 +180,64 @@ func unsetSessionCookie(w http.ResponseWriter) {
 	http.SetCookie(w, &cookie)
 }
 
-func logError(d *views.Data, err error) {
-	log.ErrorWrap(err, "[error]")
+func logError(err error, msg string) {
+	// log if internal error
+	if _, ok := err.(views.PublicError); !ok {
+		log.ErrorWrap(err, msg)
+	}
+}
+
+func getErrStatusCode(err error) int {
+	switch err.(type) {
+	case views.BadRequestError:
+		return http.StatusBadRequest
+	case views.ConflictError:
+		return http.StatusConflict
+	default:
+		return http.StatusInternalServerError
+	}
+}
+
+// handleHTMLError writes the error to the log and sets the error message in the data.
+func handleHTMLError(w http.ResponseWriter, err error, msg string, d *views.Data) {
+	statusCode := getErrStatusCode(err)
+	w.WriteHeader(statusCode)
+
+	logError(err, msg)
 	d.SetAlert(err)
 }
 
-// handleError writes the error to the log and sets the error message in the data.
-func handleError(w http.ResponseWriter, d *views.Data, err error) {
-	switch err.(type) {
-	case views.BadRequestError:
-		w.WriteHeader(http.StatusBadRequest)
-	case views.ConflictError:
-		w.WriteHeader(http.StatusConflict)
-	default:
-		w.WriteHeader(http.StatusInternalServerError)
+// handleJSONError logs the error and responds with the given status code with a generic status text
+func handleJSONError(w http.ResponseWriter, err error, msg string) {
+	logError(err, msg)
+	statusCode := getErrStatusCode(err)
+
+	var respText string
+	if pErr, ok := err.(views.PublicError); ok {
+		respText = pErr.Public()
+	} else {
+		respText = http.StatusText(statusCode)
 	}
 
-	logError(d, err)
+	http.Error(w, respText, statusCode)
+}
+
+// SessionResponse is a response containing a session information
+type SessionResponse struct {
+	Key       string `json:"key"`
+	ExpiresAt int64  `json:"expires_at"`
+}
+
+func respondWithSession(w http.ResponseWriter, statusCode int, s models.Session) {
+	response := SessionResponse{
+		Key:       s.Key,
+		ExpiresAt: s.ExpiresAt.Unix(),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		handleJSONError(w, err, "encoding response")
+		return
+	}
 }
