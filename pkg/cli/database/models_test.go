@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 Monomax Software Pty Ltd
+/* Copyright (C) 2020 Monomax Software Pty Ltd
  *
  * This file is part of NAD.
  *
@@ -480,22 +480,25 @@ func TestNoteExpunge(t *testing.T) {
 
 func TestNewBook(t *testing.T) {
 	testCases := []struct {
-		uuid    string
-		name   string
+		uuid string
+
+		name    string
 		usn     int
 		deleted bool
 		dirty   bool
 	}{
 		{
-			uuid:    "b1-uuid",
-			name:   "b1-name",
+			uuid: "b1-uuid",
+
+			name:    "b1-name",
 			usn:     0,
 			deleted: false,
 			dirty:   false,
 		},
 		{
-			uuid:    "b2-uuid",
-			name:   "b2-name",
+			uuid: "b2-uuid",
+
+			name:    "b2-name",
 			usn:     1008,
 			deleted: false,
 			dirty:   true,
@@ -506,7 +509,8 @@ func TestNewBook(t *testing.T) {
 		got := NewBook(tc.uuid, tc.name, tc.usn, tc.deleted, tc.dirty)
 
 		assert.Equal(t, got.UUID, tc.uuid, fmt.Sprintf("UUID mismatch for test case %d", idx))
-		assert.Equal(t, got.Label, tc.name, fmt.Sprintf("Label mismatch for test case %d", idx))
+
+		assert.Equal(t, got.Name, tc.name, fmt.Sprintf("Name mismatch for test case %d", idx))
 		assert.Equal(t, got.USN, tc.usn, fmt.Sprintf("USN mismatch for test case %d", idx))
 		assert.Equal(t, got.Deleted, tc.deleted, fmt.Sprintf("Deleted mismatch for test case %d", idx))
 		assert.Equal(t, got.Dirty, tc.dirty, fmt.Sprintf("Dirty mismatch for test case %d", idx))
@@ -515,22 +519,25 @@ func TestNewBook(t *testing.T) {
 
 func TestBookInsert(t *testing.T) {
 	testCases := []struct {
-		uuid    string
-		name   string
+		uuid string
+
+		name    string
 		usn     int
 		deleted bool
 		dirty   bool
 	}{
 		{
-			uuid:    "b1-uuid",
-			name:   "b1-name",
+			uuid: "b1-uuid",
+
+			name:    "b1-name",
 			usn:     10808,
 			deleted: false,
 			dirty:   false,
 		},
 		{
-			uuid:    "b1-uuid",
-			name:   "b1-name",
+			uuid: "b1-uuid",
+
+			name:    "b1-name",
 			usn:     10808,
 			deleted: false,
 			dirty:   true,
@@ -544,8 +551,9 @@ func TestBookInsert(t *testing.T) {
 			defer CloseTestDB(t, db)
 
 			b := Book{
-				UUID:    tc.uuid,
-				Label:   tc.name,
+				UUID: tc.uuid,
+
+				Name:    tc.name,
 				USN:     tc.usn,
 				Dirty:   tc.dirty,
 				Deleted: tc.deleted,
@@ -584,8 +592,9 @@ func TestBookInsert(t *testing.T) {
 
 func TestBookUpdate(t *testing.T) {
 	testCases := []struct {
-		uuid       string
-		name      string
+		uuid string
+
+		name       string
 		usn        int
 		deleted    bool
 		dirty      bool
@@ -595,8 +604,9 @@ func TestBookUpdate(t *testing.T) {
 		newDirty   bool
 	}{
 		{
-			uuid:       "b1-uuid",
-			name:      "b1-name",
+			uuid: "b1-uuid",
+
+			name:       "b1-name",
 			usn:        0,
 			deleted:    false,
 			dirty:      false,
@@ -606,8 +616,9 @@ func TestBookUpdate(t *testing.T) {
 			newDirty:   true,
 		},
 		{
-			uuid:       "b1-uuid",
-			name:      "b1-name",
+			uuid: "b1-uuid",
+
+			name:       "b1-name",
 			usn:        0,
 			deleted:    false,
 			dirty:      false,
@@ -625,22 +636,24 @@ func TestBookUpdate(t *testing.T) {
 			defer CloseTestDB(t, db)
 
 			b1 := Book{
-				UUID:    "b1-uuid",
-				Label:   "b1-name",
+				UUID: "b1-uuid",
+
+				Name:    "b1-name",
 				USN:     1,
 				Deleted: true,
 				Dirty:   false,
 			}
 			b2 := Book{
-				UUID:    "b2-uuid",
-				Label:   "b2-name",
+				UUID: "b2-uuid",
+
+				Name:    "b2-name",
 				USN:     1,
 				Deleted: true,
 				Dirty:   false,
 			}
 
-			MustExec(t, fmt.Sprintf("inserting b1 for test case %d", idx), db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b1.UUID, b1.Label, b1.USN, b1.Deleted, b1.Dirty)
-			MustExec(t, fmt.Sprintf("inserting b2 for test case %d", idx), db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b2.UUID, b2.Label, b2.USN, b2.Deleted, b2.Dirty)
+			MustExec(t, fmt.Sprintf("inserting b1 for test case %d", idx), db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b1.UUID, b1.Name, b1.USN, b1.Deleted, b1.Dirty)
+			MustExec(t, fmt.Sprintf("inserting b2 for test case %d", idx), db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b2.UUID, b2.Name, b2.USN, b2.Deleted, b2.Dirty)
 
 			// execute
 			tx, err := db.Begin()
@@ -648,7 +661,7 @@ func TestBookUpdate(t *testing.T) {
 				t.Fatalf(errors.Wrap(err, fmt.Sprintf("beginning a transaction for test case %d", idx)).Error())
 			}
 
-			b1.Label = tc.newLabel
+			b1.Name = tc.newLabel
 			b1.USN = tc.newUSN
 			b1.Deleted = tc.newDeleted
 			b1.Dirty = tc.newDirty
@@ -664,19 +677,21 @@ func TestBookUpdate(t *testing.T) {
 			var b1Record, b2Record Book
 			MustScan(t, "getting b1",
 				db.QueryRow("SELECT uuid, name, usn, deleted, dirty FROM books WHERE uuid = ?", tc.uuid),
-				&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Deleted, &b1Record.Dirty)
+
+				&b1Record.UUID, &b1Record.Name, &b1Record.USN, &b1Record.Deleted, &b1Record.Dirty)
 			MustScan(t, "getting b2",
 				db.QueryRow("SELECT uuid, name, usn, deleted, dirty FROM books WHERE uuid = ?", b2.UUID),
-				&b2Record.UUID, &b2Record.Label, &b2Record.USN, &b2Record.Deleted, &b2Record.Dirty)
+				&b2Record.UUID, &b2Record.Name, &b2Record.USN, &b2Record.Deleted, &b2Record.Dirty)
 
 			assert.Equal(t, b1Record.UUID, b1.UUID, fmt.Sprintf("b1 uuid mismatch for test case %d", idx))
-			assert.Equal(t, b1Record.Label, tc.newLabel, fmt.Sprintf("b1 name mismatch for test case %d", idx))
+			assert.Equal(t, b1Record.Name, tc.newLabel, fmt.Sprintf("b1 name mismatch for test case %d", idx))
 			assert.Equal(t, b1Record.USN, tc.newUSN, fmt.Sprintf("b1 usn mismatch for test case %d", idx))
 			assert.Equal(t, b1Record.Deleted, tc.newDeleted, fmt.Sprintf("b1 deleted mismatch for test case %d", idx))
 			assert.Equal(t, b1Record.Dirty, tc.newDirty, fmt.Sprintf("b1 dirty mismatch for test case %d", idx))
 
 			assert.Equal(t, b2Record.UUID, b2.UUID, fmt.Sprintf("b2 uuid mismatch for test case %d", idx))
-			assert.Equal(t, b2Record.Label, b2.Label, fmt.Sprintf("b2 name mismatch for test case %d", idx))
+
+			assert.Equal(t, b2Record.Name, b2.Name, fmt.Sprintf("b2 name mismatch for test case %d", idx))
 			assert.Equal(t, b2Record.USN, b2.USN, fmt.Sprintf("b2 usn mismatch for test case %d", idx))
 			assert.Equal(t, b2Record.Deleted, b2.Deleted, fmt.Sprintf("b2 deleted mismatch for test case %d", idx))
 			assert.Equal(t, b2Record.Dirty, b2.Dirty, fmt.Sprintf("b2 dirty mismatch for test case %d", idx))
@@ -704,22 +719,24 @@ func TestBookUpdateUUID(t *testing.T) {
 			defer CloseTestDB(t, db)
 
 			b1 := Book{
-				UUID:    "b1-uuid",
-				Label:   "b1-name",
+				UUID: "b1-uuid",
+
+				Name:    "b1-name",
 				USN:     1,
 				Deleted: true,
 				Dirty:   false,
 			}
 			b2 := Book{
-				UUID:    "b2-uuid",
-				Label:   "b2-name",
+				UUID: "b2-uuid",
+
+				Name:    "b2-name",
 				USN:     1,
 				Deleted: true,
 				Dirty:   false,
 			}
 
-			MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b1.UUID, b1.Label, b1.USN, b1.Deleted, b1.Dirty)
-			MustExec(t, "inserting b2", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b2.UUID, b2.Label, b2.USN, b2.Deleted, b2.Dirty)
+			MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b1.UUID, b1.Name, b1.USN, b1.Deleted, b1.Dirty)
+			MustExec(t, "inserting b2", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b2.UUID, b2.Name, b2.USN, b2.Deleted, b2.Dirty)
 
 			// execute
 			tx, err := db.Begin()
@@ -737,10 +754,11 @@ func TestBookUpdateUUID(t *testing.T) {
 			var b1Record, b2Record Book
 			MustScan(t, "getting b1",
 				db.QueryRow("SELECT uuid, name, usn, deleted, dirty FROM books WHERE name = ?", "b1-name"),
-				&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Deleted, &b1Record.Dirty)
+
+				&b1Record.UUID, &b1Record.Name, &b1Record.USN, &b1Record.Deleted, &b1Record.Dirty)
 			MustScan(t, "getting b2",
 				db.QueryRow("SELECT uuid, name, usn, deleted, dirty FROM books WHERE name = ?", "b2-name"),
-				&b2Record.UUID, &b2Record.Label, &b2Record.USN, &b2Record.Deleted, &b2Record.Dirty)
+				&b2Record.UUID, &b2Record.Name, &b2Record.USN, &b2Record.Deleted, &b2Record.Dirty)
 
 			assert.Equal(t, b1.UUID, tc.newUUID, "b1 original reference uuid mismatch")
 			assert.Equal(t, b1Record.UUID, tc.newUUID, "b1 uuid mismatch")
@@ -755,22 +773,24 @@ func TestBookExpunge(t *testing.T) {
 	defer CloseTestDB(t, db)
 
 	b1 := Book{
-		UUID:    "b1-uuid",
-		Label:   "b1-name",
+		UUID: "b1-uuid",
+
+		Name:    "b1-name",
 		USN:     1,
 		Deleted: true,
 		Dirty:   false,
 	}
 	b2 := Book{
-		UUID:    "b2-uuid",
-		Label:   "b2-name",
+		UUID: "b2-uuid",
+
+		Name:    "b2-name",
 		USN:     1,
 		Deleted: true,
 		Dirty:   false,
 	}
 
-	MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b1.UUID, b1.Label, b1.USN, b1.Deleted, b1.Dirty)
-	MustExec(t, "inserting b2", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b2.UUID, b2.Label, b2.USN, b2.Deleted, b2.Dirty)
+	MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b1.UUID, b1.Name, b1.USN, b1.Deleted, b1.Dirty)
+	MustExec(t, "inserting b2", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b2.UUID, b2.Name, b2.USN, b2.Deleted, b2.Dirty)
 
 	// execute
 	tx, err := db.Begin()
@@ -794,10 +814,11 @@ func TestBookExpunge(t *testing.T) {
 	var b2Record Book
 	MustScan(t, "getting b2",
 		db.QueryRow("SELECT uuid, name, usn, deleted, dirty FROM books WHERE uuid = ?", "b2-uuid"),
-		&b2Record.UUID, &b2Record.Label, &b2Record.USN, &b2Record.Deleted, &b2Record.Dirty)
+
+		&b2Record.UUID, &b2Record.Name, &b2Record.USN, &b2Record.Deleted, &b2Record.Dirty)
 
 	assert.Equal(t, b2Record.UUID, b2.UUID, "b2 uuid mismatch")
-	assert.Equal(t, b2Record.Label, b2.Label, "b2 name mismatch")
+	assert.Equal(t, b2Record.Name, b2.Name, "b2 name mismatch")
 	assert.Equal(t, b2Record.USN, b2.USN, "b2 usn mismatch")
 	assert.Equal(t, b2Record.Deleted, b2.Deleted, "b2 deleted mismatch")
 	assert.Equal(t, b2Record.Dirty, b2.Dirty, "b2 dirty mismatch")

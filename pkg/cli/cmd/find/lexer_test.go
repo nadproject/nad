@@ -60,47 +60,47 @@ func TestScanToken(t *testing.T) {
 			input:  "foo <nadhl>bar</nadhl> foo bar",
 			idx:    4,
 			retTok: token{Kind: tokenKindHLBegin},
-			retIdx: 13,
+			retIdx: 11,
 		},
 		{
 			input:  "foo <nadhl>bar</nadhl> <nadhl>foo</nadhl> bar",
 			idx:    4,
 			retTok: token{Kind: tokenKindHLBegin},
-			retIdx: 13,
+			retIdx: 11,
 		},
 		{
 			input:  "foo <nadhl>bar</nadhl> <nadhl>foo</nadhl> bar",
-			idx:    27,
+			idx:    23,
 			retTok: token{Kind: tokenKindHLBegin},
-			retIdx: 36,
+			retIdx: 30,
 		},
 		{
 			input:  "foo <nadhl>bar</nadhl> foo bar",
-			idx:    13,
+			idx:    11,
 			retTok: token{Value: 'b', Kind: tokenKindChar},
-			retIdx: 14,
+			retIdx: 12,
 		},
 		{
 			input:  "foo <nadhl>bar</nadhl> foo bar",
-			idx:    16,
+			idx:    14,
 			retTok: token{Kind: tokenKindHLEnd},
-			retIdx: 26,
+			retIdx: 22,
 		},
 		{
-			input:  "<dno<nadhl>tehl>",
+			input:  "<na<nadhl>dhl>",
 			idx:    0,
 			retTok: token{Value: '<', Kind: tokenKindChar},
 			retIdx: 1,
 		},
 		{
-			input:  "<dno<nadhl>tehl>",
-			idx:    4,
+			input:  "<na<nadhl>dhl>",
+			idx:    3,
 			retTok: token{Kind: tokenKindHLBegin},
-			retIdx: 13,
+			retIdx: 10,
 		},
 		{
 			input:  "foo <nadhl>bar</nadhl>",
-			idx:    16,
+			idx:    14,
 			retTok: token{Kind: tokenKindHLEnd},
 			retIdx: -1,
 		},
@@ -131,25 +131,25 @@ func TestTokenize(t *testing.T) {
 		{
 			input: "ab<nadhl>c</nadhl>",
 			tokens: []token{
-				token{
+				{
 					Kind:  tokenKindChar,
 					Value: 'a',
 				},
-				token{
+				{
 					Kind:  tokenKindChar,
 					Value: 'b',
 				},
-				token{
+				{
 					Kind: tokenKindHLBegin,
 				},
-				token{
+				{
 					Kind:  tokenKindChar,
 					Value: 'c',
 				},
-				token{
+				{
 					Kind: tokenKindHLEnd,
 				},
-				token{
+				{
 					Kind: tokenKindEOL,
 				},
 			},
@@ -157,29 +157,29 @@ func TestTokenize(t *testing.T) {
 		{
 			input: "ab<nadhl>c</nadhl>d",
 			tokens: []token{
-				token{
+				{
 					Kind:  tokenKindChar,
 					Value: 'a',
 				},
-				token{
+				{
 					Kind:  tokenKindChar,
 					Value: 'b',
 				},
-				token{
+				{
 					Kind: tokenKindHLBegin,
 				},
-				token{
+				{
 					Kind:  tokenKindChar,
 					Value: 'c',
 				},
-				token{
+				{
 					Kind: tokenKindHLEnd,
 				},
-				token{
+				{
 					Kind:  tokenKindChar,
 					Value: 'd',
 				},
-				token{
+				{
 					Kind: tokenKindEOL,
 				},
 			},
@@ -188,16 +188,16 @@ func TestTokenize(t *testing.T) {
 		{
 			input: "<nadhl><nadhl></nadhl>",
 			tokens: []token{
-				token{
+				{
 					Kind: tokenKindHLBegin,
 				},
-				token{
+				{
 					Kind: tokenKindHLBegin,
 				},
-				token{
+				{
 					Kind: tokenKindHLEnd,
 				},
-				token{
+				{
 					Kind: tokenKindEOL,
 				},
 			},
@@ -205,16 +205,16 @@ func TestTokenize(t *testing.T) {
 		{
 			input: "<nadhl></nadhl></nadhl>",
 			tokens: []token{
-				token{
+				{
 					Kind: tokenKindHLBegin,
 				},
-				token{
+				{
 					Kind: tokenKindHLEnd,
 				},
-				token{
+				{
 					Kind: tokenKindHLEnd,
 				},
-				token{
+				{
 					Kind: tokenKindEOL,
 				},
 			},

@@ -273,7 +273,11 @@ func (b *Books) V1Show(w http.ResponseWriter, r *http.Request) {
 func (b *Books) index(r *http.Request) ([]models.Book, error) {
 	user := context.User(r.Context())
 
-	books, err := b.bs.Search(models.BookSearchParams{UserID: user.ID, Offset: 0, Limit: 10})
+	p := models.BookSearchParams{
+		Name:   r.URL.Query().Get("name"),
+		UserID: user.ID,
+	}
+	books, err := b.bs.Search(p)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting books")
 	}

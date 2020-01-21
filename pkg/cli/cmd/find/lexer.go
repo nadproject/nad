@@ -25,7 +25,7 @@ import (
 var newLineReg = regexp.MustCompile(`\r?\n`)
 
 const (
-	// tokenKindChar represents utf-8 character
+	// tokenKindChar represents a utf-8 character
 	tokenKindChar = iota
 	// tokenKindHLBegin represents a beginning of a highlighted section
 	tokenKindHLBegin
@@ -55,8 +55,8 @@ func getNextIdx(candidate int, s string) int {
 // the next index will be -1.
 func scanToken(idx int, s string) (token, int) {
 	if s[idx] == '<' {
-		if len(s)-idx >= 9 {
-			lookahead := 9
+		if len(s)-idx >= 7 {
+			lookahead := 7
 			candidate := s[idx : idx+lookahead]
 
 			if candidate == "<nadhl>" {
@@ -65,8 +65,8 @@ func scanToken(idx int, s string) (token, int) {
 			}
 		}
 
-		if len(s)-idx >= 10 {
-			lookahead := 10
+		if len(s)-idx >= 8 {
+			lookahead := 8
 			candidate := s[idx : idx+lookahead]
 
 			if candidate == "</nadhl>" {

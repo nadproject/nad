@@ -375,9 +375,10 @@ func TestUpdateBookName(t *testing.T) {
 
 	// test
 	var b1 Book
-	MustScan(t, "getting the note record", db.QueryRow("SELECT uuid, name, dirty, usn, deleted FROM books WHERE uuid = ?", b1UUID), &b1.UUID, &b1.Label, &b1.Dirty, &b1.USN, &b1.Deleted)
+
+	MustScan(t, "getting the note record", db.QueryRow("SELECT uuid, name, dirty, usn, deleted FROM books WHERE uuid = ?", b1UUID), &b1.UUID, &b1.Name, &b1.Dirty, &b1.USN, &b1.Deleted)
 	assert.Equal(t, b1.UUID, b1UUID, "UUID mismatch")
-	assert.Equal(t, b1.Label, "b1-name-edited", "Label mismatch")
+	assert.Equal(t, b1.Name, "b1-name-edited", "Name mismatch")
 	assert.Equal(t, b1.Dirty, true, "Dirty mismatch")
 	assert.Equal(t, b1.USN, 8, "USN mismatch")
 	assert.Equal(t, b1.Deleted, false, "Deleted mismatch")

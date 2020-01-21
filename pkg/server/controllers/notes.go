@@ -250,15 +250,19 @@ func (n *Notes) remove(r *http.Request) (models.Note, error) {
 	tx := n.db.Begin()
 
 	if err := removeNote(tx, user.ID, noteUUID, n.ns, n.us); err != nil {
+
+		tx.Rollback()
 		return models.Note{}, errors.Wrap(err, "removing note")
 	}
+
+	tx.Commit()
 
 	return models.Note{}, nil
 }
 
 // V1Delete handles DELETE /api/v1/notes/:uuid
 func (n *Notes) V1Delete(w http.ResponseWriter, r *http.Request) {
-	note, err := n.update(r)
+	note, err := n.remove(r)
 	if err != nil {
 		handleJSONError(w, err, "creating note")
 		return

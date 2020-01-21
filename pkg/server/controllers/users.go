@@ -18,6 +18,7 @@ func NewUsers(cfg config.Config, us models.UserService, ss models.SessionService
 		LoginView: views.NewView(cfg.PageTemplateDir, views.Config{Title: "Sign in", Layout: "base"}, "users/login"),
 		us:        us,
 		ss:        ss,
+		onPremise: cfg.OnPremise,
 	}
 }
 
@@ -29,6 +30,7 @@ type Users struct {
 	ResetPwView  *views.View
 	us           models.UserService
 	ss           models.SessionService
+	onPremise    bool
 }
 
 // New handles GET /register
@@ -55,9 +57,17 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var pro bool
+	if u.onPremise {
+		pro = true
+	} else {
+		pro = false
+	}
+
 	user := models.User{
 		Email:    form.Email,
 		Password: form.Password,
+		Pro:      pro,
 	}
 	if err := u.us.Create(&user); err != nil {
 		handleHTMLError(w, err, "creating user", &vd)
