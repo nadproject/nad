@@ -12,14 +12,14 @@ type ServicesConfig func(*Services) error
 
 // WithGorm returns a service configuration procedure that initializes
 // a database connection and saves it into the given service.
-func WithGorm(dialect, connectionInfo string) ServicesConfig {
+func WithGorm(dialect, connStr string) ServicesConfig {
 	return func(s *Services) error {
-		db, err := gorm.Open(dialect, connectionInfo)
+		DB, err := gorm.Open(dialect, connStr)
 		if err != nil {
 			return err
 		}
 
-		s.db = db
+		s.DB = DB
 		return nil
 	}
 }
@@ -28,25 +28,34 @@ func WithGorm(dialect, connectionInfo string) ServicesConfig {
 // a user service.
 func WithUser() ServicesConfig {
 	return func(s *Services) error {
-		s.User = NewUserService(s.db)
+		s.User = NewUserService(s.DB)
 		return nil
 	}
 }
 
 // WithSession returns a service configuration procedure that configures
-// a user service.
+// a session service.
 func WithSession() ServicesConfig {
 	return func(s *Services) error {
-		s.Session = NewSessionService(s.db)
+		s.Session = NewSessionService(s.DB)
 		return nil
 	}
 }
 
 // WithNote returns a service configuration procedure that configures
-// a user service.
+// a note service.
 func WithNote() ServicesConfig {
 	return func(s *Services) error {
-		s.Note = NewNoteService(s.db)
+		s.Note = NewNoteService(s.DB)
+		return nil
+	}
+}
+
+// WithBook returns a service configuration procedure that configures
+// a book service.
+func WithBook() ServicesConfig {
+	return func(s *Services) error {
+		s.Book = NewBookService(s.DB)
 		return nil
 	}
 }
@@ -71,16 +80,17 @@ type Services struct {
 	User    UserService
 	Session SessionService
 	Note    NoteService
-	db      *gorm.DB
+	Book    BookService
+	DB      *gorm.DB
 }
 
 // Close closes the database connection of the service.
 func (s *Services) Close() error {
-	return s.db.Close()
+	return s.DB.Close()
 }
 
 // AutoMigrate automatically migrates all tables using a set of model
 // definitions.
 func (s *Services) AutoMigrate() error {
-	return s.db.AutoMigrate(&User{}, &Session{}).Error
+	return s.DB.AutoMigrate(&User{}, &Session{}).Error
 }

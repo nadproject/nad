@@ -8,8 +8,8 @@ import (
 // Note is a model for a note
 type Note struct {
 	Model
-	UUID string `json:"uuid" gorm:"index;type:uuid;default:uuid_generate_v4()"`
-	// Book      Book   `json:"book" gorm:"foreignkey:BookUUID"`
+	UUID      string `json:"uuid" gorm:"index;type:uuid;default:uuid_generate_v4()"`
+	Book      Book   `json:"book" gorm:"foreignkey:BookUUID"`
 	User      User   `json:"user"`
 	UserID    uint   `json:"user_id" gorm:"index"`
 	BookUUID  string `json:"book_uuid" gorm:"index;type:uuid"`
@@ -29,7 +29,7 @@ type NoteDB interface {
 	Search(userID uint) ([]Note, error)
 	ByUUID(uuid string) (*Note, error)
 
-	Create(*Note) error
+	Create(*Note, *gorm.DB) error
 	// Update(*Note) error
 	Delete(key string) error
 }
@@ -94,8 +94,15 @@ func (ng *noteGorm) Delete(key string) error {
 	return nil
 }
 
-func (ng *noteGorm) Create(n *Note) error {
-	if err := ng.db.Save(n).Error; err != nil {
+func (ng *noteGorm) Create(n *Note, tx *gorm.DB) error {
+	var conn *gorm.DB
+	if tx != nil {
+		conn = tx
+	} else {
+		conn = ng.db
+	}
+
+	if err := conn.Save(n).Error; err != nil {
 		return errors.Wrap(err, "saving note")
 	}
 
@@ -114,12 +121,17 @@ func runNoteValFuncs(note *Note, fns ...noteValFunc) error {
 }
 
 // Create validates the parameters for retreiving a sesison by key.
-func (nv *noteValidator) Create(s *Note) error {
-	if err := runNoteValFuncs(s, nv.requireUUID); err != nil {
+func (nv *noteValidator) Create(s *Note, tx *gorm.DB) error {
+	if err := runNoteValFuncs(s,
+		nv.requireUserID,
+		nv.requireBookUUID,
+		nv.requireAddedOn,
+		nv.requireUSN,
+	); err != nil {
 		return err
 	}
 
-	return nv.NoteDB.Create(s)
+	return nv.NoteDB.Create(s, tx)
 }
 
 // Search validates the parameters for retreiving a sesison by key.
@@ -157,6 +169,38 @@ func (nv *noteValidator) requireUUID(s *Note) error {
 func (nv *noteValidator) requireUserID(s *Note) error {
 	if s.UserID == 0 {
 		return ErrNoteUserIDRequired
+	}
+
+	return nil
+}
+
+func (nv *noteValidator) requireBookUUID(s *Note) error {
+	if s.BookUUID == "" {
+		return ErrNoteBookUUIDRequired
+	}
+
+	return nil
+}
+
+func (nv *noteValidator) requireAddedOn(s *Note) error {
+	if s.AddedOn == 0 {
+		return ErrNoteAddedOnRequired
+	}
+
+	return nil
+}
+
+func (nv *noteValidator) requireEditedOn(s *Note) error {
+	if s.EditedOn == 0 {
+		return ErrNoteEditedOnRequired
+	}
+
+	return nil
+}
+
+func (nv *noteValidator) requireUSN(s *Note) error {
+	if s.AddedOn == 0 {
+		return ErrNoteUSNRequired
 	}
 
 	return nil

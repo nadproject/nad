@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/nadproject/nad/pkg/clock"
 	"github.com/nadproject/nad/pkg/server/config"
 	"github.com/nadproject/nad/pkg/server/controllers"
 	"github.com/nadproject/nad/pkg/server/models"
@@ -28,11 +29,11 @@ func registerRoutes(router *mux.Router, mw middleware, c config.Config, s *model
 }
 
 // New creates and returns a new router
-func New(c config.Config, s *models.Services) http.Handler {
+func New(cfg config.Config, s *models.Services, cl clock.Clock) http.Handler {
 	router := mux.NewRouter().StrictSlash(true)
 
 	usersC := controllers.NewUsers(s.User, s.Session)
-	notesC := controllers.NewNotes(s.Note)
+	notesC := controllers.NewNotes(s.Note, s.User, s.DB)
 	staticC := controllers.NewStatic()
 
 	var webRoutes = []Route{
@@ -44,15 +45,15 @@ func New(c config.Config, s *models.Services) http.Handler {
 		{"POST", "/login", http.HandlerFunc(usersC.Login), true},
 	}
 	webRouter := router.PathPrefix("/").Subrouter()
-	registerRoutes(webRouter, webMw, c, s, webRoutes)
+	registerRoutes(webRouter, webMw, cfg, s, webRoutes)
 
 	var apiRoutes = []Route{
 		{"POST", "/v1/login", http.HandlerFunc(usersC.V1Login), true},
 		{"POST", "/v1/logout", http.HandlerFunc(usersC.V1Logout), true},
-		{"POST", "/v1/notes", http.HandlerFunc(notesC.V1Create), true},
+		{"POST", "/v1/notes", requireUserMw(http.HandlerFunc(notesC.V1Create), s.User), true},
 	}
 	apiRouter := router.PathPrefix("/api").Subrouter()
-	registerRoutes(apiRouter, apiMw, c, s, apiRoutes)
+	registerRoutes(apiRouter, apiMw, cfg, s, apiRoutes)
 
 	// static
 	staticHandler := http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))

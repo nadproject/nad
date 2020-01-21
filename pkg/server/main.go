@@ -24,6 +24,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/nadproject/nad/pkg/clock"
 	"github.com/nadproject/nad/pkg/server/build"
 	"github.com/nadproject/nad/pkg/server/config"
 	"github.com/nadproject/nad/pkg/server/models"
@@ -33,13 +34,14 @@ import (
 var templateDir = flag.String("templateDir", "tpl/web", "the path to a directory containing templates")
 
 func startCmd() {
-	c := config.Load()
+	cfg := config.Load()
 
 	services, err := models.NewServices(
-		models.WithGorm("postgres", c.DB.GetConnectionStr()),
+		models.WithGorm("postgres", cfg.DB.GetConnectionStr()),
 		models.WithUser(),
 		models.WithSession(),
 		models.WithNote(),
+		models.WithBook(),
 	)
 	must(err)
 	defer services.Close()
@@ -47,9 +49,10 @@ func startCmd() {
 	err = services.AutoMigrate()
 	must(err)
 
-	r := routes.New(c, services)
-	log.Printf("nad version %s is running on port %s", build.Version, c.Port)
-	log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%s", c.Port), r))
+	cl := clock.New()
+	r := routes.New(cfg, services, cl)
+	log.Printf("nad version %s is running on port %s", build.Version, cfg.Port)
+	log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), r))
 }
 
 func versionCmd() {

@@ -86,9 +86,8 @@ type LoginForm struct {
 }
 
 func (u *Users) login(r *http.Request) (*models.Session, error) {
-	form := LoginForm{}
-
-	if err := parseRequestContent(r, &form); err != nil {
+	var form LoginForm
+	if err := parseRequestData(r, &form); err != nil {
 		return nil, err
 	}
 

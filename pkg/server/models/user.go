@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -41,6 +42,7 @@ type UserService interface {
 	// Authenticate verifies that the provided email and password combination
 	// matches a user.
 	Authenticate(email, password string) (*User, error)
+	IncrementUSN(tx *gorm.DB, userID uint) (int, error)
 	UserDB
 }
 
@@ -56,6 +58,21 @@ func NewUserService(db *gorm.DB) UserService {
 
 type userService struct {
 	UserDB
+}
+
+// IncrementUSN increments the max_usn of the user with the given id max_usn by 1.
+// It returns the new, incremented max_usn.
+func (us *userService) IncrementUSN(tx *gorm.DB, userID uint) (int, error) {
+	if err := tx.Table("users").Where("id = ?", userID).Update("max_usn", gorm.Expr("max_usn + 1")).Error; err != nil {
+		return 0, errors.Wrap(err, "incrementing user max_usn")
+	}
+
+	var user User
+	if err := tx.Select("max_usn").Where("id = ?", userID).First(&user).Error; err != nil {
+		return 0, errors.Wrap(err, "getting the updated user max_usn")
+	}
+
+	return user.MaxUSN, nil
 }
 
 // Authenticate authenticates a user with the given email and password.

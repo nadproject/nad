@@ -19,7 +19,7 @@ const (
 	contentTypeJSON = "application/json"
 )
 
-func parseRequestContent(r *http.Request, dst interface{}) error {
+func parseRequestData(r *http.Request, dst interface{}) error {
 	ct := r.Header.Get("Content-Type")
 
 	if ct == contentTypeForm {
@@ -239,5 +239,15 @@ func respondWithSession(w http.ResponseWriter, statusCode int, s models.Session)
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		handleJSONError(w, err, "encoding response")
 		return
+	}
+}
+
+// respondJSON encodes the given payload into a JSON format and writes it to the given response writer
+func respondJSON(w http.ResponseWriter, statusCode int, payload interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+
+	if err := json.NewEncoder(w).Encode(payload); err != nil {
+		handleJSONError(w, err, "encoding response")
 	}
 }
