@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package edit
@@ -23,11 +23,11 @@ import (
 	"io/ioutil"
 	"strconv"
 
-	"github.com/dnote/dnote/pkg/cli/context"
-	"github.com/dnote/dnote/pkg/cli/database"
-	"github.com/dnote/dnote/pkg/cli/log"
-	"github.com/dnote/dnote/pkg/cli/output"
-	"github.com/dnote/dnote/pkg/cli/ui"
+	"github.com/nadproject/nad/pkg/cli/context"
+	"github.com/nadproject/nad/pkg/cli/database"
+	"github.com/nadproject/nad/pkg/cli/log"
+	"github.com/nadproject/nad/pkg/cli/output"
+	"github.com/nadproject/nad/pkg/cli/ui"
 	"github.com/pkg/errors"
 )
 
@@ -39,7 +39,7 @@ func validateRunNoteFlags() error {
 	return nil
 }
 
-func waitEditorNoteContent(ctx context.DnoteCtx, note database.Note) (string, error) {
+func waitEditorNoteContent(ctx context.NadCtx, note database.Note) (string, error) {
 	fpath, err := ui.GetTmpContentPath(ctx)
 	if err != nil {
 		return "", errors.Wrap(err, "getting temporarily content file path")
@@ -57,7 +57,7 @@ func waitEditorNoteContent(ctx context.DnoteCtx, note database.Note) (string, er
 	return c, nil
 }
 
-func getContent(ctx context.DnoteCtx, note database.Note) (string, error) {
+func getContent(ctx context.NadCtx, note database.Note) (string, error) {
 	if contentFlag != "" {
 		return contentFlag, nil
 	}
@@ -70,7 +70,7 @@ func getContent(ctx context.DnoteCtx, note database.Note) (string, error) {
 	return c, nil
 }
 
-func changeContent(ctx context.DnoteCtx, tx *database.DB, note database.Note, content string) error {
+func changeContent(ctx context.NadCtx, tx *database.DB, note database.Note, content string) error {
 	if note.Body == content {
 		return errors.New("Nothing changed")
 	}
@@ -82,7 +82,7 @@ func changeContent(ctx context.DnoteCtx, tx *database.DB, note database.Note, co
 	return nil
 }
 
-func moveBook(ctx context.DnoteCtx, tx *database.DB, note database.Note, bookName string) error {
+func moveBook(ctx context.NadCtx, tx *database.DB, note database.Note, bookName string) error {
 	targetBookUUID, err := database.GetBookUUID(tx, bookName)
 	if err != nil {
 		return errors.Wrap(err, "finding book uuid")
@@ -99,7 +99,7 @@ func moveBook(ctx context.DnoteCtx, tx *database.DB, note database.Note, bookNam
 	return nil
 }
 
-func updateNote(ctx context.DnoteCtx, tx *database.DB, note database.Note, bookName, content string) error {
+func updateNote(ctx context.NadCtx, tx *database.DB, note database.Note, bookName, content string) error {
 	if bookName != "" {
 		if err := moveBook(ctx, tx, note, bookName); err != nil {
 			return errors.Wrap(err, "moving book")
@@ -114,7 +114,7 @@ func updateNote(ctx context.DnoteCtx, tx *database.DB, note database.Note, bookN
 	return nil
 }
 
-func runNote(ctx context.DnoteCtx, rowIDArg string) error {
+func runNote(ctx context.NadCtx, rowIDArg string) error {
 	err := validateRunNoteFlags()
 	if err != nil {
 		return errors.Wrap(err, "validating flags.")

@@ -1,8 +1,8 @@
 #!/bin/sh
 #
-# This script installs Dnote into your PATH (/usr/bin/local)
+# This script installs NAD into your PATH (/usr/bin/local)
 # Use it like this:
-# $ curl https://raw.githubusercontent.com/dnote/dnote/master/cli/install.sh | sh
+# $ curl https://raw.githubusercontent.com/nad/nad/master/cli/install.sh | sh
 #
 
 set -eu
@@ -130,18 +130,18 @@ verify_checksum() {
   fi
 }
 
-install_dnote() {
+install_nad() {
   os=$(uname_os)
   arch=$(uname_arch)
 
   if ! check_platform "$os" "$arch"; then
     print_error "System not supported: $os/$arch"
-    print_error "Please compile manually from https://github.com/dnote/dnote"
+    print_error "Please compile manually from https://github.com/nadproject/nad"
     exit 1
   fi
 
-  binary=dnote
-  owner=dnote
+  binary=nad
+  owner=nad
   repo=cli
   github_download="https://github.com/${owner}/${repo}/releases/download"
   tmpdir="$(mktemp -d)"
@@ -184,16 +184,16 @@ install_dnote() {
   install -d "${bindir}"
   install "${tmpdir}/${binary}" "${bindir}/"
 
-  print_success "dnote v${version} was successfully installed in $bindir."
+  print_success "nad v${version} was successfully installed in $bindir."
 }
 
 
 exit_error() {
   # shellcheck disable=SC2181
   if [ "$?" -ne 0 ]; then
-    print_error "A problem occurred while installing Dnote. Please report it on https://github.com/dnote/dnote/issues so that we can help you."
+    print_error "A problem occurred while installing NAD. Please report it on https://github.com/nadproject/nad/issues so that we can help you."
   fi
 }
 
 trap exit_error EXIT
-install_dnote
+install_nad

@@ -1,28 +1,28 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package migrate
 
 import (
 	"database/sql"
-	"github.com/dnote/dnote/pkg/cli/consts"
-	"github.com/dnote/dnote/pkg/cli/context"
-	"github.com/dnote/dnote/pkg/cli/log"
+	"github.com/nadproject/nad/pkg/cli/consts"
+	"github.com/nadproject/nad/pkg/cli/context"
+	"github.com/nadproject/nad/pkg/cli/log"
 	"github.com/pkg/errors"
 )
 
@@ -36,25 +36,12 @@ const (
 // LocalSequence is a list of local migrations to be run
 var LocalSequence = []migration{
 	lm1,
-	lm2,
-	lm3,
-	lm4,
-	lm5,
-	lm6,
-	lm7,
-	lm8,
-	lm9,
-	lm10,
-	lm11,
-	lm12,
 }
 
 // RemoteSequence is a list of remote migrations to be run
-var RemoteSequence = []migration{
-	rm1,
-}
+var RemoteSequence = []migration{}
 
-func initSchema(ctx context.DnoteCtx, schemaKey string) (int, error) {
+func initSchema(ctx context.NadCtx, schemaKey string) (int, error) {
 	// schemaVersion is the index of the latest run migration in the sequence
 	schemaVersion := 0
 
@@ -79,7 +66,7 @@ func getSchemaKey(mode int) (string, error) {
 	return "", errors.Errorf("unsupported migration type '%d'", mode)
 }
 
-func getSchema(ctx context.DnoteCtx, schemaKey string) (int, error) {
+func getSchema(ctx context.NadCtx, schemaKey string) (int, error) {
 	var ret int
 
 	db := ctx.DB
@@ -97,7 +84,7 @@ func getSchema(ctx context.DnoteCtx, schemaKey string) (int, error) {
 	return ret, nil
 }
 
-func execute(ctx context.DnoteCtx, m migration, schemaKey string) error {
+func execute(ctx context.NadCtx, m migration, schemaKey string) error {
 	log.Debug("running migration %s\n", m.name)
 
 	tx, err := ctx.DB.Begin()
@@ -130,7 +117,7 @@ func execute(ctx context.DnoteCtx, m migration, schemaKey string) error {
 }
 
 // Run performs unrun migrations
-func Run(ctx context.DnoteCtx, migrations []migration, mode int) error {
+func Run(ctx context.NadCtx, migrations []migration, mode int) error {
 	schemaKey, err := getSchemaKey(mode)
 	if err != nil {
 		return errors.Wrap(err, "getting schema key")

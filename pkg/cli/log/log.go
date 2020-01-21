@@ -1,26 +1,26 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package log
 
 import (
 	"fmt"
-	"github.com/dnote/color"
+	"github.com/nadproject/color"
 	"os"
 )
 
@@ -104,9 +104,9 @@ func Askf(msg string, masked bool, v ...interface{}) {
 	fmt.Fprintf(color.Output, "%s%s %s: ", indent, symbol, fmt.Sprintf(msg, v...))
 }
 
-// Debug prints to the console if DNOTE_DEBUG is set
+// Debug prints to the console if NAD_DEBUG is set
 func Debug(msg string, v ...interface{}) {
-	if os.Getenv("DNOTE_DEBUG") == "1" {
+	if os.Getenv("NAD_DEBUG") == "1" {
 		fmt.Fprintf(color.Output, "%s %s", ColorGray.Sprint("DEBUG:"), fmt.Sprintf(msg, v...))
 	}
 }

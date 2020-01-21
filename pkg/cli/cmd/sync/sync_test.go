@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package sync
@@ -27,17 +27,17 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dnote/dnote/pkg/assert"
-	"github.com/dnote/dnote/pkg/cli/client"
-	"github.com/dnote/dnote/pkg/cli/consts"
-	"github.com/dnote/dnote/pkg/cli/context"
-	"github.com/dnote/dnote/pkg/cli/database"
-	"github.com/dnote/dnote/pkg/cli/testutils"
-	"github.com/dnote/dnote/pkg/cli/utils"
+	"github.com/nadproject/nad/pkg/assert"
+	"github.com/nadproject/nad/pkg/cli/client"
+	"github.com/nadproject/nad/pkg/cli/consts"
+	"github.com/nadproject/nad/pkg/cli/context"
+	"github.com/nadproject/nad/pkg/cli/database"
+	"github.com/nadproject/nad/pkg/cli/testutils"
+	"github.com/nadproject/nad/pkg/cli/utils"
 	"github.com/pkg/errors"
 )
 
-var dbPath = "../../tmp/.dnote.db"
+var dbPath = "../../tmp/.nad.db"
 
 func TestProcessFragments(t *testing.T) {
 	fragments := []client.SyncFragment{
@@ -109,7 +109,7 @@ func TestProcessFragments(t *testing.T) {
 
 func TestGetLastSyncAt(t *testing.T) {
 	// set up
-	db := database.InitTestDB(t, "../../tmp/.dnote", nil)
+	db := database.InitTestDB(t, "../../tmp/.nad", nil)
 	defer database.CloseTestDB(t, db)
 	database.MustExec(t, "setting up last_sync_at", db, "INSERT INTO system (key, value) VALUES (?, ?)", consts.SystemLastSyncAt, 1541108743)
 
@@ -132,7 +132,7 @@ func TestGetLastSyncAt(t *testing.T) {
 
 func TestGetLastMaxUSN(t *testing.T) {
 	// set up
-	db := database.InitTestDB(t, "../../tmp/.dnote", nil)
+	db := database.InitTestDB(t, "../../tmp/.nad", nil)
 	defer database.CloseTestDB(t, db)
 	database.MustExec(t, "setting up last_max_usn", db, "INSERT INTO system (key, value) VALUES (?, ?)", consts.SystemLastMaxUSN, 20001)
 
@@ -179,7 +179,7 @@ func TestResolveLabel(t *testing.T) {
 	for idx, tc := range testCases {
 		func() {
 			// set up
-			db := database.InitTestDB(t, "../../tmp/.dnote", nil)
+			db := database.InitTestDB(t, "../../tmp/.nad", nil)
 			defer database.CloseTestDB(t, db)
 
 			database.MustExec(t, fmt.Sprintf("inserting book for test case %d", idx), db, "INSERT INTO books (uuid, label) VALUES (?, ?)", "b1-uuid", "js")
@@ -2780,7 +2780,7 @@ n1 body edited
 	for idx, tc := range testCases {
 		func() {
 			// set up
-			db := database.InitTestDB(t, "../../tmp/.dnote", nil)
+			db := database.InitTestDB(t, "../../tmp/.nad", nil)
 			defer database.CloseTestDB(t, db)
 
 			database.MustExec(t, fmt.Sprintf("inserting b1 for test case %d", idx), db, "INSERT INTO books (uuid, label, usn, dirty) VALUES (?, ?, ?, ?)", b1UUID, "b1-label", 5, false)
@@ -2862,7 +2862,7 @@ n1 body edited
 
 func TestCheckBookPristine(t *testing.T) {
 	// set up
-	db := database.InitTestDB(t, "../../tmp/.dnote", nil)
+	db := database.InitTestDB(t, "../../tmp/.nad", nil)
 	defer database.CloseTestDB(t, db)
 
 	database.MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, label, usn, dirty) VALUES (?, ?, ?, ?)", "b1-uuid", "b1-label", 5, false)
@@ -3036,7 +3036,7 @@ func TestCheckBookInList(t *testing.T) {
 
 func TestCleanLocalNotes(t *testing.T) {
 	// set up
-	db := database.InitTestDB(t, "../../tmp/.dnote", nil)
+	db := database.InitTestDB(t, "../../tmp/.nad", nil)
 	defer database.CloseTestDB(t, db)
 
 	list := syncList{
@@ -3108,7 +3108,7 @@ func TestCleanLocalNotes(t *testing.T) {
 
 func TestCleanLocalBooks(t *testing.T) {
 	// set up
-	db := database.InitTestDB(t, "../../tmp/.dnote", nil)
+	db := database.InitTestDB(t, "../../tmp/.nad", nil)
 	defer database.CloseTestDB(t, db)
 
 	list := syncList{

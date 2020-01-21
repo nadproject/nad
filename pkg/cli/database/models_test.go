@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package database
@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/dnote/dnote/pkg/assert"
+	"github.com/nadproject/nad/pkg/assert"
 	"github.com/pkg/errors"
 )
 
@@ -116,7 +116,7 @@ func TestNoteInsert(t *testing.T) {
 	for idx, tc := range testCases {
 		func() {
 			// Setup
-			db := InitTestDB(t, "../tmp/dnote-test.db", nil)
+			db := InitTestDB(t, "../tmp/nad-test.db", nil)
 			defer CloseTestDB(t, db)
 
 			n := Note{
@@ -262,7 +262,7 @@ func TestNoteUpdate(t *testing.T) {
 	for idx, tc := range testCases {
 		func() {
 			// Setup
-			db := InitTestDB(t, "../tmp/dnote-test.db", nil)
+			db := InitTestDB(t, "../tmp/nad-test.db", nil)
 			defer CloseTestDB(t, db)
 
 			n1 := Note{
@@ -359,7 +359,7 @@ func TestNoteUpdateUUID(t *testing.T) {
 	for idx, tc := range testCases {
 		t.Run(fmt.Sprintf("testCase%d", idx), func(t *testing.T) {
 			// Setup
-			db := InitTestDB(t, "../tmp/dnote-test.db", nil)
+			db := InitTestDB(t, "../tmp/nad-test.db", nil)
 			defer CloseTestDB(t, db)
 
 			n1 := Note{
@@ -414,7 +414,7 @@ func TestNoteUpdateUUID(t *testing.T) {
 
 func TestNoteExpunge(t *testing.T) {
 	// Setup
-	db := InitTestDB(t, "../tmp/dnote-test.db", nil)
+	db := InitTestDB(t, "../tmp/nad-test.db", nil)
 	defer CloseTestDB(t, db)
 
 	n1 := Note{
@@ -540,7 +540,7 @@ func TestBookInsert(t *testing.T) {
 	for idx, tc := range testCases {
 		func() {
 			// Setup
-			db := InitTestDB(t, "../tmp/dnote-test.db", nil)
+			db := InitTestDB(t, "../tmp/nad-test.db", nil)
 			defer CloseTestDB(t, db)
 
 			b := Book{
@@ -621,7 +621,7 @@ func TestBookUpdate(t *testing.T) {
 	for idx, tc := range testCases {
 		func() {
 			// Setup
-			db := InitTestDB(t, "../tmp/dnote-test.db", nil)
+			db := InitTestDB(t, "../tmp/nad-test.db", nil)
 			defer CloseTestDB(t, db)
 
 			b1 := Book{
@@ -700,7 +700,7 @@ func TestBookUpdateUUID(t *testing.T) {
 		t.Run(fmt.Sprintf("testCase%d", idx), func(t *testing.T) {
 
 			// Setup
-			db := InitTestDB(t, "../tmp/dnote-test.db", nil)
+			db := InitTestDB(t, "../tmp/nad-test.db", nil)
 			defer CloseTestDB(t, db)
 
 			b1 := Book{
@@ -751,7 +751,7 @@ func TestBookUpdateUUID(t *testing.T) {
 
 func TestBookExpunge(t *testing.T) {
 	// Setup
-	db := InitTestDB(t, "../tmp/dnote-test.db", nil)
+	db := InitTestDB(t, "../tmp/nad-test.db", nil)
 	defer CloseTestDB(t, db)
 
 	b1 := Book{
@@ -806,7 +806,7 @@ func TestBookExpunge(t *testing.T) {
 // TestNoteFTS tests that note full text search indices stay in sync with the notes after insert, update and delete
 func TestNoteFTS(t *testing.T) {
 	// set up
-	db := InitTestDB(t, "../tmp/dnote-test.db", nil)
+	db := InitTestDB(t, "../tmp/nad-test.db", nil)
 	defer CloseTestDB(t, db)
 
 	// execute - insert

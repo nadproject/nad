@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package infra
@@ -21,14 +21,14 @@ package infra
 import (
 	"testing"
 
-	"github.com/dnote/dnote/pkg/assert"
-	"github.com/dnote/dnote/pkg/cli/database"
+	"github.com/nadproject/nad/pkg/assert"
+	"github.com/nadproject/nad/pkg/cli/database"
 	"github.com/pkg/errors"
 )
 
 func TestInitSystemKV(t *testing.T) {
 	// Setup
-	db := database.InitTestDB(t, "../tmp/dnote-test.db", nil)
+	db := database.InitTestDB(t, "../tmp/nad-test.db", nil)
 	defer database.CloseTestDB(t, db)
 
 	var originalCount int
@@ -60,7 +60,7 @@ func TestInitSystemKV(t *testing.T) {
 
 func TestInitSystemKV_existing(t *testing.T) {
 	// Setup
-	db := database.InitTestDB(t, "../tmp/dnote-test.db", nil)
+	db := database.InitTestDB(t, "../tmp/nad-test.db", nil)
 	defer database.CloseTestDB(t, db)
 
 	database.MustExec(t, "inserting a system config", db, "INSERT INTO system (key, value) VALUES (?, ?)", "testKey", "testVal")

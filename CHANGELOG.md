@@ -54,7 +54,7 @@ The following log documentes the history of the CLI project
 
 #### Migration guide
 
-- If you are using Dnote Pro, change the value of `apiEndpoint` in `~/.dnote/dnoterc` to `https://api.getdnote.com`.
+- If you are using NAD Pro, change the value of `apiEndpoint` in `~/.nad/nadrc` to `https://api.getnad.com`.
 
 ## Browser Extensions
 

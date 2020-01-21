@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 // Package testutils provides utilities used in tests
@@ -32,15 +32,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dnote/dnote/pkg/cli/consts"
-	"github.com/dnote/dnote/pkg/cli/context"
-	"github.com/dnote/dnote/pkg/cli/database"
-	"github.com/dnote/dnote/pkg/cli/utils"
+	"github.com/nadproject/nad/pkg/cli/consts"
+	"github.com/nadproject/nad/pkg/cli/context"
+	"github.com/nadproject/nad/pkg/cli/database"
+	"github.com/nadproject/nad/pkg/cli/utils"
 	"github.com/pkg/errors"
 )
 
 // Login simulates a logged in user by inserting credentials in the local database
-func Login(t *testing.T, ctx *context.DnoteCtx) {
+func Login(t *testing.T, ctx *context.NadCtx) {
 	db := ctx.DB
 
 	database.MustExec(t, "inserting sessionKey", db, "INSERT INTO system (key, value) VALUES (?, ?)", consts.SystemSessionKey, "someSessionKey")
@@ -57,16 +57,16 @@ func RemoveDir(t *testing.T, dir string) {
 	}
 }
 
-// CopyFixture writes the content of the given fixture to the filename inside the dnote dir
-func CopyFixture(t *testing.T, ctx context.DnoteCtx, fixturePath string, filename string) {
+// CopyFixture writes the content of the given fixture to the filename inside the nad dir
+func CopyFixture(t *testing.T, ctx context.NadCtx, fixturePath string, filename string) {
 	fp, err := filepath.Abs(fixturePath)
 	if err != nil {
 		t.Fatal(errors.Wrap(err, "getting the absolute path for fixture"))
 	}
 
-	dp, err := filepath.Abs(filepath.Join(ctx.DnoteDir, filename))
+	dp, err := filepath.Abs(filepath.Join(ctx.NADDir, filename))
 	if err != nil {
-		t.Fatal(errors.Wrap(err, "getting the absolute path dnote dir"))
+		t.Fatal(errors.Wrap(err, "getting the absolute path nad dir"))
 	}
 
 	err = utils.CopyFile(fp, dp)
@@ -75,9 +75,9 @@ func CopyFixture(t *testing.T, ctx context.DnoteCtx, fixturePath string, filenam
 	}
 }
 
-// WriteFile writes a file with the given content and  filename inside the dnote dir
-func WriteFile(ctx context.DnoteCtx, content []byte, filename string) {
-	dp, err := filepath.Abs(filepath.Join(ctx.DnoteDir, filename))
+// WriteFile writes a file with the given content and  filename inside the nad dir
+func WriteFile(ctx context.NadCtx, content []byte, filename string) {
+	dp, err := filepath.Abs(filepath.Join(ctx.NADDir, filename))
 	if err != nil {
 		panic(err)
 	}
@@ -87,9 +87,9 @@ func WriteFile(ctx context.DnoteCtx, content []byte, filename string) {
 	}
 }
 
-// ReadFile reads the content of the file with the given name in dnote dir
-func ReadFile(ctx context.DnoteCtx, filename string) []byte {
-	path := filepath.Join(ctx.DnoteDir, filename)
+// ReadFile reads the content of the file with the given name in nad dir
+func ReadFile(ctx context.NadCtx, filename string) []byte {
+	path := filepath.Join(ctx.NADDir, filename)
 
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -111,8 +111,8 @@ func ReadJSON(path string, destination interface{}) {
 	}
 }
 
-// NewDnoteCmd returns a new Dnote command and a pointer to stderr
-func NewDnoteCmd(opts RunDnoteCmdOptions, binaryName string, arg ...string) (*exec.Cmd, *bytes.Buffer, *bytes.Buffer, error) {
+// NewNADCmd returns a new NAD command and a pointer to stderr
+func NewNADCmd(opts RunNADCmdOptions, binaryName string, arg ...string) (*exec.Cmd, *bytes.Buffer, *bytes.Buffer, error) {
 	var stderr, stdout bytes.Buffer
 
 	binaryPath, err := filepath.Abs(binaryName)
@@ -121,30 +121,30 @@ func NewDnoteCmd(opts RunDnoteCmdOptions, binaryName string, arg ...string) (*ex
 	}
 
 	cmd := exec.Command(binaryPath, arg...)
-	cmd.Env = []string{fmt.Sprintf("DNOTE_DIR=%s", opts.DnoteDir), fmt.Sprintf("DNOTE_HOME_DIR=%s", opts.HomeDir)}
+	cmd.Env = []string{fmt.Sprintf("DNOTE_DIR=%s", opts.NADDir), fmt.Sprintf("DNOTE_HOME_DIR=%s", opts.HomeDir)}
 	cmd.Stderr = &stderr
 	cmd.Stdout = &stdout
 
 	return cmd, &stderr, &stdout, nil
 }
 
-// RunDnoteCmdOptions is an option for RunDnoteCmd
-type RunDnoteCmdOptions struct {
-	DnoteDir string
-	HomeDir  string
+// RunNADCmdOptions is an option for RunNADCmd
+type RunNADCmdOptions struct {
+	NADDir  string
+	HomeDir string
 }
 
-// RunDnoteCmd runs a dnote command
-func RunDnoteCmd(t *testing.T, opts RunDnoteCmdOptions, binaryName string, arg ...string) {
+// RunNADCmd runs a nad command
+func RunNADCmd(t *testing.T, opts RunNADCmdOptions, binaryName string, arg ...string) {
 	t.Logf("running: %s %s", binaryName, strings.Join(arg, " "))
 
-	cmd, stderr, stdout, err := NewDnoteCmd(opts, binaryName, arg...)
+	cmd, stderr, stdout, err := NewNADCmd(opts, binaryName, arg...)
 	if err != nil {
 		t.Logf("\n%s", stdout)
 		t.Fatal(errors.Wrap(err, "getting command").Error())
 	}
 
-	cmd.Env = append(cmd.Env, "DNOTE_DEBUG=1")
+	cmd.Env = append(cmd.Env, "NAD_DEBUG=1")
 
 	if err := cmd.Run(); err != nil {
 		t.Logf("\n%s", stdout)
@@ -155,11 +155,11 @@ func RunDnoteCmd(t *testing.T, opts RunDnoteCmdOptions, binaryName string, arg .
 	t.Logf("\n%s", stdout)
 }
 
-// WaitDnoteCmd runs a dnote command and waits until the command is exited
-func WaitDnoteCmd(t *testing.T, opts RunDnoteCmdOptions, runFunc func(io.WriteCloser) error, binaryName string, arg ...string) {
+// WaitNADCmd runs a nad command and waits until the command is exited
+func WaitNADCmd(t *testing.T, opts RunNADCmdOptions, runFunc func(io.WriteCloser) error, binaryName string, arg ...string) {
 	t.Logf("running: %s %s", binaryName, strings.Join(arg, " "))
 
-	cmd, stderr, stdout, err := NewDnoteCmd(opts, binaryName, arg...)
+	cmd, stderr, stdout, err := NewNADCmd(opts, binaryName, arg...)
 	if err != nil {
 		t.Logf("\n%s", stdout)
 		t.Fatal(errors.Wrap(err, "getting command").Error())

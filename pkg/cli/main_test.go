@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package main
@@ -25,19 +25,19 @@ import (
 	"os/exec"
 	"testing"
 
-	"github.com/dnote/dnote/pkg/assert"
-	"github.com/dnote/dnote/pkg/cli/consts"
-	"github.com/dnote/dnote/pkg/cli/database"
-	"github.com/dnote/dnote/pkg/cli/testutils"
-	"github.com/dnote/dnote/pkg/cli/utils"
+	"github.com/nadproject/nad/pkg/assert"
+	"github.com/nadproject/nad/pkg/cli/consts"
+	"github.com/nadproject/nad/pkg/cli/database"
+	"github.com/nadproject/nad/pkg/cli/testutils"
+	"github.com/nadproject/nad/pkg/cli/utils"
 	"github.com/pkg/errors"
 )
 
-var binaryName = "test-dnote"
+var binaryName = "test-nad"
 
-var opts = testutils.RunDnoteCmdOptions{
+var opts = testutils.RunNADCmdOptions{
 	HomeDir:  "./tmp",
-	DnoteDir: "./tmp/.dnote",
+	NADDir: "./tmp/.nad",
 }
 
 func TestMain(m *testing.M) {
@@ -51,23 +51,23 @@ func TestMain(m *testing.M) {
 
 func TestInit(t *testing.T) {
 	// Execute
-	testutils.RunDnoteCmd(t, opts, binaryName)
+	testutils.RunNADCmd(t, opts, binaryName)
 	defer testutils.RemoveDir(t, opts.HomeDir)
 
-	db := database.OpenTestDB(t, opts.DnoteDir)
+	db := database.OpenTestDB(t, opts.NADDir)
 
 	// Test
-	ok, err := utils.FileExists(opts.DnoteDir)
+	ok, err := utils.FileExists(opts.NADDir)
 	if err != nil {
-		t.Fatal(errors.Wrap(err, "checking if dnote dir exists"))
+		t.Fatal(errors.Wrap(err, "checking if nad dir exists"))
 	}
 	if !ok {
-		t.Errorf("dnote directory was not initialized")
+		t.Errorf("nad directory was not initialized")
 	}
 
-	ok, err = utils.FileExists(fmt.Sprintf("%s/%s", opts.DnoteDir, consts.ConfigFilename))
+	ok, err = utils.FileExists(fmt.Sprintf("%s/%s", opts.NADDir, consts.ConfigFilename))
 	if err != nil {
-		t.Fatal(errors.Wrap(err, "checking if dnote config exists"))
+		t.Fatal(errors.Wrap(err, "checking if nad config exists"))
 	}
 	if !ok {
 		t.Errorf("config file was not initialized")
@@ -102,10 +102,10 @@ func TestInit(t *testing.T) {
 func TestAddNote(t *testing.T) {
 	t.Run("new book", func(t *testing.T) {
 		// Set up and execute
-		testutils.RunDnoteCmd(t, opts, binaryName, "add", "js", "-c", "foo")
+		testutils.RunNADCmd(t, opts, binaryName, "add", "js", "-c", "foo")
 		defer testutils.RemoveDir(t, opts.HomeDir)
 
-		db := database.OpenTestDB(t, opts.DnoteDir)
+		db := database.OpenTestDB(t, opts.NADDir)
 
 		// Test
 		var noteCount, bookCount int
@@ -131,11 +131,11 @@ func TestAddNote(t *testing.T) {
 
 	t.Run("existing book", func(t *testing.T) {
 		// Setup
-		db := database.InitTestDB(t, fmt.Sprintf("%s/%s", opts.DnoteDir, consts.DnoteDBFileName), nil)
+		db := database.InitTestDB(t, fmt.Sprintf("%s/%s", opts.NADDir, consts.NADDBFileName), nil)
 		testutils.Setup3(t, db)
 
 		// Execute
-		testutils.RunDnoteCmd(t, opts, binaryName, "add", "js", "-c", "foo")
+		testutils.RunNADCmd(t, opts, binaryName, "add", "js", "-c", "foo")
 		defer testutils.RemoveDir(t, opts.HomeDir)
 
 		// Test
@@ -172,11 +172,11 @@ func TestAddNote(t *testing.T) {
 func TestEditNote(t *testing.T) {
 	t.Run("content flag", func(t *testing.T) {
 		// Setup
-		db := database.InitTestDB(t, fmt.Sprintf("%s/%s", opts.DnoteDir, consts.DnoteDBFileName), nil)
+		db := database.InitTestDB(t, fmt.Sprintf("%s/%s", opts.NADDir, consts.NADDBFileName), nil)
 		testutils.Setup4(t, db)
 
 		// Execute
-		testutils.RunDnoteCmd(t, opts, binaryName, "edit", "2", "-c", "foo bar")
+		testutils.RunNADCmd(t, opts, binaryName, "edit", "2", "-c", "foo bar")
 		defer testutils.RemoveDir(t, opts.HomeDir)
 
 		// Test
@@ -205,11 +205,11 @@ func TestEditNote(t *testing.T) {
 
 	t.Run("book flag", func(t *testing.T) {
 		// Setup
-		db := database.InitTestDB(t, fmt.Sprintf("%s/%s", opts.DnoteDir, consts.DnoteDBFileName), nil)
+		db := database.InitTestDB(t, fmt.Sprintf("%s/%s", opts.NADDir, consts.NADDBFileName), nil)
 		testutils.Setup5(t, db)
 
 		// Execute
-		testutils.RunDnoteCmd(t, opts, binaryName, "edit", "2", "-b", "linux")
+		testutils.RunNADCmd(t, opts, binaryName, "edit", "2", "-b", "linux")
 		defer testutils.RemoveDir(t, opts.HomeDir)
 
 		// Test
@@ -239,11 +239,11 @@ func TestEditNote(t *testing.T) {
 
 	t.Run("book flag and content flag", func(t *testing.T) {
 		// Setup
-		db := database.InitTestDB(t, fmt.Sprintf("%s/%s", opts.DnoteDir, consts.DnoteDBFileName), nil)
+		db := database.InitTestDB(t, fmt.Sprintf("%s/%s", opts.NADDir, consts.NADDBFileName), nil)
 		testutils.Setup5(t, db)
 
 		// Execute
-		testutils.RunDnoteCmd(t, opts, binaryName, "edit", "2", "-b", "linux", "-c", "n2 body updated")
+		testutils.RunNADCmd(t, opts, binaryName, "edit", "2", "-b", "linux", "-c", "n2 body updated")
 		defer testutils.RemoveDir(t, opts.HomeDir)
 
 		// Test
@@ -275,11 +275,11 @@ func TestEditNote(t *testing.T) {
 func TestEditBook(t *testing.T) {
 	t.Run("name flag", func(t *testing.T) {
 		// Setup
-		db := database.InitTestDB(t, fmt.Sprintf("%s/%s", opts.DnoteDir, consts.DnoteDBFileName), nil)
+		db := database.InitTestDB(t, fmt.Sprintf("%s/%s", opts.NADDir, consts.NADDBFileName), nil)
 		testutils.Setup1(t, db)
 
 		// Execute
-		testutils.RunDnoteCmd(t, opts, binaryName, "edit", "js", "-n", "js-edited")
+		testutils.RunNADCmd(t, opts, binaryName, "edit", "js", "-n", "js-edited")
 		defer testutils.RemoveDir(t, opts.HomeDir)
 
 		// Test
@@ -334,14 +334,14 @@ func TestRemoveNote(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("--yes=%t", tc.yesFlag), func(t *testing.T) {
 			// Setup
-			db := database.InitTestDB(t, fmt.Sprintf("%s/%s", opts.DnoteDir, consts.DnoteDBFileName), nil)
+			db := database.InitTestDB(t, fmt.Sprintf("%s/%s", opts.NADDir, consts.NADDBFileName), nil)
 			testutils.Setup2(t, db)
 
 			// Execute
 			if tc.yesFlag {
-				testutils.RunDnoteCmd(t, opts, binaryName, "remove", "-y", "1")
+				testutils.RunNADCmd(t, opts, binaryName, "remove", "-y", "1")
 			} else {
-				testutils.WaitDnoteCmd(t, opts, testutils.UserConfirm, binaryName, "remove", "1")
+				testutils.WaitNADCmd(t, opts, testutils.UserConfirm, binaryName, "remove", "1")
 			}
 			defer testutils.RemoveDir(t, opts.HomeDir)
 
@@ -421,14 +421,14 @@ func TestRemoveBook(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("--yes=%t", tc.yesFlag), func(t *testing.T) {
 			// Setup
-			db := database.InitTestDB(t, fmt.Sprintf("%s/%s", opts.DnoteDir, consts.DnoteDBFileName), nil)
+			db := database.InitTestDB(t, fmt.Sprintf("%s/%s", opts.NADDir, consts.NADDBFileName), nil)
 			testutils.Setup2(t, db)
 
 			// Execute
 			if tc.yesFlag {
-				testutils.RunDnoteCmd(t, opts, binaryName, "remove", "-y", "js")
+				testutils.RunNADCmd(t, opts, binaryName, "remove", "-y", "js")
 			} else {
-				testutils.WaitDnoteCmd(t, opts, testutils.UserConfirm, binaryName, "remove", "js")
+				testutils.WaitNADCmd(t, opts, testutils.UserConfirm, binaryName, "remove", "js")
 			}
 
 			defer testutils.RemoveDir(t, opts.HomeDir)

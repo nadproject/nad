@@ -1,0 +1,9 @@
+---
+dbname: nad
+dbuser: vagrant
+dbpassword: vagrant
+
+postgresql_hba_entries:
+  - { type: local, database: all, user: postgres, auth_method: peer }
+  - { type: local, database: all, user: vargrant, auth_method: peer }
+  - { type: host, database: all, user: all, address: all, auth_method: trust }

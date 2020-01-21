@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD CLI.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD CLI is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD CLI is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD CLI.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package sync
@@ -22,14 +22,15 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/dnote/dnote/pkg/cli/client"
-	"github.com/dnote/dnote/pkg/cli/consts"
-	"github.com/dnote/dnote/pkg/cli/context"
-	"github.com/dnote/dnote/pkg/cli/database"
-	"github.com/dnote/dnote/pkg/cli/infra"
-	"github.com/dnote/dnote/pkg/cli/log"
-	"github.com/dnote/dnote/pkg/cli/migrate"
-	"github.com/dnote/dnote/pkg/cli/upgrade"
+	"github.com/nadproject/nad/pkg/cli/client"
+	"github.com/nadproject/nad/pkg/cli/consts"
+	"github.com/nadproject/nad/pkg/cli/context"
+	"github.com/nadproject/nad/pkg/cli/crypt"
+	"github.com/nadproject/nad/pkg/cli/database"
+	"github.com/nadproject/nad/pkg/cli/infra"
+	"github.com/nadproject/nad/pkg/cli/log"
+	"github.com/nadproject/nad/pkg/cli/migrate"
+	"github.com/nadproject/nad/pkg/cli/upgrade"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -40,12 +41,12 @@ const (
 )
 
 var example = `
-  dnote sync`
+  nad sync`
 
 var isFullSync bool
 
 // NewCmd returns a new sync command
-func NewCmd(ctx context.DnoteCtx) *cobra.Command {
+func NewCmd(ctx context.NadCtx) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "sync",
 		Aliases: []string{"s"},
@@ -96,7 +97,7 @@ func (l syncList) getLength() int {
 
 // processFragments categorizes items in sync fragments into a sync list. It also decrypts any
 // encrypted data in sync fragments.
-func processFragments(fragments []client.SyncFragment) (syncList, error) {
+func processFragments(fragments []client.SyncFragment, cipherKey []byte) (syncList, error) {
 	notes := map[string]client.SyncFragNote{}
 	books := map[string]client.SyncFragBook{}
 	expungedNotes := map[string]bool{}
@@ -106,9 +107,23 @@ func processFragments(fragments []client.SyncFragment) (syncList, error) {
 
 	for _, fragment := range fragments {
 		for _, note := range fragment.Notes {
+			log.Debug("decrypting note %s\n", note.UUID)
+			bodyDec, err := crypt.AesGcmDecrypt(cipherKey, note.Body)
+			if err != nil {
+				return syncList{}, errors.Wrapf(err, "decrypting body for note %s", note.UUID)
+			}
+
+			note.Body = string(bodyDec)
 			notes[note.UUID] = note
 		}
 		for _, book := range fragment.Books {
+			log.Debug("decrypting book %s\n", book.UUID)
+			labelDec, err := crypt.AesGcmDecrypt(cipherKey, book.Label)
+			if err != nil {
+				return syncList{}, errors.Wrapf(err, "decrypting label for book %s", book.UUID)
+			}
+
+			book.Label = string(labelDec)
 			books[book.UUID] = book
 		}
 		for _, uuid := range fragment.ExpungedBooks {
@@ -140,13 +155,13 @@ func processFragments(fragments []client.SyncFragment) (syncList, error) {
 
 // getSyncList gets a list of all sync fragments after the specified usn
 // and aggregates them into a syncList data structure
-func getSyncList(ctx context.DnoteCtx, afterUSN int) (syncList, error) {
+func getSyncList(ctx context.NadCtx, afterUSN int) (syncList, error) {
 	fragments, err := getSyncFragments(ctx, afterUSN)
 	if err != nil {
 		return syncList{}, errors.Wrap(err, "getting sync fragments")
 	}
 
-	ret, err := processFragments(fragments)
+	ret, err := processFragments(fragments, ctx.CipherKey)
 	if err != nil {
 		return syncList{}, errors.Wrap(err, "making sync list")
 	}
@@ -156,7 +171,7 @@ func getSyncList(ctx context.DnoteCtx, afterUSN int) (syncList, error) {
 
 // getSyncFragments repeatedly gets all sync fragments after the specified usn until there is no more new data
 // remaining and returns the buffered list
-func getSyncFragments(ctx context.DnoteCtx, afterUSN int) ([]client.SyncFragment, error) {
+func getSyncFragments(ctx context.NadCtx, afterUSN int) ([]client.SyncFragment, error) {
 	var buf []client.SyncFragment
 
 	nextAfterUSN := afterUSN
@@ -534,7 +549,7 @@ func cleanLocalBooks(tx *database.DB, fullList *syncList) error {
 	return nil
 }
 
-func fullSync(ctx context.DnoteCtx, tx *database.DB) error {
+func fullSync(ctx context.NadCtx, tx *database.DB) error {
 	log.Debug("performing a full sync\n")
 	log.Info("resolving delta.")
 
@@ -585,7 +600,7 @@ func fullSync(ctx context.DnoteCtx, tx *database.DB) error {
 	return nil
 }
 
-func stepSync(ctx context.DnoteCtx, tx *database.DB, afterUSN int) error {
+func stepSync(ctx context.NadCtx, tx *database.DB, afterUSN int) error {
 	log.Debug("performing a step sync\n")
 
 	log.Info("resolving delta.")
@@ -629,7 +644,7 @@ func stepSync(ctx context.DnoteCtx, tx *database.DB, afterUSN int) error {
 	return nil
 }
 
-func sendBooks(ctx context.DnoteCtx, tx *database.DB) (bool, error) {
+func sendBooks(ctx context.NadCtx, tx *database.DB) (bool, error) {
 	isBehind := false
 
 	rows, err := tx.Query("SELECT uuid, label, usn, deleted FROM books WHERE dirty")
@@ -733,7 +748,7 @@ func sendBooks(ctx context.DnoteCtx, tx *database.DB) (bool, error) {
 	return isBehind, nil
 }
 
-func sendNotes(ctx context.DnoteCtx, tx *database.DB) (bool, error) {
+func sendNotes(ctx context.NadCtx, tx *database.DB) (bool, error) {
 	isBehind := false
 
 	rows, err := tx.Query("SELECT uuid, book_uuid, body, public, deleted, usn, added_on FROM notes WHERE dirty")
@@ -833,7 +848,7 @@ func sendNotes(ctx context.DnoteCtx, tx *database.DB) (bool, error) {
 	return isBehind, nil
 }
 
-func sendChanges(ctx context.DnoteCtx, tx *database.DB) (bool, error) {
+func sendChanges(ctx context.NadCtx, tx *database.DB) (bool, error) {
 	log.Info("sending changes.")
 
 	var delta int
@@ -885,9 +900,9 @@ func saveSyncState(tx *database.DB, serverTime int64, serverMaxUSN int) error {
 	return nil
 }
 
-func newRun(ctx context.DnoteCtx) infra.RunEFunc {
+func newRun(ctx context.NadCtx) infra.RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
-		if ctx.SessionKey == "" {
+		if ctx.SessionKey == "" || ctx.CipherKey == nil {
 			return errors.New("not logged in")
 		}
 

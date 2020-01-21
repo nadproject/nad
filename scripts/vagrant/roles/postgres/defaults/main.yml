@@ -1,0 +1,8 @@
+---
+version: 11
+dbname: default
+dbuser: postgres
+dbpassword:
+
+postgresql_user: postgres
+postgresql_group: postgres

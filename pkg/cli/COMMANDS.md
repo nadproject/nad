@@ -1,15 +1,15 @@
 # Commands
 
-- [add](#dnote-add)
-- [view](#dnote-view)
-- [edit](#dnote-edit)
-- [remove](#dnote-remove)
-- [find](#dnote-find)
-- [sync](#dnote-sync)
-- [login](#dnote-login)
-- [logout](#dnote-logout)
+- [add](#nad-add)
+- [view](#nad-view)
+- [edit](#nad-edit)
+- [remove](#nad-remove)
+- [find](#nad-find)
+- [sync](#nad-sync)
+- [login](#nad-login)
+- [logout](#nad-logout)
 
-## dnote add
+## nad add
 
 _alias: a, n, new_
 
@@ -17,13 +17,13 @@ Add a new note to a book.
 
 ```bash
 # Launch a text editor to add a new note to the specified book.
-dnote add linux
+nad add linux
 
 # Write a new note with a content to the specified book.
-dnote add linux -c "find - recursively walk the directory"
+nad add linux -c "find - recursively walk the directory"
 ```
 
-## dnote view
+## nad view
 
 _alias: v_
 
@@ -32,16 +32,16 @@ _alias: v_
 
 ```bash
 # List all books.
-dnote view
+nad view
 
 # List all notes in a book.
-dnote view golang
+nad view golang
 
 # See details of a note
-dnote view 12
+nad view 12
 ```
 
-## dnote edit
+## nad edit
 
 _alias: e_
 
@@ -49,19 +49,19 @@ Edit a note or a book.
 
 ```bash
 # Launch a text editor to edit a note with the given id.
-dnote edit 12
+nad edit 12
 
 # Edit a note with the given id in the specified book with a content.
-dnote edit 12 -c "New Content"
+nad edit 12 -c "New Content"
 
 # Launch a text editor to edit a book name.
-dnote edit js
+nad edit js
 
 # Edit a book name by using a flag.
-dnote edit js -n "javascript"
+nad edit js -n "javascript"
 ```
 
-## dnote remove
+## nad remove
 
 _alias: rm, d_
 
@@ -69,13 +69,13 @@ Remove either a note or a book.
 
 ```bash
 # Remove a note with an id.
-dnote remove 1
+nad remove 1
 
 # Remove a book with the `book name`.
-dnote remove js
+nad remove js
 ```
 
-## dnote find
+## nad find
 
 _alias: f_
 
@@ -83,31 +83,31 @@ Find notes by keywords.
 
 ```bash
 # find notes by a keyword
-dnote find rpoplpush
+nad find rpoplpush
 
 # find notes by multiple keywords
-dnote find "building a heap"
+nad find "building a heap"
 
 # find notes within a book
-dnote find "merge sort" -b algorithm
+nad find "merge sort" -b algorithm
 ```
 
-## dnote sync
+## nad sync
 
-_Dnote Pro only_
+_NAD Pro only_
 
 _alias: s_
 
-Sync notes with Dnote server. All your data is encrypted before being sent to the server.
+Sync notes with NAD server. All your data is encrypted before being sent to the server.
 
-## dnote login
+## nad login
 
-_Dnote Pro only_
+_NAD Pro only_
 
 Start a login prompt.
 
-## dnote logout
+## nad logout
 
-_Dnote Pro only_
+_NAD Pro only_
 
-Log out of Dnote.
+Log out of NAD.

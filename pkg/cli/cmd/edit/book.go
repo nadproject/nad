@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package edit
@@ -21,12 +21,12 @@ package edit
 import (
 	"strings"
 
-	"github.com/dnote/dnote/pkg/cli/context"
-	"github.com/dnote/dnote/pkg/cli/database"
-	"github.com/dnote/dnote/pkg/cli/log"
-	"github.com/dnote/dnote/pkg/cli/output"
-	"github.com/dnote/dnote/pkg/cli/ui"
-	"github.com/dnote/dnote/pkg/cli/validate"
+	"github.com/nadproject/nad/pkg/cli/context"
+	"github.com/nadproject/nad/pkg/cli/database"
+	"github.com/nadproject/nad/pkg/cli/log"
+	"github.com/nadproject/nad/pkg/cli/output"
+	"github.com/nadproject/nad/pkg/cli/ui"
+	"github.com/nadproject/nad/pkg/cli/validate"
 	"github.com/pkg/errors"
 )
 
@@ -41,7 +41,7 @@ func validateRunBookFlags() error {
 	return nil
 }
 
-func waitEditorBookName(ctx context.DnoteCtx) (string, error) {
+func waitEditorBookName(ctx context.NadCtx) (string, error) {
 	fpath, err := ui.GetTmpContentPath(ctx)
 	if err != nil {
 		return "", errors.Wrap(err, "getting temporarily content file path")
@@ -59,7 +59,7 @@ func waitEditorBookName(ctx context.DnoteCtx) (string, error) {
 	return c, nil
 }
 
-func getName(ctx context.DnoteCtx) (string, error) {
+func getName(ctx context.NadCtx) (string, error) {
 	if nameFlag != "" {
 		return nameFlag, nil
 	}
@@ -72,7 +72,7 @@ func getName(ctx context.DnoteCtx) (string, error) {
 	return c, nil
 }
 
-func runBook(ctx context.DnoteCtx, bookName string) error {
+func runBook(ctx context.NadCtx, bookName string) error {
 	err := validateRunBookFlags()
 	if err != nil {
 		return errors.Wrap(err, "validating flags.")

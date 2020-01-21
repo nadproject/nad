@@ -1,0 +1,54 @@
+---
+- name: Ensure postgres apt key exists
+  apt_key:
+    url: http://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc
+    state: present
+
+- name: Install pgdg repository
+  apt_repository:
+    repo: "deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main"
+
+- name: Ensure postgres is installed
+  apt:
+    pkg: postgresql-11
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  notify:
+    - restart postgresql
+
+- name: Configure host.
+  template:
+    src: "pg_hba.conf.j2"
+    dest: "/etc/postgresql/11/main/pg_hba.conf"
+    owner: "{{ postgresql_user }}"
+    group: "{{ postgresql_group }}"
+    mode: 0600
+  notify: restart postgresql
+  when: postgresql_hba_entries | length > 0
+
+- name: Allow all connection
+  lineinfile:
+    path: /etc/postgresql/11/main/postgresql.conf
+    line: listen_addresses = '*'
+    create: yes
+  notify: restart postgresql
+
+- name: Install Ansible postgres dependencies
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - python-psycopg2
+    - python3-psycopg2
+
+- name: ensure database is created
+  become: yes
+  become_user: postgres
+  postgresql_db: name={{dbname}}
+
+- name: ensure user has access to database
+  become: yes
+  become_user: postgres
+  postgresql_user: db={{dbname}} name={{dbuser}} password={{dbpassword}} priv=ALL
+

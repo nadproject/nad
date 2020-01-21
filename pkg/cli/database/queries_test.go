@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package database
@@ -24,8 +24,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dnote/dnote/pkg/assert"
-	"github.com/dnote/dnote/pkg/clock"
+	"github.com/nadproject/nad/pkg/assert"
+	"github.com/nadproject/nad/pkg/clock"
 	"github.com/pkg/errors"
 )
 
@@ -47,7 +47,7 @@ func TestInsertSystem(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("insert %s %s", tc.key, tc.val), func(t *testing.T) {
 			// Setup
-			db := InitTestDB(t, "../tmp/dnote-test.db", nil)
+			db := InitTestDB(t, "../tmp/nad-test.db", nil)
 			defer CloseTestDB(t, db)
 
 			// execute
@@ -95,7 +95,7 @@ func TestUpsertSystem(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("insert %s %s", tc.key, tc.val), func(t *testing.T) {
 			// Setup
-			db := InitTestDB(t, "../tmp/dnote-test.db", nil)
+			db := InitTestDB(t, "../tmp/nad-test.db", nil)
 			defer CloseTestDB(t, db)
 
 			MustExec(t, "inserting a system configuration", db, "INSERT INTO system (key, value) VALUES (?, ?)", "baz", "quz")
@@ -134,7 +134,7 @@ func TestUpsertSystem(t *testing.T) {
 func TestGetSystem(t *testing.T) {
 	t.Run(fmt.Sprintf("get string value"), func(t *testing.T) {
 		// Setup
-		db := InitTestDB(t, "../tmp/dnote-test.db", nil)
+		db := InitTestDB(t, "../tmp/nad-test.db", nil)
 		defer CloseTestDB(t, db)
 
 		// execute
@@ -157,7 +157,7 @@ func TestGetSystem(t *testing.T) {
 
 	t.Run(fmt.Sprintf("get int64 value"), func(t *testing.T) {
 		// Setup
-		db := InitTestDB(t, "../tmp/dnote-test.db", nil)
+		db := InitTestDB(t, "../tmp/nad-test.db", nil)
 		defer CloseTestDB(t, db)
 
 		// execute
@@ -198,7 +198,7 @@ func TestUpdateSystem(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("update %s %s", tc.key, tc.val), func(t *testing.T) {
 			// Setup
-			db := InitTestDB(t, "../tmp/dnote-test.db", nil)
+			db := InitTestDB(t, "../tmp/nad-test.db", nil)
 			defer CloseTestDB(t, db)
 
 			MustExec(t, "inserting a system configuration", db, "INSERT INTO system (key, value) VALUES (?, ?)", "foo", "fuz")
@@ -238,7 +238,7 @@ func TestUpdateSystem(t *testing.T) {
 func TestGetActiveNote(t *testing.T) {
 	t.Run("not deleted", func(t *testing.T) {
 		// set up
-		db := InitTestDB(t, "../tmp/dnote-test.db", nil)
+		db := InitTestDB(t, "../tmp/nad-test.db", nil)
 		defer CloseTestDB(t, db)
 
 		n1UUID := "n1-uuid"
@@ -268,7 +268,7 @@ func TestGetActiveNote(t *testing.T) {
 
 	t.Run("deleted", func(t *testing.T) {
 		// set up
-		db := InitTestDB(t, "../tmp/dnote-test.db", nil)
+		db := InitTestDB(t, "../tmp/nad-test.db", nil)
 		defer CloseTestDB(t, db)
 
 		n1UUID := "n1-uuid"
@@ -292,7 +292,7 @@ func TestGetActiveNote(t *testing.T) {
 
 func TestUpdateNoteContent(t *testing.T) {
 	// set up
-	db := InitTestDB(t, "../tmp/dnote-test.db", nil)
+	db := InitTestDB(t, "../tmp/nad-test.db", nil)
 	defer CloseTestDB(t, db)
 
 	uuid := "n1-uuid"
@@ -324,7 +324,7 @@ func TestUpdateNoteContent(t *testing.T) {
 
 func TestUpdateNoteBook(t *testing.T) {
 	// set up
-	db := InitTestDB(t, "../tmp/dnote-test.db", nil)
+	db := InitTestDB(t, "../tmp/nad-test.db", nil)
 	defer CloseTestDB(t, db)
 
 	b1UUID := "b1-uuid"
@@ -361,7 +361,7 @@ func TestUpdateNoteBook(t *testing.T) {
 
 func TestUpdateBookName(t *testing.T) {
 	// set up
-	db := InitTestDB(t, "../tmp/dnote-test.db", nil)
+	db := InitTestDB(t, "../tmp/nad-test.db", nil)
 	defer CloseTestDB(t, db)
 
 	b1UUID := "b1-uuid"

@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package add
@@ -22,15 +22,15 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/dnote/dnote/pkg/cli/context"
-	"github.com/dnote/dnote/pkg/cli/database"
-	"github.com/dnote/dnote/pkg/cli/infra"
-	"github.com/dnote/dnote/pkg/cli/log"
-	"github.com/dnote/dnote/pkg/cli/output"
-	"github.com/dnote/dnote/pkg/cli/ui"
-	"github.com/dnote/dnote/pkg/cli/upgrade"
-	"github.com/dnote/dnote/pkg/cli/utils"
-	"github.com/dnote/dnote/pkg/cli/validate"
+	"github.com/nadproject/nad/pkg/cli/context"
+	"github.com/nadproject/nad/pkg/cli/database"
+	"github.com/nadproject/nad/pkg/cli/infra"
+	"github.com/nadproject/nad/pkg/cli/log"
+	"github.com/nadproject/nad/pkg/cli/output"
+	"github.com/nadproject/nad/pkg/cli/ui"
+	"github.com/nadproject/nad/pkg/cli/upgrade"
+	"github.com/nadproject/nad/pkg/cli/utils"
+	"github.com/nadproject/nad/pkg/cli/validate"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -39,10 +39,10 @@ var contentFlag string
 
 var example = `
  * Open an editor to write content
- dnote add git
+ nad add git
 
  * Skip the editor by providing content directly
- dnote add git -c "time is a part of the commit hash"`
+ nad add git -c "time is a part of the commit hash"`
 
 func preRun(cmd *cobra.Command, args []string) error {
 	if len(args) != 1 {
@@ -53,11 +53,11 @@ func preRun(cmd *cobra.Command, args []string) error {
 }
 
 // NewCmd returns a new add command
-func NewCmd(ctx context.DnoteCtx) *cobra.Command {
+func NewCmd(ctx context.NadCtx) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "add <book>",
 		Short:   "Add a new note",
-		Aliases: []string{"a", "n", "new"},
+		Aliases: []string{"a"},
 		Example: example,
 		PreRunE: preRun,
 		RunE:    newRun(ctx),
@@ -69,7 +69,7 @@ func NewCmd(ctx context.DnoteCtx) *cobra.Command {
 	return cmd
 }
 
-func getContent(ctx context.DnoteCtx) (string, error) {
+func getContent(ctx context.NadCtx) (string, error) {
 	if contentFlag != "" {
 		return contentFlag, nil
 	}
@@ -87,7 +87,7 @@ func getContent(ctx context.DnoteCtx) (string, error) {
 	return c, nil
 }
 
-func newRun(ctx context.DnoteCtx) infra.RunEFunc {
+func newRun(ctx context.NadCtx) infra.RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		bookName := args[0]
 		if err := validate.BookName(bookName); err != nil {
@@ -126,7 +126,7 @@ func newRun(ctx context.DnoteCtx) infra.RunEFunc {
 	}
 }
 
-func writeNote(ctx context.DnoteCtx, bookLabel string, content string, ts int64) (int, error) {
+func writeNote(ctx context.NadCtx, bookLabel string, content string, ts int64) (int, error) {
 	tx, err := ctx.DB.Begin()
 	if err != nil {
 		return 0, errors.Wrap(err, "beginning a transaction")

@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of nad.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * nad is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * nad is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with nad.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package database
@@ -64,33 +64,15 @@ type Note struct {
 // User is a model for a user
 type User struct {
 	Model
-	UUID             string `json:"uuid" gorm:"type:uuid;index;default:uuid_generate_v4()"`
-	StripeCustomerID string `json:"-"`
-	BillingCountry   string `json:"-"`
-	Account          Account
+	UUID             string     `json:"uuid" gorm:"type:uuid;index;default:uuid_generate_v4()"`
+	StripeCustomerID string     `json:"-"`
+	BillingCountry   string     `json:"-"`
 	LastLoginAt      *time.Time `json:"-"`
 	MaxUSN           int        `json:"-" gorm:"default:0"`
-	Cloud            bool       `json:"-" gorm:"default:false"`
-	APIKey           string     `json:"-" gorm:"index"`                 // Deprecated
-	Name             string     `json:"name"`                           // Deprecated
-	Encrypted        bool       `json:"encrypted" gorm:"default:false"` // Deprecated
-}
-
-// Account is a model for an account
-type Account struct {
-	Model
-	UserID             int    `gorm:"index"`
-	AccountID          string // Deprecated
-	Nickname           string // Deprecated
-	Provider           string // Deprecated
-	Email              NullString
-	EmailVerified      bool       `gorm:"default:false"`
-	Password           NullString // Deprecated
-	ClientKDFIteration int
-	ServerKDFIteration int
-	AuthKeyHash        string
-	Salt               string
-	CipherKeyEnc       string
+	Pro              bool       `json:"-" gorm:"default:false"`
+	Email            string     `json:"-" gorm:"index"`
+	Password         string     `json:"-"`
+	EmailVerified    bool       `gorm:"default:false"`
 }
 
 // Token is a model for a token
@@ -109,11 +91,12 @@ type Notification struct {
 	UserID int `gorm:"index"`
 }
 
-// EmailPreference is information about how often user wants to receive digest email
+// EmailPreference is a preference per user for receiving email communication
 type EmailPreference struct {
 	Model
-	UserID       int  `gorm:"index" json:"-"`
-	DigestWeekly bool `json:"digest_weekly"`
+	UserID           int  `gorm:"index" json:"-"`
+	InactiveReminder bool `json:"inactive_reminder" gorm:"default:true"`
+	ProductUpdate    bool `json:"product_update" gorm:"default:true"`
 }
 
 // Session represents a user session
@@ -123,28 +106,4 @@ type Session struct {
 	Key        string `gorm:"index"`
 	LastUsedAt time.Time
 	ExpiresAt  time.Time
-}
-
-// Digest is a digest of notes
-type Digest struct {
-	UUID      string    `json:"uuid" gorm:"primary_key:true;type:uuid;index;default:uuid_generate_v4()"`
-	UserID    int       `gorm:"index"`
-	Notes     []Note    `gorm:"many2many:digest_notes;association_foreignKey:uuid;association_jointable_foreignkey:note_uuid;jointable_foreignkey:digest_uuid;"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
-// DigestRule is the rules for sending digest emails
-type DigestRule struct {
-	Model
-	UUID       string `json:"uuid" gorm:"type:uuid;index;default:uuid_generate_v4()"`
-	UserID     int    `json:"user_id" gorm:"index"`
-	Title      string `json:"title"`
-	Enabled    bool   `json:"enabled"`
-	Hour       int    `json:"hour" gorm:"index"`
-	Minute     int    `json:"minute" gorm:"index"`
-	Frequency  int    `json:"frequency"`
-	LastActive int    `json:"-"`
-	Books      []Book `gorm:"many2many:repetition_rule_books;"`
-	NoteCount  int    `json:"note_count"`
 }

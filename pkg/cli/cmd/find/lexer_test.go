@@ -1,19 +1,19 @@
 /* Copyright (C) 2019 Monomax Software Pty Ltd
  *
- * This file is part of Dnote.
+ * This file is part of NAD.
  *
- * Dnote is free software: you can redistribute it and/or modify
+ * NAD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Dnote is distributed in the hope that it will be useful,
+ * NAD is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Dnote.  If not, see <https://www.gnu.org/licenses/>.
+ * along with NAD.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package find
@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/dnote/dnote/pkg/assert"
+	"github.com/nadproject/nad/pkg/assert"
 )
 
 func TestScanToken(t *testing.T) {
@@ -51,62 +51,62 @@ func TestScanToken(t *testing.T) {
 			retIdx: 5,
 		},
 		{
-			input:  "foo <dnotehL>",
+			input:  "foo <nadhL>",
 			idx:    4,
 			retTok: token{Value: '<', Kind: tokenKindChar},
 			retIdx: 5,
 		},
 		{
-			input:  "foo <dnotehl>bar</dnotehl> foo bar",
+			input:  "foo <nadhl>bar</nadhl> foo bar",
 			idx:    4,
 			retTok: token{Kind: tokenKindHLBegin},
 			retIdx: 13,
 		},
 		{
-			input:  "foo <dnotehl>bar</dnotehl> <dnotehl>foo</dnotehl> bar",
+			input:  "foo <nadhl>bar</nadhl> <nadhl>foo</nadhl> bar",
 			idx:    4,
 			retTok: token{Kind: tokenKindHLBegin},
 			retIdx: 13,
 		},
 		{
-			input:  "foo <dnotehl>bar</dnotehl> <dnotehl>foo</dnotehl> bar",
+			input:  "foo <nadhl>bar</nadhl> <nadhl>foo</nadhl> bar",
 			idx:    27,
 			retTok: token{Kind: tokenKindHLBegin},
 			retIdx: 36,
 		},
 		{
-			input:  "foo <dnotehl>bar</dnotehl> foo bar",
+			input:  "foo <nadhl>bar</nadhl> foo bar",
 			idx:    13,
 			retTok: token{Value: 'b', Kind: tokenKindChar},
 			retIdx: 14,
 		},
 		{
-			input:  "foo <dnotehl>bar</dnotehl> foo bar",
+			input:  "foo <nadhl>bar</nadhl> foo bar",
 			idx:    16,
 			retTok: token{Kind: tokenKindHLEnd},
 			retIdx: 26,
 		},
 		{
-			input:  "<dno<dnotehl>tehl>",
+			input:  "<dno<nadhl>tehl>",
 			idx:    0,
 			retTok: token{Value: '<', Kind: tokenKindChar},
 			retIdx: 1,
 		},
 		{
-			input:  "<dno<dnotehl>tehl>",
+			input:  "<dno<nadhl>tehl>",
 			idx:    4,
 			retTok: token{Kind: tokenKindHLBegin},
 			retIdx: 13,
 		},
 		{
-			input:  "foo <dnotehl>bar</dnotehl>",
+			input:  "foo <nadhl>bar</nadhl>",
 			idx:    16,
 			retTok: token{Kind: tokenKindHLEnd},
 			retIdx: -1,
 		},
 		// user writes reserved token
 		{
-			input:  "foo <dnotehl>",
+			input:  "foo <nadhl>",
 			idx:    4,
 			retTok: token{Kind: tokenKindHLBegin},
 			retIdx: -1,
@@ -129,7 +129,7 @@ func TestTokenize(t *testing.T) {
 		tokens []token
 	}{
 		{
-			input: "ab<dnotehl>c</dnotehl>",
+			input: "ab<nadhl>c</nadhl>",
 			tokens: []token{
 				token{
 					Kind:  tokenKindChar,
@@ -155,7 +155,7 @@ func TestTokenize(t *testing.T) {
 			},
 		},
 		{
-			input: "ab<dnotehl>c</dnotehl>d",
+			input: "ab<nadhl>c</nadhl>d",
 			tokens: []token{
 				token{
 					Kind:  tokenKindChar,
@@ -186,7 +186,7 @@ func TestTokenize(t *testing.T) {
 		},
 		// user writes a reserved token
 		{
-			input: "<dnotehl><dnotehl></dnotehl>",
+			input: "<nadhl><nadhl></nadhl>",
 			tokens: []token{
 				token{
 					Kind: tokenKindHLBegin,
@@ -203,7 +203,7 @@ func TestTokenize(t *testing.T) {
 			},
 		},
 		{
-			input: "<dnotehl></dnotehl></dnotehl>",
+			input: "<nadhl></nadhl></nadhl>",
 			tokens: []token{
 				token{
 					Kind: tokenKindHLBegin,
