@@ -23,11 +23,11 @@ type Note struct {
 	Encrypted bool   `json:"-" gorm:"default:false"`
 }
 
-// NoteDB is an interface for database operations
-// related to notes.
+// NoteDB is an interface for database operations related to notes.
 type NoteDB interface {
 	Search(userID uint) ([]Note, error)
 	ByUUID(uuid string) (*Note, error)
+	ActiveByUUID(uuid string) (*Note, error)
 
 	Create(*Note, *gorm.DB) error
 	Update(*Note, *gorm.DB) error
@@ -77,10 +77,18 @@ func (ng *noteGorm) Search(userID uint) ([]Note, error) {
 	return ret, err
 }
 
-// ByUUID looks up a note with the given key.
+// ByUUID looks up a note with the given uuid.
 func (ng *noteGorm) ByUUID(uuid string) (*Note, error) {
 	var ret Note
 	err := First(ng.db.Where("uuid = ?", uuid), &ret)
+
+	return &ret, err
+}
+
+// ActiveByUUID looks up a note that has the given uuid and has not been deleted.
+func (ng *noteGorm) ActiveByUUID(uuid string) (*Note, error) {
+	var ret Note
+	err := First(ng.db.Where("uuid = ? AND deleted = ?", uuid, false), &ret)
 
 	return &ret, err
 }

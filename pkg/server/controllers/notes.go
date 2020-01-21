@@ -254,3 +254,33 @@ func (n *Notes) V1Delete(w http.ResponseWriter, r *http.Request) {
 	resp := presenters.PresentNote(note)
 	respondJSON(w, http.StatusOK, resp)
 }
+
+func (n *Notes) get(r *http.Request) (models.Note, error) {
+	user := context.User(r.Context())
+
+	vars := mux.Vars(r)
+	noteUUID := vars["noteUUID"]
+
+	note, err := n.ns.ActiveByUUID(noteUUID)
+	if err != nil {
+		return models.Note{}, errors.Wrap(err, "getting note")
+	}
+
+	if ok := permissions.ViewNote(user.ID, *note); !ok {
+		return models.Note{}, models.ErrNotFound
+	}
+
+	return *note, nil
+}
+
+// V1Get handles GET /api/v1/notes/:uuid
+func (n *Notes) V1Get(w http.ResponseWriter, r *http.Request) {
+	note, err := n.get(r)
+	if err != nil {
+		handleJSONError(w, err, "creating note")
+		return
+	}
+
+	resp := presenters.PresentNote(note)
+	respondJSON(w, http.StatusOK, resp)
+}
