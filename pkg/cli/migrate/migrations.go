@@ -51,7 +51,7 @@ var lm1 = migration{
 		_, err = tx.Exec(`CREATE TABLE IF NOT EXISTS books
 		(
 			uuid text PRIMARY KEY,
-			label text NOT NULL,
+			name text NOT NULL,
 			dirty bool DEFAULT false,
 			usn int DEFAULT 0 NOT NULL,
 			deleted bool DEFAULT false
@@ -82,7 +82,7 @@ var lm1 = migration{
 		}
 
 		_, err = tx.Exec(`
-		CREATE UNIQUE INDEX IF NOT EXISTS idx_books_label ON books(label);
+		CREATE UNIQUE INDEX IF NOT EXISTS idx_books_name ON books(name);
 		CREATE UNIQUE INDEX IF NOT EXISTS idx_notes_uuid ON notes(uuid);
 		CREATE UNIQUE INDEX IF NOT EXISTS idx_books_uuid ON books(uuid);
 		CREATE INDEX IF NOT EXISTS idx_notes_book_uuid ON notes(book_uuid);`)

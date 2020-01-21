@@ -39,8 +39,8 @@ type Note struct {
 
 // NoteBook is a nested book for PresentNotesResult
 type NoteBook struct {
-	UUID  string `json:"uuid"`
-	Label string `json:"label"`
+	UUID string `json:"uuid"`
+	Name string `json:"label"`
 }
 
 // NoteUser is a nested book for PresentNotesResult
@@ -60,8 +60,8 @@ func PresentNote(note models.Note) Note {
 		Public:    note.Public,
 		USN:       note.USN,
 		Book: NoteBook{
-			UUID:  note.Book.UUID,
-			Label: note.Book.Label,
+			UUID: note.Book.UUID,
+			Name: note.Book.Name,
 		},
 		User: NoteUser{
 			UUID: note.User.UUID,

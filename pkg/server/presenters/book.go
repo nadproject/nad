@@ -21,7 +21,7 @@ package presenters
 import (
 	"time"
 
-	"github.com/nadproject/nad/pkg/server/database"
+	"github.com/nadproject/nad/pkg/server/models"
 )
 
 // Book is a result of PresentBooks
@@ -30,22 +30,22 @@ type Book struct {
 	USN       int       `json:"usn"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-	Label     string    `json:"label"`
+	Name      string    `json:"name"`
 }
 
 // PresentBook presents a book
-func PresentBook(book database.Book) Book {
+func PresentBook(book models.Book) Book {
 	return Book{
 		UUID:      book.UUID,
 		USN:       book.USN,
 		CreatedAt: FormatTS(book.CreatedAt),
 		UpdatedAt: FormatTS(book.UpdatedAt),
-		Label:     book.Label,
+		Name:      book.Name,
 	}
 }
 
 // PresentBooks presents books
-func PresentBooks(books []database.Book) []Book {
+func PresentBooks(books []models.Book) []Book {
 	ret := []Book{}
 
 	for _, book := range books {

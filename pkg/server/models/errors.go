@@ -45,12 +45,12 @@ var (
 	ErrBookUUIDRequired badRequestError = badRequestError{"book uuid is required"}
 	// ErrBookUserIDRequired is an error for missing user_id in book
 	ErrBookUserIDRequired badRequestError = badRequestError{"book user_id is required"}
-	// ErrBookAddedOnRequired is an error for missing added_on in book
-	ErrBookAddedOnRequired badRequestError = badRequestError{"book added_on is required"}
 	// ErrBookEditedOnRequired is an error for missing edited_on in book
 	ErrBookEditedOnRequired badRequestError = badRequestError{"book edited_on is required"}
 	// ErrBookUSNRequired is an error for missing usn in book
 	ErrBookUSNRequired badRequestError = badRequestError{"book usn is required"}
+	// ErrBookNameTaken is an error for book name taken
+	ErrBookNameTaken conflictError = conflictError{"book name is taken"}
 )
 
 // Error returns a string repsentation of the error.

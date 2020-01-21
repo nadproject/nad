@@ -166,7 +166,7 @@ type SyncFragBook struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	AddedOn   int64     `json:"added_on"`
-	Label     string    `json:"label"`
+	Name      string    `json:"name"`
 	Deleted   bool      `json:"deleted"`
 }
 
@@ -215,7 +215,7 @@ type RespBook struct {
 	USN       int       `json:"usn"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-	Label     string    `json:"label"`
+	Name      string    `json:"name"`
 }
 
 // CreateBookPayload is a payload for creating a book
@@ -223,27 +223,22 @@ type CreateBookPayload struct {
 	Name string `json:"name"`
 }
 
-// CreateBookResp is the response from create book api
-type CreateBookResp struct {
-	Book RespBook `json:"book"`
-}
-
 // CreateBook creates a new book in the server
-func CreateBook(ctx context.NadCtx, label string) (CreateBookResp, error) {
+func CreateBook(ctx context.NadCtx, name string) (RespBook, error) {
 	payload := CreateBookPayload{
-		Name: label,
+		Name: name,
 	}
 	b, err := json.Marshal(payload)
 	if err != nil {
-		return CreateBookResp{}, errors.Wrap(err, "marshaling payload")
+		return RespBook{}, errors.Wrap(err, "marshaling payload")
 	}
 
 	res, err := doAuthorizedReq(ctx, "POST", "/v1/books", string(b), nil)
 	if err != nil {
-		return CreateBookResp{}, errors.Wrap(err, "posting a book to the server")
+		return RespBook{}, errors.Wrap(err, "posting a book to the server")
 	}
 
-	var resp CreateBookResp
+	var resp RespBook
 	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
 		return resp, errors.Wrap(err, "decoding response payload")
 	}
@@ -261,9 +256,9 @@ type UpdateBookResp struct {
 }
 
 // UpdateBook updates a book in the server
-func UpdateBook(ctx context.NadCtx, label, uuid string) (UpdateBookResp, error) {
+func UpdateBook(ctx context.NadCtx, name, uuid string) (UpdateBookResp, error) {
 	payload := updateBookPayload{
-		Name: &label,
+		Name: &name,
 	}
 	b, err := json.Marshal(payload)
 	if err != nil {
@@ -318,8 +313,8 @@ type CreateNoteResp struct {
 }
 
 type respNoteBook struct {
-	UUID  string `json:"uuid"`
-	Label string `json:"label"`
+	UUID string `json:"uuid"`
+	Name string `json:"name"`
 }
 
 type respNoteUser struct {
@@ -425,8 +420,8 @@ func DeleteNote(ctx context.NadCtx, uuid string) (DeleteNoteResp, error) {
 
 // GetBooksResp is a response from get books endpoint
 type GetBooksResp []struct {
-	UUID  string `json:"uuid"`
-	Label string `json:"label"`
+	UUID string `json:"uuid"`
+	Name string `json:"name"`
 }
 
 // GetBooks gets books from the server
@@ -468,11 +463,11 @@ func Signin(ctx context.NadCtx, email, password string) (SigninResponse, error) 
 	}
 	res, err := doReq(ctx, "POST", "/v1/login", string(b), nil)
 	if err != nil {
-		return SigninResponse{}, errors.Wrap(err, "making http request")
-	}
+		if res.StatusCode == http.StatusBadRequest {
+			return SigninResponse{}, ErrInvalidLogin
+		}
 
-	if res.StatusCode == http.StatusUnauthorized {
-		return SigninResponse{}, ErrInvalidLogin
+		return SigninResponse{}, errors.Wrap(err, "making http request")
 	}
 
 	var resp SigninResponse

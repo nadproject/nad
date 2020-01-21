@@ -93,7 +93,7 @@ func newRun(ctx context.NadCtx) infra.RunEFunc {
 
 		err := Do(ctx, email, password)
 		if errors.Cause(err) == client.ErrInvalidLogin {
-			log.Error("wrong login\n")
+			log.Error("invalid credentials\n")
 			return nil
 		} else if err != nil {
 			return errors.Wrap(err, "logging in")

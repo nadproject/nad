@@ -33,14 +33,14 @@ import (
 var defaultSchemaSQL = `CREATE TABLE books
 		(
 			uuid text PRIMARY KEY,
-			label text NOT NULL
+			name text NOT NULL
 		, dirty bool DEFAULT false, usn int DEFAULT 0 NOT NULL, deleted bool DEFAULT false);
 CREATE TABLE system
 		(
 			key string NOT NULL,
 			value text NOT NULL
 		);
-CREATE UNIQUE INDEX idx_books_label ON books(label);
+CREATE UNIQUE INDEX idx_books_name ON books(name);
 CREATE UNIQUE INDEX idx_books_uuid ON books(uuid);
 CREATE TABLE IF NOT EXISTS "notes"
 		(

@@ -182,12 +182,12 @@ func TestResolveLabel(t *testing.T) {
 			db := database.InitTestDB(t, "../../tmp/.nad", nil)
 			defer database.CloseTestDB(t, db)
 
-			database.MustExec(t, fmt.Sprintf("inserting book for test case %d", idx), db, "INSERT INTO books (uuid, label) VALUES (?, ?)", "b1-uuid", "js")
-			database.MustExec(t, fmt.Sprintf("inserting book for test case %d", idx), db, "INSERT INTO books (uuid, label) VALUES (?, ?)", "b2-uuid", "css_2")
-			database.MustExec(t, fmt.Sprintf("inserting book for test case %d", idx), db, "INSERT INTO books (uuid, label) VALUES (?, ?)", "b3-uuid", "linux_(1)")
-			database.MustExec(t, fmt.Sprintf("inserting book for test case %d", idx), db, "INSERT INTO books (uuid, label) VALUES (?, ?)", "b4-uuid", "linux_2")
-			database.MustExec(t, fmt.Sprintf("inserting book for test case %d", idx), db, "INSERT INTO books (uuid, label) VALUES (?, ?)", "b5-uuid", "linux_3")
-			database.MustExec(t, fmt.Sprintf("inserting book for test case %d", idx), db, "INSERT INTO books (uuid, label) VALUES (?, ?)", "b6-uuid", "cool_ideas")
+			database.MustExec(t, fmt.Sprintf("inserting book for test case %d", idx), db, "INSERT INTO books (uuid, name) VALUES (?, ?)", "b1-uuid", "js")
+			database.MustExec(t, fmt.Sprintf("inserting book for test case %d", idx), db, "INSERT INTO books (uuid, name) VALUES (?, ?)", "b2-uuid", "css_2")
+			database.MustExec(t, fmt.Sprintf("inserting book for test case %d", idx), db, "INSERT INTO books (uuid, name) VALUES (?, ?)", "b3-uuid", "linux_(1)")
+			database.MustExec(t, fmt.Sprintf("inserting book for test case %d", idx), db, "INSERT INTO books (uuid, name) VALUES (?, ?)", "b4-uuid", "linux_2")
+			database.MustExec(t, fmt.Sprintf("inserting book for test case %d", idx), db, "INSERT INTO books (uuid, name) VALUES (?, ?)", "b5-uuid", "linux_3")
+			database.MustExec(t, fmt.Sprintf("inserting book for test case %d", idx), db, "INSERT INTO books (uuid, name) VALUES (?, ?)", "b6-uuid", "cool_ideas")
 
 			// execute
 			tx, err := db.Begin()
@@ -241,7 +241,7 @@ func TestSyncDeleteNote(t *testing.T) {
 		db := database.InitTestDB(t, dbPath, nil)
 		defer database.CloseTestDB(t, db)
 
-		database.MustExec(t, "inserting b1 for test case %d", db, "INSERT INTO books (uuid, label) VALUES (?, ?)", b1UUID, "b1-label")
+		database.MustExec(t, "inserting b1 for test case %d", db, "INSERT INTO books (uuid, name) VALUES (?, ?)", b1UUID, "b1-name")
 		database.MustExec(t, "inserting n1 for test case %d", db, "INSERT INTO notes (uuid, book_uuid, usn, body, added_on, deleted, dirty) VALUES (?, ?, ?, ?, ?, ?, ?)", "n1-uuid", b1UUID, 10, "n1 body", 1541108743, false, true)
 		database.MustExec(t, "inserting n2 for test case %d", db, "INSERT INTO notes (uuid, book_uuid, usn, body, added_on, deleted, dirty) VALUES (?, ?, ?, ?, ?, ?, ?)", "n2-uuid", b1UUID, 11, "n2 body", 1541108743, false, true)
 
@@ -311,7 +311,7 @@ func TestSyncDeleteNote(t *testing.T) {
 		db := database.InitTestDB(t, dbPath, nil)
 		defer database.CloseTestDB(t, db)
 
-		database.MustExec(t, "inserting b1 for test case %d", db, "INSERT INTO books (uuid, label) VALUES (?, ?)", b1UUID, "b1-label")
+		database.MustExec(t, "inserting b1 for test case %d", db, "INSERT INTO books (uuid, name) VALUES (?, ?)", b1UUID, "b1-name")
 		database.MustExec(t, "inserting n1 for test case %d", db, "INSERT INTO notes (uuid, book_uuid, usn, body, added_on, deleted, dirty) VALUES (?, ?, ?, ?, ?, ?, ?)", "n1-uuid", b1UUID, 10, "n1 body", 1541108743, false, false)
 		database.MustExec(t, "inserting n2 for test case %d", db, "INSERT INTO notes (uuid, book_uuid, usn, body, added_on, deleted, dirty) VALUES (?, ?, ?, ?, ?, ?, ?)", "n2-uuid", b1UUID, 11, "n2 body", 1541108743, false, false)
 
@@ -366,11 +366,11 @@ func TestSyncDeleteBook(t *testing.T) {
 		// set up
 		db := database.InitTestDB(t, dbPath, nil)
 		defer database.CloseTestDB(t, db)
-		database.MustExec(t, "inserting b1 for test case %d", db, "INSERT INTO books (uuid, label) VALUES (?, ?)", "b1-uuid", "b1-label")
+		database.MustExec(t, "inserting b1 for test case %d", db, "INSERT INTO books (uuid, name) VALUES (?, ?)", "b1-uuid", "b1-name")
 
 		var b1 database.Book
 		database.MustScan(t, "getting b1 for test case",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
 			&b1.UUID, &b1.Label, &b1.USN, &b1.Dirty)
 
 		// execute
@@ -396,7 +396,7 @@ func TestSyncDeleteBook(t *testing.T) {
 
 		var b1Record database.Book
 		database.MustScan(t, "getting b1 for test case",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
 			&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Dirty)
 
 		assert.Equal(t, b1Record.UUID, b1.UUID, "b1 UUID mismatch for test case")
@@ -412,12 +412,12 @@ func TestSyncDeleteBook(t *testing.T) {
 		db := database.InitTestDB(t, dbPath, nil)
 		defer database.CloseTestDB(t, db)
 
-		database.MustExec(t, "inserting b1 for test case %d", db, "INSERT INTO books (uuid, label, usn, dirty) VALUES (?, ?, ?, ?)", b1UUID, "b1-label", 12, true)
+		database.MustExec(t, "inserting b1 for test case %d", db, "INSERT INTO books (uuid, name, usn, dirty) VALUES (?, ?, ?, ?)", b1UUID, "b1-name", 12, true)
 		database.MustExec(t, "inserting n1 for test case %d", db, "INSERT INTO notes (uuid, book_uuid, usn, body, added_on, deleted, dirty) VALUES (?, ?, ?, ?, ?, ?, ?)", "n1-uuid", b1UUID, 10, "n1 body", 1541108743, false, true)
 
 		var b1 database.Book
 		database.MustScan(t, "getting b1 for test case",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", b1UUID),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", b1UUID),
 			&b1.UUID, &b1.Label, &b1.USN, &b1.Dirty)
 		var n1 database.Note
 		database.MustScan(t, "getting n1 for test case",
@@ -448,7 +448,7 @@ func TestSyncDeleteBook(t *testing.T) {
 
 		var b1Record database.Book
 		database.MustScan(t, "getting b1Record for test case",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", b1UUID),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", b1UUID),
 			&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Dirty)
 		var n1Record database.Note
 		database.MustScan(t, "getting n1 for test case",
@@ -478,14 +478,14 @@ func TestSyncDeleteBook(t *testing.T) {
 		db := database.InitTestDB(t, dbPath, nil)
 		defer database.CloseTestDB(t, db)
 
-		database.MustExec(t, "inserting b1 for test case %d", db, "INSERT INTO books (uuid, label) VALUES (?, ?)", b1UUID, "b1-label")
+		database.MustExec(t, "inserting b1 for test case %d", db, "INSERT INTO books (uuid, name) VALUES (?, ?)", b1UUID, "b1-name")
 		database.MustExec(t, "inserting n1 for test case %d", db, "INSERT INTO notes (uuid, book_uuid, usn, body, added_on, deleted, dirty) VALUES (?, ?, ?, ?, ?, ?, ?)", "n1-uuid", b1UUID, 10, "n1 body", 1541108743, false, false)
-		database.MustExec(t, "inserting b2 for test case %d", db, "INSERT INTO books (uuid, label) VALUES (?, ?)", b2UUID, "b2-label")
+		database.MustExec(t, "inserting b2 for test case %d", db, "INSERT INTO books (uuid, name) VALUES (?, ?)", b2UUID, "b2-name")
 		database.MustExec(t, "inserting n2 for test case %d", db, "INSERT INTO notes (uuid, book_uuid, usn, body, added_on, deleted, dirty) VALUES (?, ?, ?, ?, ?, ?, ?)", "n2-uuid", b2UUID, 11, "n2 body", 1541108743, false, false)
 
 		var b2 database.Book
 		database.MustScan(t, "getting b2 for test case",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", b2UUID),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", b2UUID),
 			&b2.UUID, &b2.Label, &b2.USN, &b2.Dirty)
 		var n2 database.Note
 		database.MustScan(t, "getting n2 for test case",
@@ -515,7 +515,7 @@ func TestSyncDeleteBook(t *testing.T) {
 
 		var b2Record database.Book
 		database.MustScan(t, "getting b2 for test case",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", b2UUID),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", b2UUID),
 			&b2Record.UUID, &b2Record.Label, &b2Record.USN, &b2Record.Dirty)
 		var n2Record database.Note
 		database.MustScan(t, "getting n2 for test case",
@@ -544,7 +544,7 @@ func TestSyncDeleteBook(t *testing.T) {
 		db := database.InitTestDB(t, dbPath, nil)
 		defer database.CloseTestDB(t, db)
 
-		database.MustExec(t, "inserting b1 for test case %d", db, "INSERT INTO books (uuid, label) VALUES (?, ?)", b1UUID, "b1-label")
+		database.MustExec(t, "inserting b1 for test case %d", db, "INSERT INTO books (uuid, name) VALUES (?, ?)", b1UUID, "b1-name")
 		database.MustExec(t, "inserting n1 for test case %d", db, "INSERT INTO notes (uuid, book_uuid, usn, body, added_on, deleted, dirty) VALUES (?, ?, ?, ?, ?, ?, ?)", "n1-uuid", b1UUID, 10, "n1 body", 1541108743, false, true)
 
 		// execute
@@ -569,7 +569,7 @@ func TestSyncDeleteBook(t *testing.T) {
 
 		var b1Record database.Book
 		database.MustScan(t, "getting b1 for test case",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", b1UUID),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", b1UUID),
 			&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Dirty)
 		var n1Record database.Note
 		database.MustScan(t, "getting n1 for test case",
@@ -577,7 +577,7 @@ func TestSyncDeleteBook(t *testing.T) {
 			&n1Record.UUID, &n1Record.BookUUID, &n1Record.USN, &n1Record.AddedOn, &n1Record.Body, &n1Record.Deleted, &n1Record.Dirty)
 
 		assert.Equal(t, b1Record.UUID, b1UUID, "b1 UUID mismatch for test case")
-		assert.Equal(t, b1Record.Label, "b1-label", "b1 Label mismatch for test case")
+		assert.Equal(t, b1Record.Label, "b1-name", "b1 Label mismatch for test case")
 		assert.Equal(t, b1Record.Dirty, true, "b1 Dirty mismatch for test case")
 
 		assert.Equal(t, n1Record.UUID, "n1-uuid", "n1 UUID mismatch for test case")
@@ -597,7 +597,7 @@ func TestFullSyncNote(t *testing.T) {
 		defer database.CloseTestDB(t, db)
 
 		b1UUID := utils.GenerateUUID()
-		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, label) VALUES (?, ?)", b1UUID, "b1-label")
+		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, name) VALUES (?, ?)", b1UUID, "b1-name")
 
 		// execute
 		tx, err := db.Begin()
@@ -689,9 +689,9 @@ func TestFullSyncNote(t *testing.T) {
 				expectedAddedOn:  1541232118,
 				expectedEditedOn: 1541219321,
 				expectedBody: `<<<<<<< Local
-Moved to the book b1-label
+Moved to the book b1-name
 =======
-Moved to the book b2-label
+Moved to the book b2-name
 >>>>>>> Server
 
 <<<<<<< Local
@@ -828,9 +828,9 @@ n1 body edited
 				db := database.InitTestDB(t, dbPath, nil)
 				defer database.CloseTestDB(t, db)
 
-				database.MustExec(t, fmt.Sprintf("inserting b1 for test case %d", idx), db, "INSERT INTO books (uuid, label) VALUES (?, ?)", b1UUID, "b1-label")
-				database.MustExec(t, fmt.Sprintf("inserting b2 for test case %d", idx), db, "INSERT INTO books (uuid, label) VALUES (?, ?)", b2UUID, "b2-label")
-				database.MustExec(t, fmt.Sprintf("inserting conflitcs book for test case %d", idx), db, "INSERT INTO books (uuid, label) VALUES (?, ?)", conflictBookUUID, "conflicts")
+				database.MustExec(t, fmt.Sprintf("inserting b1 for test case %d", idx), db, "INSERT INTO books (uuid, name) VALUES (?, ?)", b1UUID, "b1-name")
+				database.MustExec(t, fmt.Sprintf("inserting b2 for test case %d", idx), db, "INSERT INTO books (uuid, name) VALUES (?, ?)", b2UUID, "b2-name")
+				database.MustExec(t, fmt.Sprintf("inserting conflitcs book for test case %d", idx), db, "INSERT INTO books (uuid, name) VALUES (?, ?)", conflictBookUUID, "conflicts")
 				n1UUID := utils.GenerateUUID()
 				database.MustExec(t, fmt.Sprintf("inserting n1 for test case %d", idx), db, "INSERT INTO notes (uuid, book_uuid, usn, added_on, edited_on, body, deleted, dirty) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", n1UUID, tc.clientBookUUID, tc.clientUSN, tc.addedOn, tc.clientEditedOn, tc.clientBody, tc.clientDeleted, tc.clientDirty)
 
@@ -891,7 +891,7 @@ func TestFullSyncBook(t *testing.T) {
 		defer database.CloseTestDB(t, db)
 
 		b1UUID := utils.GenerateUUID()
-		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, label, dirty, deleted) VALUES (?, ?, ?, ?, ?)", b1UUID, 555, "b1-label", true, false)
+		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, name, dirty, deleted) VALUES (?, ?, ?, ?, ?)", b1UUID, 555, "b1-name", true, false)
 
 		// execute
 		tx, err := db.Begin()
@@ -904,7 +904,7 @@ func TestFullSyncBook(t *testing.T) {
 			UUID:    b2UUID,
 			USN:     1,
 			AddedOn: 1541108743,
-			Label:   "b2-label",
+			Label:   "b2-name",
 			Deleted: false,
 		}
 
@@ -925,15 +925,15 @@ func TestFullSyncBook(t *testing.T) {
 
 		var b1, b2 database.Book
 		database.MustScan(t, "getting b1",
-			db.QueryRow("SELECT uuid, usn, label, dirty, deleted FROM books WHERE uuid = ?", b1UUID),
+			db.QueryRow("SELECT uuid, usn, name, dirty, deleted FROM books WHERE uuid = ?", b1UUID),
 			&b1.UUID, &b1.USN, &b1.Label, &b1.Dirty, &b1.Deleted)
 		database.MustScan(t, "getting b2",
-			db.QueryRow("SELECT uuid, usn, label, dirty, deleted FROM books WHERE uuid = ?", b2UUID),
+			db.QueryRow("SELECT uuid, usn, name, dirty, deleted FROM books WHERE uuid = ?", b2UUID),
 			&b2.UUID, &b2.USN, &b2.Label, &b2.Dirty, &b2.Deleted)
 
 		assert.Equal(t, b1.UUID, b1UUID, "b1 UUID mismatch")
 		assert.Equal(t, b1.USN, 555, "b1 USN mismatch")
-		assert.Equal(t, b1.Label, "b1-label", "b1 Label mismatch")
+		assert.Equal(t, b1.Label, "b1-name", "b1 Label mismatch")
 		assert.Equal(t, b1.Dirty, true, "b1 Dirty mismatch")
 		assert.Equal(t, b1.Deleted, false, "b1 Deleted mismatch")
 
@@ -961,19 +961,19 @@ func TestFullSyncBook(t *testing.T) {
 			{
 				clientDirty:     true,
 				clientUSN:       1,
-				clientLabel:     "b2-label",
+				clientLabel:     "b2-name",
 				clientDeleted:   false,
 				serverUSN:       3,
-				serverLabel:     "b2-label-updated",
+				serverLabel:     "b2-name-updated",
 				serverDeleted:   false,
 				expectedUSN:     3,
-				expectedLabel:   "b2-label-updated",
+				expectedLabel:   "b2-name-updated",
 				expectedDeleted: false,
 			},
 			{
 				clientDirty:     true,
 				clientUSN:       1,
-				clientLabel:     "b2-label",
+				clientLabel:     "b2-name",
 				clientDeleted:   false,
 				serverUSN:       3,
 				serverLabel:     "",
@@ -986,39 +986,39 @@ func TestFullSyncBook(t *testing.T) {
 			{
 				clientDirty:     false,
 				clientUSN:       1,
-				clientLabel:     "b2-label",
+				clientLabel:     "b2-name",
 				clientDeleted:   false,
 				serverUSN:       3,
-				serverLabel:     "b2-label-updated",
+				serverLabel:     "b2-name-updated",
 				serverDeleted:   false,
 				expectedUSN:     3,
-				expectedLabel:   "b2-label-updated",
+				expectedLabel:   "b2-name-updated",
 				expectedDeleted: false,
 			},
 			// they are in sync
 			{
 				clientDirty:     false,
 				clientUSN:       3,
-				clientLabel:     "b2-label",
+				clientLabel:     "b2-name",
 				clientDeleted:   false,
 				serverUSN:       3,
-				serverLabel:     "b2-label",
+				serverLabel:     "b2-name",
 				serverDeleted:   false,
 				expectedUSN:     3,
-				expectedLabel:   "b2-label",
+				expectedLabel:   "b2-name",
 				expectedDeleted: false,
 			},
 			// they have the same usn but client is dirty
 			{
 				clientDirty:     true,
 				clientUSN:       3,
-				clientLabel:     "b2-label-client",
+				clientLabel:     "b2-name-client",
 				clientDeleted:   false,
 				serverUSN:       3,
-				serverLabel:     "b2-label",
+				serverLabel:     "b2-name",
 				serverDeleted:   false,
 				expectedUSN:     3,
-				expectedLabel:   "b2-label-client",
+				expectedLabel:   "b2-name-client",
 				expectedDeleted: false,
 			},
 		}
@@ -1030,7 +1030,7 @@ func TestFullSyncBook(t *testing.T) {
 				defer database.CloseTestDB(t, db)
 
 				b1UUID := utils.GenerateUUID()
-				database.MustExec(t, fmt.Sprintf("inserting book for test case %d", idx), db, "INSERT INTO books (uuid, usn, label, dirty, deleted) VALUES (?, ?, ?, ?, ?)", b1UUID, tc.clientUSN, tc.clientLabel, tc.clientDirty, tc.clientDeleted)
+				database.MustExec(t, fmt.Sprintf("inserting book for test case %d", idx), db, "INSERT INTO books (uuid, usn, name, dirty, deleted) VALUES (?, ?, ?, ?, ?)", b1UUID, tc.clientUSN, tc.clientLabel, tc.clientDirty, tc.clientDeleted)
 
 				// execute
 				tx, err := db.Begin()
@@ -1063,7 +1063,7 @@ func TestFullSyncBook(t *testing.T) {
 
 				var b1 database.Book
 				database.MustScan(t, "getting b1",
-					db.QueryRow("SELECT uuid, usn, label, dirty, deleted FROM books WHERE uuid = ?", b1UUID),
+					db.QueryRow("SELECT uuid, usn, name, dirty, deleted FROM books WHERE uuid = ?", b1UUID),
 					&b1.UUID, &b1.USN, &b1.Label, &b1.Dirty, &b1.Deleted)
 
 				assert.Equal(t, b1.UUID, b1UUID, fmt.Sprintf("b1 UUID mismatch for idx %d", idx))
@@ -1083,7 +1083,7 @@ func TestStepSyncNote(t *testing.T) {
 		defer database.CloseTestDB(t, db)
 
 		b1UUID := utils.GenerateUUID()
-		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, label) VALUES (?, ?)", b1UUID, "b1-label")
+		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, name) VALUES (?, ?)", b1UUID, "b1-name")
 
 		// execute
 		tx, err := db.Begin()
@@ -1174,9 +1174,9 @@ func TestStepSyncNote(t *testing.T) {
 				expectedAddedOn:  1541232118,
 				expectedEditedOn: 1541219321,
 				expectedBody: `<<<<<<< Local
-Moved to the book b1-label
+Moved to the book b1-name
 =======
-Moved to the book b2-label
+Moved to the book b2-name
 >>>>>>> Server
 
 <<<<<<< Local
@@ -1240,9 +1240,9 @@ n1 body edited
 				db := database.InitTestDB(t, dbPath, nil)
 				defer database.CloseTestDB(t, db)
 
-				database.MustExec(t, fmt.Sprintf("inserting b1 for test case %d", idx), db, "INSERT INTO books (uuid, label) VALUES (?, ?)", b1UUID, "b1-label")
-				database.MustExec(t, fmt.Sprintf("inserting b2 for test case %d", idx), db, "INSERT INTO books (uuid, label) VALUES (?, ?)", b2UUID, "b2-label")
-				database.MustExec(t, fmt.Sprintf("inserting conflitcs book for test case %d", idx), db, "INSERT INTO books (uuid, label) VALUES (?, ?)", conflictBookUUID, "conflicts")
+				database.MustExec(t, fmt.Sprintf("inserting b1 for test case %d", idx), db, "INSERT INTO books (uuid, name) VALUES (?, ?)", b1UUID, "b1-name")
+				database.MustExec(t, fmt.Sprintf("inserting b2 for test case %d", idx), db, "INSERT INTO books (uuid, name) VALUES (?, ?)", b2UUID, "b2-name")
+				database.MustExec(t, fmt.Sprintf("inserting conflitcs book for test case %d", idx), db, "INSERT INTO books (uuid, name) VALUES (?, ?)", conflictBookUUID, "conflicts")
 				n1UUID := utils.GenerateUUID()
 				database.MustExec(t, fmt.Sprintf("inserting n1 for test case %d", idx), db, "INSERT INTO notes (uuid, book_uuid, usn, added_on, edited_on, body,  deleted, dirty) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", n1UUID, tc.clientBookUUID, tc.clientUSN, tc.addedOn, tc.clientEditedOn, tc.clientBody, tc.clientDeleted, tc.clientDirty)
 
@@ -1303,7 +1303,7 @@ func TestStepSyncBook(t *testing.T) {
 		defer database.CloseTestDB(t, db)
 
 		b1UUID := utils.GenerateUUID()
-		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, label, dirty, deleted) VALUES (?, ?, ?, ?, ?)", b1UUID, 555, "b1-label", true, false)
+		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, name, dirty, deleted) VALUES (?, ?, ?, ?, ?)", b1UUID, 555, "b1-name", true, false)
 
 		// execute
 		tx, err := db.Begin()
@@ -1316,7 +1316,7 @@ func TestStepSyncBook(t *testing.T) {
 			UUID:    b2UUID,
 			USN:     1,
 			AddedOn: 1541108743,
-			Label:   "b2-label",
+			Label:   "b2-name",
 			Deleted: false,
 		}
 
@@ -1337,15 +1337,15 @@ func TestStepSyncBook(t *testing.T) {
 
 		var b1, b2 database.Book
 		database.MustScan(t, "getting b1",
-			db.QueryRow("SELECT uuid, usn, label, dirty, deleted FROM books WHERE uuid = ?", b1UUID),
+			db.QueryRow("SELECT uuid, usn, name, dirty, deleted FROM books WHERE uuid = ?", b1UUID),
 			&b1.UUID, &b1.USN, &b1.Label, &b1.Dirty, &b1.Deleted)
 		database.MustScan(t, "getting b2",
-			db.QueryRow("SELECT uuid, usn, label, dirty, deleted FROM books WHERE uuid = ?", b2UUID),
+			db.QueryRow("SELECT uuid, usn, name, dirty, deleted FROM books WHERE uuid = ?", b2UUID),
 			&b2.UUID, &b2.USN, &b2.Label, &b2.Dirty, &b2.Deleted)
 
 		assert.Equal(t, b1.UUID, b1UUID, "b1 UUID mismatch")
 		assert.Equal(t, b1.USN, 555, "b1 USN mismatch")
-		assert.Equal(t, b1.Label, "b1-label", "b1 Label mismatch")
+		assert.Equal(t, b1.Label, "b1-name", "b1 Label mismatch")
 		assert.Equal(t, b1.Dirty, true, "b1 Dirty mismatch")
 		assert.Equal(t, b1.Deleted, false, "b1 Deleted mismatch")
 
@@ -1375,13 +1375,13 @@ func TestStepSyncBook(t *testing.T) {
 			{
 				clientDirty:              true,
 				clientUSN:                1,
-				clientLabel:              "b2-label",
+				clientLabel:              "b2-name",
 				clientDeleted:            false,
 				serverUSN:                3,
-				serverLabel:              "b2-label-updated",
+				serverLabel:              "b2-name-updated",
 				serverDeleted:            false,
 				expectedUSN:              3,
-				expectedLabel:            "b2-label-updated",
+				expectedLabel:            "b2-name-updated",
 				expectedDeleted:          false,
 				anotherBookLabel:         "foo",
 				expectedAnotherBookLabel: "foo",
@@ -1390,13 +1390,13 @@ func TestStepSyncBook(t *testing.T) {
 			{
 				clientDirty:              false,
 				clientUSN:                1,
-				clientLabel:              "b2-label",
+				clientLabel:              "b2-name",
 				clientDeleted:            false,
 				serverUSN:                3,
-				serverLabel:              "b2-label-updated",
+				serverLabel:              "b2-name-updated",
 				serverDeleted:            false,
 				expectedUSN:              3,
-				expectedLabel:            "b2-label-updated",
+				expectedLabel:            "b2-name-updated",
 				expectedDeleted:          false,
 				anotherBookLabel:         "foo",
 				expectedAnotherBookLabel: "foo",
@@ -1405,7 +1405,7 @@ func TestStepSyncBook(t *testing.T) {
 			{
 				clientDirty:              false,
 				clientUSN:                1,
-				clientLabel:              "b2-label",
+				clientLabel:              "b2-name",
 				clientDeleted:            false,
 				serverUSN:                3,
 				serverLabel:              "foo",
@@ -1426,9 +1426,9 @@ func TestStepSyncBook(t *testing.T) {
 				defer database.CloseTestDB(t, db)
 
 				b1UUID := utils.GenerateUUID()
-				database.MustExec(t, fmt.Sprintf("inserting book for test case %d", idx), db, "INSERT INTO books (uuid, usn, label, dirty, deleted) VALUES (?, ?, ?, ?, ?)", b1UUID, tc.clientUSN, tc.clientLabel, tc.clientDirty, tc.clientDeleted)
+				database.MustExec(t, fmt.Sprintf("inserting book for test case %d", idx), db, "INSERT INTO books (uuid, usn, name, dirty, deleted) VALUES (?, ?, ?, ?, ?)", b1UUID, tc.clientUSN, tc.clientLabel, tc.clientDirty, tc.clientDeleted)
 				b2UUID := utils.GenerateUUID()
-				database.MustExec(t, fmt.Sprintf("inserting book for test case %d", idx), db, "INSERT INTO books (uuid, usn, label, dirty, deleted) VALUES (?, ?, ?, ?, ?)", b2UUID, 2, tc.anotherBookLabel, false, false)
+				database.MustExec(t, fmt.Sprintf("inserting book for test case %d", idx), db, "INSERT INTO books (uuid, usn, name, dirty, deleted) VALUES (?, ?, ?, ?, ?)", b2UUID, 2, tc.anotherBookLabel, false, false)
 
 				// execute
 				tx, err := db.Begin()
@@ -1461,10 +1461,10 @@ func TestStepSyncBook(t *testing.T) {
 
 				var b1Record, b2Record database.Book
 				database.MustScan(t, "getting b1Record",
-					db.QueryRow("SELECT uuid, usn, label, dirty, deleted FROM books WHERE uuid = ?", b1UUID),
+					db.QueryRow("SELECT uuid, usn, name, dirty, deleted FROM books WHERE uuid = ?", b1UUID),
 					&b1Record.UUID, &b1Record.USN, &b1Record.Label, &b1Record.Dirty, &b1Record.Deleted)
 				database.MustScan(t, "getting b2Record",
-					db.QueryRow("SELECT uuid, usn, label, dirty, deleted FROM books WHERE uuid = ?", b2UUID),
+					db.QueryRow("SELECT uuid, usn, name, dirty, deleted FROM books WHERE uuid = ?", b2UUID),
 					&b2Record.UUID, &b2Record.USN, &b2Record.Label, &b2Record.Dirty, &b2Record.Deleted)
 
 				assert.Equal(t, b1Record.UUID, b1UUID, fmt.Sprintf("b1Record UUID mismatch for idx %d", idx))
@@ -1499,7 +1499,7 @@ func TestMergeBook(t *testing.T) {
 			UUID:    "b1-uuid",
 			USN:     12,
 			AddedOn: 1541108743,
-			Label:   "b1-label",
+			Label:   "b1-name",
 			Deleted: false,
 		}
 
@@ -1520,7 +1520,7 @@ func TestMergeBook(t *testing.T) {
 
 		var b1Record database.Book
 		database.MustScan(t, "getting b1",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
 			&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Dirty)
 
 		assert.Equal(t, b1Record.UUID, b1.UUID, "b1 UUID mismatch")
@@ -1532,7 +1532,7 @@ func TestMergeBook(t *testing.T) {
 		// set up
 		db := database.InitTestDB(t, dbPath, nil)
 		defer database.CloseTestDB(t, db)
-		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, label, dirty, deleted) VALUES (?, ?, ?, ?, ?)", "b1-uuid", 1, "foo", false, false)
+		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, name, dirty, deleted) VALUES (?, ?, ?, ?, ?)", "b1-uuid", 1, "foo", false, false)
 
 		// test
 		tx, err := db.Begin()
@@ -1565,10 +1565,10 @@ func TestMergeBook(t *testing.T) {
 
 		var b1Record, b2Record database.Book
 		database.MustScan(t, "getting b1",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
 			&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Dirty)
 		database.MustScan(t, "getting b2",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", "b2-uuid"),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b2-uuid"),
 			&b2Record.UUID, &b2Record.Label, &b2Record.USN, &b2Record.Dirty)
 
 		assert.Equal(t, b1Record.Label, "foo_2", "b1 Label mismatch")
@@ -1585,9 +1585,9 @@ func TestMergeBook(t *testing.T) {
 		db := database.InitTestDB(t, dbPath, nil)
 		defer database.CloseTestDB(t, db)
 
-		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, label, dirty, deleted) VALUES (?, ?, ?, ?, ?)", "b1-uuid", 1, "foo", false, false)
-		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, label, dirty, deleted) VALUES (?, ?, ?, ?, ?)", "b2-uuid", 2, "foo_2", true, false)
-		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, label, dirty, deleted) VALUES (?, ?, ?, ?, ?)", "b3-uuid", 3, "foo_3", false, false)
+		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, name, dirty, deleted) VALUES (?, ?, ?, ?, ?)", "b1-uuid", 1, "foo", false, false)
+		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, name, dirty, deleted) VALUES (?, ?, ?, ?, ?)", "b2-uuid", 2, "foo_2", true, false)
+		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, name, dirty, deleted) VALUES (?, ?, ?, ?, ?)", "b3-uuid", 3, "foo_3", false, false)
 
 		// test
 		tx, err := db.Begin()
@@ -1620,16 +1620,16 @@ func TestMergeBook(t *testing.T) {
 
 		var b1Record, b2Record, b3Record, b4Record database.Book
 		database.MustScan(t, "getting b1",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
 			&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Dirty)
 		database.MustScan(t, "getting b2",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", "b2-uuid"),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b2-uuid"),
 			&b2Record.UUID, &b2Record.Label, &b2Record.USN, &b2Record.Dirty)
 		database.MustScan(t, "getting b3",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", "b3-uuid"),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b3-uuid"),
 			&b3Record.UUID, &b3Record.Label, &b3Record.USN, &b3Record.Dirty)
 		database.MustScan(t, "getting b4",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", "b4-uuid"),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b4-uuid"),
 			&b4Record.UUID, &b4Record.Label, &b4Record.USN, &b4Record.Dirty)
 
 		assert.Equal(t, b1Record.Label, "foo_4", "b1 Label mismatch")
@@ -1661,13 +1661,13 @@ func TestMergeBook(t *testing.T) {
 		}
 
 		b1UUID := utils.GenerateUUID()
-		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, label, dirty, deleted) VALUES (?, ?, ?, ?, ?)", b1UUID, 1, "b1-label", false, false)
+		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, name, dirty, deleted) VALUES (?, ?, ?, ?, ?)", b1UUID, 1, "b1-name", false, false)
 
 		b1 := client.SyncFragBook{
 			UUID:    b1UUID,
 			USN:     12,
 			AddedOn: 1541108743,
-			Label:   "b1-label-edited",
+			Label:   "b1-name-edited",
 			Deleted: false,
 		}
 
@@ -1688,11 +1688,11 @@ func TestMergeBook(t *testing.T) {
 
 		var b1Record database.Book
 		database.MustScan(t, "getting b1",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", b1UUID),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", b1UUID),
 			&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Dirty)
 
 		assert.Equal(t, b1Record.UUID, b1UUID, "b1 UUID mismatch")
-		assert.Equal(t, b1Record.Label, "b1-label-edited", "b1 Label mismatch")
+		assert.Equal(t, b1Record.Label, "b1-name-edited", "b1 Label mismatch")
 		assert.Equal(t, b1Record.USN, 12, "b1 USN mismatch")
 	})
 
@@ -1701,8 +1701,8 @@ func TestMergeBook(t *testing.T) {
 		db := database.InitTestDB(t, dbPath, nil)
 		defer database.CloseTestDB(t, db)
 
-		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, label, dirty, deleted) VALUES (?, ?, ?, ?, ?)", "b1-uuid", 1, "foo", false, false)
-		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, label, dirty, deleted) VALUES (?, ?, ?, ?, ?)", "b2-uuid", 2, "bar", false, false)
+		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, name, dirty, deleted) VALUES (?, ?, ?, ?, ?)", "b1-uuid", 1, "foo", false, false)
+		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, name, dirty, deleted) VALUES (?, ?, ?, ?, ?)", "b2-uuid", 2, "bar", false, false)
 
 		// test
 		tx, err := db.Begin()
@@ -1735,10 +1735,10 @@ func TestMergeBook(t *testing.T) {
 
 		var b1Record, b2Record database.Book
 		database.MustScan(t, "getting b1",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
 			&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Dirty)
 		database.MustScan(t, "getting b2",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", "b2-uuid"),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b2-uuid"),
 			&b2Record.UUID, &b2Record.Label, &b2Record.USN, &b2Record.Dirty)
 
 		assert.Equal(t, b1Record.Label, "bar", "b1 Label mismatch")
@@ -1755,10 +1755,10 @@ func TestMergeBook(t *testing.T) {
 		db := database.InitTestDB(t, dbPath, nil)
 		defer database.CloseTestDB(t, db)
 
-		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, label, dirty, deleted) VALUES (?, ?, ?, ?, ?)", "b1-uuid", 1, "foo", false, false)
-		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, label, dirty, deleted) VALUES (?, ?, ?, ?, ?)", "b2-uuid", 2, "bar", false, false)
-		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, label, dirty, deleted) VALUES (?, ?, ?, ?, ?)", "b3-uuid", 3, "bar_2", true, false)
-		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, label, dirty, deleted) VALUES (?, ?, ?, ?, ?)", "b4-uuid", 4, "bar_3", false, false)
+		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, name, dirty, deleted) VALUES (?, ?, ?, ?, ?)", "b1-uuid", 1, "foo", false, false)
+		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, name, dirty, deleted) VALUES (?, ?, ?, ?, ?)", "b2-uuid", 2, "bar", false, false)
+		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, name, dirty, deleted) VALUES (?, ?, ?, ?, ?)", "b3-uuid", 3, "bar_2", true, false)
+		database.MustExec(t, "inserting book", db, "INSERT INTO books (uuid, usn, name, dirty, deleted) VALUES (?, ?, ?, ?, ?)", "b4-uuid", 4, "bar_3", false, false)
 
 		// test
 		tx, err := db.Begin()
@@ -1791,16 +1791,16 @@ func TestMergeBook(t *testing.T) {
 
 		var b1Record, b2Record, b3Record, b4Record database.Book
 		database.MustScan(t, "getting b1",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
 			&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Dirty)
 		database.MustScan(t, "getting b2",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", "b2-uuid"),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b2-uuid"),
 			&b2Record.UUID, &b2Record.Label, &b2Record.USN, &b2Record.Dirty)
 		database.MustScan(t, "getting b3",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", "b3-uuid"),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b3-uuid"),
 			&b3Record.UUID, &b3Record.Label, &b3Record.USN, &b3Record.Dirty)
 		database.MustScan(t, "getting b4",
-			db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", "b4-uuid"),
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b4-uuid"),
 			&b4Record.UUID, &b4Record.Label, &b4Record.USN, &b4Record.Dirty)
 
 		assert.Equal(t, b1Record.Label, "bar", "b1 Label mismatch")
@@ -1876,18 +1876,18 @@ func TestSendBooks(t *testing.T) {
 	database.MustExec(t, "inserting last max usn", db, "INSERT INTO system (key, value) VALUES (?, ?)", consts.SystemLastMaxUSN, 0)
 
 	// should be ignored
-	database.MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b1-uuid", "b1-label", 1, false, false)
-	database.MustExec(t, "inserting b2", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b2-uuid", "b2-label", 2, false, false)
+	database.MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b1-uuid", "b1-name", 1, false, false)
+	database.MustExec(t, "inserting b2", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b2-uuid", "b2-name", 2, false, false)
 	// should be created
-	database.MustExec(t, "inserting b3", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b3-uuid", "b3-label", 0, false, true)
-	database.MustExec(t, "inserting b4", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b4-uuid", "b4-label", 0, false, true)
+	database.MustExec(t, "inserting b3", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b3-uuid", "b3-name", 0, false, true)
+	database.MustExec(t, "inserting b4", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b4-uuid", "b4-name", 0, false, true)
 	// should be only expunged locally without syncing to server
-	database.MustExec(t, "inserting b5", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b5-uuid", "b5-label", 0, true, true)
+	database.MustExec(t, "inserting b5", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b5-uuid", "b5-name", 0, true, true)
 	// should be deleted
-	database.MustExec(t, "inserting b6", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b6-uuid", "b6-label", 10, true, true)
+	database.MustExec(t, "inserting b6", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b6-uuid", "b6-name", 10, true, true)
 	// should be updated
-	database.MustExec(t, "inserting b7", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b7-uuid", "b7-label", 11, false, true)
-	database.MustExec(t, "inserting b8", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b8-uuid", "b8-label", 18, false, true)
+	database.MustExec(t, "inserting b7", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b7-uuid", "b7-name", 11, false, true)
+	database.MustExec(t, "inserting b8", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b8-uuid", "b8-name", 18, false, true)
 
 	// some random notes
 	database.MustExec(t, "inserting n1", db, "INSERT INTO notes (uuid, book_uuid, usn, body, added_on, deleted, dirty) VALUES (?, ?, ?, ?, ?, ?, ?)", "n1-uuid", "b1-uuid", 10, "n1 body", 1541108743, false, false)
@@ -1975,17 +1975,17 @@ func TestSendBooks(t *testing.T) {
 		return strings.Compare(createdLabels[i], createdLabels[j]) < 0
 	})
 
-	assert.DeepEqual(t, createdLabels, []string{"b3-label", "b4-label"}, "createdLabels mismatch")
+	assert.DeepEqual(t, createdLabels, []string{"b3-name", "b4-name"}, "createdLabels mismatch")
 	assert.DeepEqual(t, updatesUUIDs, []string{"b7-uuid", "b8-uuid"}, "updatesUUIDs mismatch")
 	assert.DeepEqual(t, deletedUUIDs, []string{"b6-uuid"}, "deletedUUIDs mismatch")
 
 	var b1, b2, b3, b4, b7, b8 database.Book
-	database.MustScan(t, "getting b1", db.QueryRow("SELECT uuid, dirty FROM books WHERE label = ?", "b1-label"), &b1.UUID, &b1.Dirty)
-	database.MustScan(t, "getting b2", db.QueryRow("SELECT uuid, dirty FROM books WHERE label = ?", "b2-label"), &b2.UUID, &b2.Dirty)
-	database.MustScan(t, "getting b3", db.QueryRow("SELECT uuid, dirty FROM books WHERE label = ?", "b3-label"), &b3.UUID, &b3.Dirty)
-	database.MustScan(t, "getting b4", db.QueryRow("SELECT uuid, dirty FROM books WHERE label = ?", "b4-label"), &b4.UUID, &b4.Dirty)
-	database.MustScan(t, "getting b7", db.QueryRow("SELECT uuid, dirty FROM books WHERE label = ?", "b7-label"), &b7.UUID, &b7.Dirty)
-	database.MustScan(t, "getting b8", db.QueryRow("SELECT uuid, dirty FROM books WHERE label = ?", "b8-label"), &b8.UUID, &b8.Dirty)
+	database.MustScan(t, "getting b1", db.QueryRow("SELECT uuid, dirty FROM books WHERE name = ?", "b1-name"), &b1.UUID, &b1.Dirty)
+	database.MustScan(t, "getting b2", db.QueryRow("SELECT uuid, dirty FROM books WHERE name = ?", "b2-name"), &b2.UUID, &b2.Dirty)
+	database.MustScan(t, "getting b3", db.QueryRow("SELECT uuid, dirty FROM books WHERE name = ?", "b3-name"), &b3.UUID, &b3.Dirty)
+	database.MustScan(t, "getting b4", db.QueryRow("SELECT uuid, dirty FROM books WHERE name = ?", "b4-name"), &b4.UUID, &b4.Dirty)
+	database.MustScan(t, "getting b7", db.QueryRow("SELECT uuid, dirty FROM books WHERE name = ?", "b7-name"), &b7.UUID, &b7.Dirty)
+	database.MustScan(t, "getting b8", db.QueryRow("SELECT uuid, dirty FROM books WHERE name = ?", "b8-name"), &b8.UUID, &b8.Dirty)
 
 	var bookCount int
 	database.MustScan(t, "counting books", db.QueryRow("SELECT count(*) FROM books"), &bookCount)
@@ -2000,8 +2000,8 @@ func TestSendBooks(t *testing.T) {
 	assert.Equal(t, b1.UUID, "b1-uuid", "b1 UUID mismatch")
 	assert.Equal(t, b2.UUID, "b2-uuid", "b2 UUID mismatch")
 	// uuids of created books should have been updated
-	assert.Equal(t, b3.UUID, "server-b3-label-uuid", "b3 UUID mismatch")
-	assert.Equal(t, b4.UUID, "server-b4-label-uuid", "b4 UUID mismatch")
+	assert.Equal(t, b3.UUID, "server-b3-name-uuid", "b3 UUID mismatch")
+	assert.Equal(t, b4.UUID, "server-b4-name-uuid", "b4 UUID mismatch")
 	assert.Equal(t, b7.UUID, "b7-uuid", "b7 UUID mismatch")
 	assert.Equal(t, b8.UUID, "b8-uuid", "b8 UUID mismatch")
 
@@ -2017,9 +2017,9 @@ func TestSendBooks(t *testing.T) {
 	assert.Equal(t, n2.BookUUID, "b5-uuid", "n2 bookUUID mismatch")
 	assert.Equal(t, n3.BookUUID, "b6-uuid", "n3 bookUUID mismatch")
 	assert.Equal(t, n4.BookUUID, "b7-uuid", "n4 bookUUID mismatch")
-	assert.Equal(t, n5.BookUUID, "server-b3-label-uuid", "n5 bookUUID mismatch")
-	assert.Equal(t, n6.BookUUID, "server-b3-label-uuid", "n6 bookUUID mismatch")
-	assert.Equal(t, n7.BookUUID, "server-b4-label-uuid", "n7 bookUUID mismatch")
+	assert.Equal(t, n5.BookUUID, "server-b3-name-uuid", "n5 bookUUID mismatch")
+	assert.Equal(t, n6.BookUUID, "server-b3-name-uuid", "n6 bookUUID mismatch")
+	assert.Equal(t, n7.BookUUID, "server-b4-name-uuid", "n7 bookUUID mismatch")
 }
 
 func TestSendBooks_isBehind(t *testing.T) {
@@ -2108,7 +2108,7 @@ func TestSendBooks_isBehind(t *testing.T) {
 				db := ctx.DB
 
 				database.MustExec(t, fmt.Sprintf("inserting last max usn for test case %d", idx), db, "INSERT INTO system (key, value) VALUES (?, ?)", consts.SystemLastMaxUSN, tc.systemLastMaxUSN)
-				database.MustExec(t, fmt.Sprintf("inserting b1 for test case %d", idx), db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b1-uuid", "b1-label", 0, false, true)
+				database.MustExec(t, fmt.Sprintf("inserting b1 for test case %d", idx), db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b1-uuid", "b1-name", 0, false, true)
 
 				// execute
 				tx, err := db.Begin()
@@ -2156,7 +2156,7 @@ func TestSendBooks_isBehind(t *testing.T) {
 				db := ctx.DB
 
 				database.MustExec(t, fmt.Sprintf("inserting last max usn for test case %d", idx), db, "INSERT INTO system (key, value) VALUES (?, ?)", consts.SystemLastMaxUSN, tc.systemLastMaxUSN)
-				database.MustExec(t, fmt.Sprintf("inserting b1 for test case %d", idx), db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b1-uuid", "b1-label", 1, true, true)
+				database.MustExec(t, fmt.Sprintf("inserting b1 for test case %d", idx), db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b1-uuid", "b1-name", 1, true, true)
 
 				// execute
 				tx, err := db.Begin()
@@ -2204,7 +2204,7 @@ func TestSendBooks_isBehind(t *testing.T) {
 				db := ctx.DB
 
 				database.MustExec(t, fmt.Sprintf("inserting last max usn for test case %d", idx), db, "INSERT INTO system (key, value) VALUES (?, ?)", consts.SystemLastMaxUSN, tc.systemLastMaxUSN)
-				database.MustExec(t, fmt.Sprintf("inserting b1 for test case %d", idx), db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b1-uuid", "b1-label", 11, false, true)
+				database.MustExec(t, fmt.Sprintf("inserting b1 for test case %d", idx), db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b1-uuid", "b1-name", 11, false, true)
 
 				// execute
 				tx, err := db.Begin()
@@ -2240,7 +2240,7 @@ func TestSendNotes(t *testing.T) {
 	database.MustExec(t, "inserting last max usn", db, "INSERT INTO system (key, value) VALUES (?, ?)", consts.SystemLastMaxUSN, 0)
 
 	b1UUID := "b1-uuid"
-	database.MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b1UUID, "b1-label", 1, false, false)
+	database.MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b1UUID, "b1-name", 1, false, false)
 
 	// should be ignored
 	database.MustExec(t, "inserting n1", db, "INSERT INTO notes (uuid, book_uuid, usn, body, added_on, deleted, dirty) VALUES (?, ?, ?, ?, ?, ?, ?)", "n1-uuid", b1UUID, 10, "n1-body", 1541108743, false, false)
@@ -2524,7 +2524,7 @@ func TestSendNotes_isBehind(t *testing.T) {
 				db := ctx.DB
 
 				database.MustExec(t, fmt.Sprintf("inserting last max usn for test case %d", idx), db, "INSERT INTO system (key, value) VALUES (?, ?)", consts.SystemLastMaxUSN, tc.systemLastMaxUSN)
-				database.MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b1-uuid", "b1-label", 1, false, false)
+				database.MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b1-uuid", "b1-name", 1, false, false)
 				database.MustExec(t, "inserting n1", db, "INSERT INTO notes (uuid, book_uuid, usn, body, added_on, deleted, dirty) VALUES (?, ?, ?, ?, ?, ?, ?)", "n1-uuid", "b1-uuid", 1, "n1 body", 1541108743, false, true)
 
 				// execute
@@ -2573,7 +2573,7 @@ func TestSendNotes_isBehind(t *testing.T) {
 				db := ctx.DB
 
 				database.MustExec(t, fmt.Sprintf("inserting last max usn for test case %d", idx), db, "INSERT INTO system (key, value) VALUES (?, ?)", consts.SystemLastMaxUSN, tc.systemLastMaxUSN)
-				database.MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b1-uuid", "b1-label", 1, false, false)
+				database.MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b1-uuid", "b1-name", 1, false, false)
 				database.MustExec(t, "inserting n1", db, "INSERT INTO notes (uuid, book_uuid, usn, body, added_on, deleted, dirty) VALUES (?, ?, ?, ?, ?, ?, ?)", "n1-uuid", "b1-uuid", 2, "n1 body", 1541108743, true, true)
 
 				// execute
@@ -2622,7 +2622,7 @@ func TestSendNotes_isBehind(t *testing.T) {
 				db := ctx.DB
 
 				database.MustExec(t, fmt.Sprintf("inserting last max usn for test case %d", idx), db, "INSERT INTO system (key, value) VALUES (?, ?)", consts.SystemLastMaxUSN, tc.systemLastMaxUSN)
-				database.MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b1-uuid", "b1-label", 1, false, false)
+				database.MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b1-uuid", "b1-name", 1, false, false)
 				database.MustExec(t, "inserting n1", db, "INSERT INTO notes (uuid, book_uuid, usn, body, added_on, deleted, dirty) VALUES (?, ?, ?, ?, ?, ?, ?)", "n1-uuid", "b1-uuid", 8, "n1 body", 1541108743, false, true)
 
 				// execute
@@ -2738,9 +2738,9 @@ n1 body edited
 			expectedAddedOn:  1541232118,
 			expectedEditedOn: 1541219321,
 			expectedBody: `<<<<<<< Local
-Moved to the book b1-label
+Moved to the book b1-name
 =======
-Moved to the book b2-label
+Moved to the book b2-name
 >>>>>>> Server
 
 <<<<<<< Local
@@ -2783,9 +2783,9 @@ n1 body edited
 			db := database.InitTestDB(t, "../../tmp/.nad", nil)
 			defer database.CloseTestDB(t, db)
 
-			database.MustExec(t, fmt.Sprintf("inserting b1 for test case %d", idx), db, "INSERT INTO books (uuid, label, usn, dirty) VALUES (?, ?, ?, ?)", b1UUID, "b1-label", 5, false)
-			database.MustExec(t, fmt.Sprintf("inserting b2 for test case %d", idx), db, "INSERT INTO books (uuid, label, usn, dirty) VALUES (?, ?, ?, ?)", b2UUID, "b2-label", 6, false)
-			database.MustExec(t, fmt.Sprintf("inserting conflitcs book for test case %d", idx), db, "INSERT INTO books (uuid, label) VALUES (?, ?)", conflictBookUUID, "conflicts")
+			database.MustExec(t, fmt.Sprintf("inserting b1 for test case %d", idx), db, "INSERT INTO books (uuid, name, usn, dirty) VALUES (?, ?, ?, ?)", b1UUID, "b1-name", 5, false)
+			database.MustExec(t, fmt.Sprintf("inserting b2 for test case %d", idx), db, "INSERT INTO books (uuid, name, usn, dirty) VALUES (?, ?, ?, ?)", b2UUID, "b2-name", 6, false)
+			database.MustExec(t, fmt.Sprintf("inserting conflitcs book for test case %d", idx), db, "INSERT INTO books (uuid, name) VALUES (?, ?)", conflictBookUUID, "conflicts")
 			n1UUID := utils.GenerateUUID()
 			database.MustExec(t, fmt.Sprintf("inserting n1 for test case %d", idx), db, "INSERT INTO notes (uuid, book_uuid, usn, added_on, edited_on, body, deleted, dirty) VALUES (?, ?, ?,  ?, ?, ?, ?, ?)", n1UUID, b1UUID, tc.clientUSN, tc.addedOn, tc.clientEditedOn, tc.clientBody, tc.clientDeleted, tc.clientDirty)
 
@@ -2831,20 +2831,20 @@ n1 body edited
 				&n1Record.UUID, &n1Record.BookUUID, &n1Record.USN, &n1Record.AddedOn, &n1Record.EditedOn, &n1Record.Body, &n1Record.Deleted, &n1Record.Dirty)
 			var b1Record database.Book
 			database.MustScan(t, "getting b1Record for test case",
-				db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", b1UUID),
+				db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", b1UUID),
 				&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Dirty)
 			var b2Record database.Book
 			database.MustScan(t, "getting b2Record for test case",
-				db.QueryRow("SELECT uuid, label, usn, dirty FROM books WHERE uuid = ?", b2UUID),
+				db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", b2UUID),
 				&b2Record.UUID, &b2Record.Label, &b2Record.USN, &b2Record.Dirty)
 
 			assert.Equal(t, b1Record.UUID, b1UUID, fmt.Sprintf("b1Record UUID mismatch for test case %d", idx))
-			assert.Equal(t, b1Record.Label, "b1-label", fmt.Sprintf("b1Record Label mismatch for test case %d", idx))
+			assert.Equal(t, b1Record.Label, "b1-name", fmt.Sprintf("b1Record Label mismatch for test case %d", idx))
 			assert.Equal(t, b1Record.USN, 5, fmt.Sprintf("b1Record USN mismatch for test case %d", idx))
 			assert.Equal(t, b1Record.Dirty, false, fmt.Sprintf("b1Record Dirty mismatch for test case %d", idx))
 
 			assert.Equal(t, b2Record.UUID, b2UUID, fmt.Sprintf("b2Record UUID mismatch for test case %d", idx))
-			assert.Equal(t, b2Record.Label, "b2-label", fmt.Sprintf("b2Record Label mismatch for test case %d", idx))
+			assert.Equal(t, b2Record.Label, "b2-name", fmt.Sprintf("b2Record Label mismatch for test case %d", idx))
 			assert.Equal(t, b2Record.USN, 6, fmt.Sprintf("b2Record USN mismatch for test case %d", idx))
 			assert.Equal(t, b2Record.Dirty, false, fmt.Sprintf("b2Record Dirty mismatch for test case %d", idx))
 
@@ -2865,8 +2865,8 @@ func TestCheckBookPristine(t *testing.T) {
 	db := database.InitTestDB(t, "../../tmp/.nad", nil)
 	defer database.CloseTestDB(t, db)
 
-	database.MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, label, usn, dirty) VALUES (?, ?, ?, ?)", "b1-uuid", "b1-label", 5, false)
-	database.MustExec(t, "inserting b2", db, "INSERT INTO books (uuid, label, usn, dirty) VALUES (?, ?, ?, ?)", "b2-uuid", "b2-label", 6, false)
+	database.MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, name, usn, dirty) VALUES (?, ?, ?, ?)", "b1-uuid", "b1-name", 5, false)
+	database.MustExec(t, "inserting b2", db, "INSERT INTO books (uuid, name, usn, dirty) VALUES (?, ?, ?, ?)", "b2-uuid", "b2-name", 6, false)
 	database.MustExec(t, "inserting n1", db, "INSERT INTO notes (uuid, book_uuid, added_on, body, dirty) VALUES (?, ?, ?, ?, ?)", "n1-uuid", "b1-uuid", 1541108743, "n1 body", false)
 	database.MustExec(t, "inserting n2", db, "INSERT INTO notes (uuid, book_uuid, added_on, body, dirty) VALUES (?, ?, ?, ?, ?)", "n2-uuid", "b1-uuid", 1541108743, "n2 body", false)
 	database.MustExec(t, "inserting n3", db, "INSERT INTO notes (uuid, book_uuid, added_on, body, dirty) VALUES (?, ?, ?, ?, ?)", "n3-uuid", "b1-uuid", 1541108743, "n3 body", true)
@@ -3069,7 +3069,7 @@ func TestCleanLocalNotes(t *testing.T) {
 	}
 
 	b1UUID := "b1-uuid"
-	database.MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b1UUID, "b1-label", 1, false, false)
+	database.MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b1UUID, "b1-name", 1, false, false)
 
 	// exists in the list
 	database.MustExec(t, "inserting n1", db, "INSERT INTO notes (uuid, book_uuid, usn, body, added_on, deleted, dirty) VALUES (?, ?, ?, ?, ?, ?, ?)", "n1-uuid", b1UUID, 10, "n1 body", 1541108743, false, false)
@@ -3141,14 +3141,14 @@ func TestCleanLocalBooks(t *testing.T) {
 	}
 
 	// existent in the server
-	database.MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b1-uuid", "b1-label", 1, false, false)
-	database.MustExec(t, "inserting b3", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b3-uuid", "b3-label", 0, false, true)
+	database.MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b1-uuid", "b1-name", 1, false, false)
+	database.MustExec(t, "inserting b3", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b3-uuid", "b3-name", 0, false, true)
 	// non-existent in the server but in valid state
-	database.MustExec(t, "inserting b5", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b5-uuid", "b5-label", 0, true, true)
+	database.MustExec(t, "inserting b5", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b5-uuid", "b5-name", 0, true, true)
 	// non-existent in the server and in an invalid state
-	database.MustExec(t, "inserting b6", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b6-uuid", "b6-label", 10, true, true)
-	database.MustExec(t, "inserting b7", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b7-uuid", "b7-label", 11, false, false)
-	database.MustExec(t, "inserting b8", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b8-uuid", "b8-label", 0, false, false)
+	database.MustExec(t, "inserting b6", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b6-uuid", "b6-name", 10, true, true)
+	database.MustExec(t, "inserting b7", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b7-uuid", "b7-name", 11, false, false)
+	database.MustExec(t, "inserting b8", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", "b8-uuid", "b8-name", 0, false, false)
 
 	// execute
 	tx, err := db.Begin()
@@ -3169,7 +3169,7 @@ func TestCleanLocalBooks(t *testing.T) {
 	assert.Equal(t, bookCount, 3, "note count mismatch")
 
 	var b1, b3, b5 database.Book
-	database.MustScan(t, "getting b1", db.QueryRow("SELECT label FROM books WHERE uuid = ?", "b1-uuid"), &b1.Label)
-	database.MustScan(t, "getting b3", db.QueryRow("SELECT label FROM books WHERE uuid = ?", "b3-uuid"), &b3.Label)
-	database.MustScan(t, "getting b5", db.QueryRow("SELECT label FROM books WHERE uuid = ?", "b5-uuid"), &b5.Label)
+	database.MustScan(t, "getting b1", db.QueryRow("SELECT name FROM books WHERE uuid = ?", "b1-uuid"), &b1.Label)
+	database.MustScan(t, "getting b3", db.QueryRow("SELECT name FROM books WHERE uuid = ?", "b3-uuid"), &b3.Label)
+	database.MustScan(t, "getting b5", db.QueryRow("SELECT name FROM books WHERE uuid = ?", "b5-uuid"), &b5.Label)
 }

@@ -95,7 +95,7 @@ type NoteInfo struct {
 func GetNoteInfo(db *DB, noteRowID int) (NoteInfo, error) {
 	var ret NoteInfo
 
-	err := db.QueryRow(`SELECT books.label, notes.uuid, notes.body, notes.added_on, notes.edited_on, notes.rowid
+	err := db.QueryRow(`SELECT books.name, notes.uuid, notes.body, notes.added_on, notes.edited_on, notes.rowid
 			FROM notes
 			INNER JOIN books ON books.uuid = notes.book_uuid
 			WHERE notes.rowid = ? AND notes.deleted = false`, noteRowID).
@@ -120,7 +120,7 @@ type BookInfo struct {
 func GetBookInfo(db *DB, uuid string) (BookInfo, error) {
 	var ret BookInfo
 
-	err := db.QueryRow(`SELECT books.rowid, books.uuid, books.label
+	err := db.QueryRow(`SELECT books.rowid, books.uuid, books.name
 			FROM books
 			WHERE books.uuid = ? AND books.deleted = false`, uuid).
 		Scan(&ret.RowID, &ret.UUID, &ret.Name)
@@ -133,12 +133,12 @@ func GetBookInfo(db *DB, uuid string) (BookInfo, error) {
 	return ret, nil
 }
 
-// GetBookUUID returns a uuid of a book given a label
-func GetBookUUID(db *DB, label string) (string, error) {
+// GetBookUUID returns a uuid of a book given a name
+func GetBookUUID(db *DB, name string) (string, error) {
 	var ret string
-	err := db.QueryRow("SELECT uuid FROM books WHERE label = ?", label).Scan(&ret)
+	err := db.QueryRow("SELECT uuid FROM books WHERE name = ?", name).Scan(&ret)
 	if err == sql.ErrNoRows {
-		return ret, errors.Errorf("book '%s' not found", label)
+		return ret, errors.Errorf("book '%s' not found", name)
 	} else if err != nil {
 		return ret, errors.Wrap(err, "querying the book")
 	}
@@ -149,7 +149,7 @@ func GetBookUUID(db *DB, label string) (string, error) {
 // UpdateBookName updates a book name
 func UpdateBookName(db *DB, uuid string, name string) error {
 	_, err := db.Exec(`UPDATE books
-		SET label = ?, dirty = ?
+		SET name = ?, dirty = ?
 		WHERE uuid = ?`, name, true, uuid)
 	if err != nil {
 		return errors.Wrap(err, "updating the book")

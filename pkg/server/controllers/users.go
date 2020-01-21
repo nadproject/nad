@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/nadproject/nad/pkg/server/config"
 	"github.com/nadproject/nad/pkg/server/models"
 	"github.com/nadproject/nad/pkg/server/views"
 	"github.com/pkg/errors"
@@ -11,10 +12,10 @@ import (
 
 // NewUsers creates a new Users controller.
 // It panics if the necessary templates are not parsed.
-func NewUsers(us models.UserService, ss models.SessionService) *Users {
+func NewUsers(cfg config.Config, us models.UserService, ss models.SessionService) *Users {
 	return &Users{
-		NewView:   views.NewView(views.Config{Title: "Join", Layout: "base"}, "users/new"),
-		LoginView: views.NewView(views.Config{Title: "Sign in", Layout: "base"}, "users/login"),
+		NewView:   views.NewView(cfg.PageTemplateDir, views.Config{Title: "Join", Layout: "base"}, "users/new"),
+		LoginView: views.NewView(cfg.PageTemplateDir, views.Config{Title: "Sign in", Layout: "base"}, "users/login"),
 		us:        us,
 		ss:        ss,
 	}

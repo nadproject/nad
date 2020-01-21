@@ -99,7 +99,7 @@ func (sg *sessionGorm) Delete(key string) error {
 }
 
 func (sg *sessionGorm) Create(s *Session) error {
-	if err := sg.db.Debug().Save(s).Error; err != nil {
+	if err := sg.db.Save(s).Error; err != nil {
 		return errors.Wrap(err, "saving session")
 	}
 

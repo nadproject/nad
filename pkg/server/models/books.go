@@ -1,6 +1,8 @@
 package models
 
 import (
+	"log"
+
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 )
@@ -8,29 +10,30 @@ import (
 // Book is a model for a book
 type Book struct {
 	Model
-	UUID      string `json:"uuid" gorm:"index;type:uuid;default:uuid_generate_v4()"`
-	UserID    uint   `json:"user_id" gorm:"index"`
-	Label     string `json:"label" gorm:"index"`
-	Notes     []Note `json:"books" gorm:"foreignkey:book_uuid"`
-	AddedOn   int64  `json:"added_on"`
-	EditedOn  int64  `json:"edited_on"`
-	USN       int    `json:"-" gorm:"index"`
-	Deleted   bool   `json:"-" gorm:"default:false"`
-	Encrypted bool   `json:"-" gorm:"default:false"`
+	UUID      string `gorm:"index;type:uuid;default:uuid_generate_v4()"`
+	UserID    uint   `gorm:"index"`
+	Name      string `gorm:"index"`
+	Notes     []Note `gorm:"foreignkey:book_uuid"`
+	USN       int    `gorm:"index"`
+	Deleted   bool   `gorm:"default:false"`
+	Encrypted bool   `gorm:"default:false"`
+	AddedOn   int64
+	EditedOn  int64
 }
 
-// BookDB is an interface for database operations related to books.
+// BookDB is an interface for database operations related to bookb.
 type BookDB interface {
-	Search(userID uint) ([]Book, error)
+	Search(p BookSearchParams) ([]Book, error)
 	ByUUID(uuid string) (*Book, error)
+	ByName(userID uint, name string) (*Book, error)
+	ByUSNRange(userID uint, lb, ub, limit int) ([]Book, error)
 
 	Create(*Book, *gorm.DB) error
-	// Update(*Book) error
-	Delete(key string) error
+	Update(*Book, *gorm.DB) error
 }
 
 // bookGorm encapsulates the actual implementations of
-// the database operations involving books.
+// the database operations involving bookb.
 type bookGorm struct {
 	db *gorm.DB
 }
@@ -46,11 +49,11 @@ type bookService struct {
 
 // NewBookService returns a new bookService
 func NewBookService(db *gorm.DB) BookService {
-	ng := &bookGorm{db}
-	nv := newBookValidator(ng)
+	bg := &bookGorm{db}
+	bv := newBookValidator(bg)
 
 	return &bookService{
-		BookDB: nv,
+		BookDB: bv,
 	}
 }
 
@@ -64,37 +67,65 @@ func newBookValidator(ndb BookDB) *bookValidator {
 	}
 }
 
-// Search looks up a book with the given key.
-func (ng *bookGorm) Search(userID uint) ([]Book, error) {
+// BookSearchParams is a group of paramters for searching books
+type BookSearchParams struct {
+	UserID uint
+	Offset int
+	Limit  int
+}
+
+// Search looks up books with the given params
+func (bg *bookGorm) Search(p BookSearchParams) ([]Book, error) {
 	var ret []Book
-	err := Find(ng.db.Debug().Where("user_id = ?", userID), &ret)
+	err := Find(bg.db.Debug().Where("user_id = ? AND NOT deleted", p.UserID).Order("name ASC").Offset(p.Offset).Limit(p.Limit), &ret)
+
+	return ret, err
+}
+
+// ByName looks up a book with the given name.
+func (bg *bookGorm) ByName(userID uint, name string) (*Book, error) {
+	var ret Book
+	err := First(bg.db.Where("user_id = ? AND name = ?", userID, name), &ret)
+
+	return &ret, err
+}
+
+func (bg *bookGorm) ByUSNRange(userID uint, lb, ub, limit int) ([]Book, error) {
+	var ret []Book
+	err := Find(bg.db.Where("user_id = ? AND usn > ? AND usn <= ?", userID, lb, ub).Order("usn ASC").Limit(limit), &ret)
 
 	return ret, err
 }
 
 // ByUUID looks up a book with the given key.
-func (ng *bookGorm) ByUUID(uuid string) (*Book, error) {
+func (bg *bookGorm) ByUUID(uuid string) (*Book, error) {
 	var ret Book
-	err := First(ng.db.Where("uuid = ?", uuid), &ret)
+	err := First(bg.db.Where("uuid = ?", uuid), &ret)
 
 	return &ret, err
 }
 
-// TODO
-func (ng *bookGorm) Delete(key string) error {
-	if err := ng.db.Where("key = ?", key).Delete(&Book{}).Error; err != nil {
-		return err
+func (bg *bookGorm) Update(b *Book, tx *gorm.DB) error {
+	var conn *gorm.DB
+	if tx != nil {
+		conn = tx
+	} else {
+		conn = bg.db
+	}
+
+	if err := conn.Save(b).Error; err != nil {
+		return errors.Wrap(err, "saving note")
 	}
 
 	return nil
 }
 
-func (ng *bookGorm) Create(n *Book, tx *gorm.DB) error {
+func (bg *bookGorm) Create(n *Book, tx *gorm.DB) error {
 	var conn *gorm.DB
 	if tx != nil {
 		conn = tx
 	} else {
-		conn = ng.db
+		conn = bg.db
 	}
 
 	if err := conn.Save(n).Error; err != nil {
@@ -115,77 +146,86 @@ func runBookValFuncs(book *Book, fns ...bookValFunc) error {
 	return nil
 }
 
-// Create validates the parameters for retreiving a sesison by key.
-func (nv *bookValidator) Create(s *Book, tx *gorm.DB) error {
-	if err := runBookValFuncs(s,
-		nv.requireUserID,
-		nv.requireAddedOn,
-		nv.requireUSN,
+// Create validates the parameters for create.
+func (bv *bookValidator) Create(b *Book, tx *gorm.DB) error {
+	if err := runBookValFuncs(b,
+		bv.ensureNameUnique,
+		bv.requireUserID,
+		bv.requireUSN,
+	); err != nil {
+		log.Printf("err %+v", err)
+		return err
+	}
+
+	return bv.BookDB.Create(b, tx)
+}
+
+// Update validates the parameters for update.
+func (bv *bookValidator) Update(b *Book, tx *gorm.DB) error {
+	if err := runBookValFuncs(b,
+		bv.ensureNameUnique,
+		bv.requireUserID,
+		bv.requireUSN,
 	); err != nil {
 		return err
 	}
 
-	return nv.BookDB.Create(s, tx)
-}
-
-// Search validates the parameters for retreiving a sesison by key.
-func (nv *bookValidator) Search(userID uint) ([]Book, error) {
-	s := Book{
-		UserID: userID,
-	}
-	if err := runBookValFuncs(&s, nv.requireUserID); err != nil {
-		return nil, err
-	}
-
-	return nv.BookDB.Search(userID)
+	return bv.BookDB.Update(b, tx)
 }
 
 // ByUUID validates the parameters for retreiving a sesison by key.
-func (nv *bookValidator) ByUUID(uuid string) (*Book, error) {
-	s := Book{
+func (bv *bookValidator) ByUUID(uuid string) (*Book, error) {
+	b := Book{
 		UUID: uuid,
 	}
-	if err := runBookValFuncs(&s, nv.requireUUID); err != nil {
+	if err := runBookValFuncs(&b, bv.requireUUID); err != nil {
 		return nil, err
 	}
 
-	return nv.BookDB.ByUUID(uuid)
+	return bv.BookDB.ByUUID(uuid)
 }
 
-func (nv *bookValidator) requireUUID(s *Book) error {
-	if s.UUID == "" {
+func (bv *bookValidator) requireUUID(b *Book) error {
+	if b.UUID == "" {
 		return ErrBookUUIDRequired
 	}
 
 	return nil
 }
 
-func (nv *bookValidator) requireUserID(s *Book) error {
-	if s.UserID == 0 {
+func (bv *bookValidator) requireUserID(b *Book) error {
+	if b.UserID == 0 {
 		return ErrBookUserIDRequired
 	}
 
 	return nil
 }
 
-func (nv *bookValidator) requireAddedOn(s *Book) error {
-	if s.AddedOn == 0 {
-		return ErrBookAddedOnRequired
-	}
-
-	return nil
-}
-
-func (nv *bookValidator) requireEditedOn(s *Book) error {
-	if s.EditedOn == 0 {
+func (bv *bookValidator) requireEditedOn(b *Book) error {
+	if b.EditedOn == 0 {
 		return ErrBookEditedOnRequired
 	}
 
 	return nil
 }
 
-func (nv *bookValidator) requireUSN(s *Book) error {
-	if s.AddedOn == 0 {
+func (bv *bookValidator) ensureNameUnique(b *Book) error {
+	// An empty book name should be considered valid. Deleted books
+	// have an empty string as a name.
+	if b.Name == "" {
+		return nil
+	}
+
+	_, err := bv.BookDB.ByName(b.UserID, b.Name)
+	if err == ErrNotFound {
+		return nil
+	}
+
+	return ErrBookNameTaken
+}
+
+func (bv *bookValidator) requireUSN(b *Book) error {
+	if b.USN == 0 {
 		return ErrBookUSNRequired
 	}
 

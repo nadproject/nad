@@ -25,7 +25,6 @@ import (
 	"github.com/nadproject/nad/pkg/cli/client"
 	"github.com/nadproject/nad/pkg/cli/consts"
 	"github.com/nadproject/nad/pkg/cli/context"
-	"github.com/nadproject/nad/pkg/cli/crypt"
 	"github.com/nadproject/nad/pkg/cli/database"
 	"github.com/nadproject/nad/pkg/cli/infra"
 	"github.com/nadproject/nad/pkg/cli/log"
@@ -41,7 +40,7 @@ const (
 )
 
 var example = `
-  nad sync`
+  dnote sync`
 
 var isFullSync bool
 
@@ -97,7 +96,7 @@ func (l syncList) getLength() int {
 
 // processFragments categorizes items in sync fragments into a sync list. It also decrypts any
 // encrypted data in sync fragments.
-func processFragments(fragments []client.SyncFragment, cipherKey []byte) (syncList, error) {
+func processFragments(fragments []client.SyncFragment) (syncList, error) {
 	notes := map[string]client.SyncFragNote{}
 	books := map[string]client.SyncFragBook{}
 	expungedNotes := map[string]bool{}
@@ -107,23 +106,9 @@ func processFragments(fragments []client.SyncFragment, cipherKey []byte) (syncLi
 
 	for _, fragment := range fragments {
 		for _, note := range fragment.Notes {
-			log.Debug("decrypting note %s\n", note.UUID)
-			bodyDec, err := crypt.AesGcmDecrypt(cipherKey, note.Body)
-			if err != nil {
-				return syncList{}, errors.Wrapf(err, "decrypting body for note %s", note.UUID)
-			}
-
-			note.Body = string(bodyDec)
 			notes[note.UUID] = note
 		}
 		for _, book := range fragment.Books {
-			log.Debug("decrypting book %s\n", book.UUID)
-			labelDec, err := crypt.AesGcmDecrypt(cipherKey, book.Label)
-			if err != nil {
-				return syncList{}, errors.Wrapf(err, "decrypting label for book %s", book.UUID)
-			}
-
-			book.Label = string(labelDec)
 			books[book.UUID] = book
 		}
 		for _, uuid := range fragment.ExpungedBooks {
@@ -161,7 +146,7 @@ func getSyncList(ctx context.NadCtx, afterUSN int) (syncList, error) {
 		return syncList{}, errors.Wrap(err, "getting sync fragments")
 	}
 
-	ret, err := processFragments(fragments, ctx.CipherKey)
+	ret, err := processFragments(fragments)
 	if err != nil {
 		return syncList{}, errors.Wrap(err, "making sync list")
 	}
@@ -198,17 +183,17 @@ func getSyncFragments(ctx context.NadCtx, afterUSN int) ([]client.SyncFragment, 
 	return buf, nil
 }
 
-// resolveLabel resolves a book label conflict by repeatedly appending an increasing integer
-// to the label until it finds a unique label. It returns the first non-conflicting label.
-func resolveLabel(tx *database.DB, label string) (string, error) {
+// resolveLabel resolves a book name conflict by repeatedly appending an increasing integer
+// to the name until it finds a unique name. It returns the first non-conflicting name.
+func resolveLabel(tx *database.DB, name string) (string, error) {
 	var ret string
 
 	for i := 2; ; i++ {
-		ret = fmt.Sprintf("%s_%d", label, i)
+		ret = fmt.Sprintf("%s_%d", name, i)
 
 		var cnt int
-		if err := tx.QueryRow("SELECT count(*) FROM books WHERE label = ?", ret).Scan(&cnt); err != nil {
-			return "", errors.Wrapf(err, "checking availability of label %s", ret)
+		if err := tx.QueryRow("SELECT count(*) FROM books WHERE name = ?", ret).Scan(&cnt); err != nil {
+			return "", errors.Wrapf(err, "checking availability of name %s", ret)
 		}
 
 		if cnt == 0 {
@@ -220,34 +205,34 @@ func resolveLabel(tx *database.DB, label string) (string, error) {
 }
 
 // mergeBook inserts or updates the given book in the local database.
-// If a book with a duplicate label exists locally, it renames the duplicate by appending a number.
+// If a book with a duplicate name exists locally, it renames the duplicate by appending a number.
 func mergeBook(tx *database.DB, b client.SyncFragBook, mode int) error {
 	var count int
-	if err := tx.QueryRow("SELECT count(*) FROM books WHERE label = ?", b.Label).Scan(&count); err != nil {
-		return errors.Wrapf(err, "checking for books with a duplicate label %s", b.Label)
+	if err := tx.QueryRow("SELECT count(*) FROM books WHERE name = ?", b.Name).Scan(&count); err != nil {
+		return errors.Wrapf(err, "checking for books with a duplicate name %s", b.Name)
 	}
 
 	// if duplicate exists locally, rename it and mark it dirty
 	if count > 0 {
-		newLabel, err := resolveLabel(tx, b.Label)
+		newLabel, err := resolveLabel(tx, b.Name)
 		if err != nil {
-			return errors.Wrap(err, "getting a new book label for conflict resolution")
+			return errors.Wrap(err, "getting a new book name for conflict resolution")
 		}
 
-		if _, err := tx.Exec("UPDATE books SET label = ?, dirty = ? WHERE label = ?", newLabel, true, b.Label); err != nil {
-			return errors.Wrap(err, "resolving duplicate book label")
+		if _, err := tx.Exec("UPDATE books SET name = ?, dirty = ? WHERE name = ?", newLabel, true, b.Name); err != nil {
+			return errors.Wrap(err, "resolving duplicate book name")
 		}
 	}
 
 	if mode == modeInsert {
-		book := database.NewBook(b.UUID, b.Label, b.USN, false, false)
+		book := database.NewBook(b.UUID, b.Name, b.USN, false, false)
 		if err := book.Insert(tx); err != nil {
 			return errors.Wrapf(err, "inserting note with uuid %s", b.UUID)
 		}
 	} else if mode == modeUpdate {
 		// The state from the server overwrites the local state. In other words, the server change always wins.
-		if _, err := tx.Exec("UPDATE books SET usn = ?, uuid = ?, label = ?, deleted = ? WHERE uuid = ?",
-			b.USN, b.UUID, b.Label, b.Deleted, b.UUID); err != nil {
+		if _, err := tx.Exec("UPDATE books SET usn = ?, uuid = ?, name = ?, deleted = ? WHERE uuid = ?",
+			b.USN, b.UUID, b.Name, b.Deleted, b.UUID); err != nil {
 			return errors.Wrapf(err, "updating local book %s", b.UUID)
 		}
 	}
@@ -647,7 +632,7 @@ func stepSync(ctx context.NadCtx, tx *database.DB, afterUSN int) error {
 func sendBooks(ctx context.NadCtx, tx *database.DB) (bool, error) {
 	isBehind := false
 
-	rows, err := tx.Query("SELECT uuid, label, usn, deleted FROM books WHERE dirty")
+	rows, err := tx.Query("SELECT uuid, name, usn, deleted FROM books WHERE dirty")
 	if err != nil {
 		return isBehind, errors.Wrap(err, "getting syncable books")
 	}
@@ -656,7 +641,7 @@ func sendBooks(ctx context.NadCtx, tx *database.DB) (bool, error) {
 	for rows.Next() {
 		var book database.Book
 
-		if err = rows.Scan(&book.UUID, &book.Label, &book.USN, &book.Deleted); err != nil {
+		if err = rows.Scan(&book.UUID, &book.Name, &book.USN, &book.Deleted); err != nil {
 			return isBehind, errors.Wrap(err, "scanning a syncable book")
 		}
 
@@ -674,29 +659,29 @@ func sendBooks(ctx context.NadCtx, tx *database.DB) (bool, error) {
 
 				continue
 			} else {
-				resp, err := client.CreateBook(ctx, book.Label)
+				resp, err := client.CreateBook(ctx, book.Name)
 				if err != nil {
 					return isBehind, errors.Wrap(err, "creating a book")
 				}
 
-				_, err = tx.Exec("UPDATE notes SET book_uuid = ? WHERE book_uuid = ?", resp.Book.UUID, book.UUID)
+				_, err = tx.Exec("UPDATE notes SET book_uuid = ? WHERE book_uuid = ?", resp.UUID, book.UUID)
 				if err != nil {
 					return isBehind, errors.Wrap(err, "updating book_uuids of notes")
 				}
 
 				book.Dirty = false
-				book.USN = resp.Book.USN
+				book.USN = resp.USN
 				err = book.Update(tx)
 				if err != nil {
 					return isBehind, errors.Wrap(err, "marking book dirty")
 				}
 
-				err = book.UpdateUUID(tx, resp.Book.UUID)
+				err = book.UpdateUUID(tx, resp.UUID)
 				if err != nil {
 					return isBehind, errors.Wrap(err, "updating book uuid")
 				}
 
-				respUSN = resp.Book.USN
+				respUSN = resp.USN
 			}
 		} else {
 			if book.Deleted {
@@ -712,7 +697,7 @@ func sendBooks(ctx context.NadCtx, tx *database.DB) (bool, error) {
 
 				respUSN = resp.Book.USN
 			} else {
-				resp, err := client.UpdateBook(ctx, book.Label, book.UUID)
+				resp, err := client.UpdateBook(ctx, book.Name, book.UUID)
 				if err != nil {
 					return isBehind, errors.Wrap(err, "updating a book")
 				}
@@ -902,7 +887,7 @@ func saveSyncState(tx *database.DB, serverTime int64, serverMaxUSN int) error {
 
 func newRun(ctx context.NadCtx) infra.RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
-		if ctx.SessionKey == "" || ctx.CipherKey == nil {
+		if ctx.SessionKey == "" {
 			return errors.New("not logged in")
 		}
 

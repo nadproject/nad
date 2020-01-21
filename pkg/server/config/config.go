@@ -63,6 +63,7 @@ type Config struct {
 	Port                string
 	WebURL              string
 	CSRFAuthKey         string
+	PageTemplateDir     string
 	OnPremise           bool
 	DisableRegistration bool
 	DB                  PostgresConfig
@@ -131,6 +132,11 @@ func Load() Config {
 	}
 
 	return c
+}
+
+// SetPageTemplateDir checks if the app environment is configured to be production.
+func (c *Config) SetPageTemplateDir(d string) {
+	c.PageTemplateDir = d
 }
 
 // IsProd checks if the app environment is configured to be production.

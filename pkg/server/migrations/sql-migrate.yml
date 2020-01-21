@@ -5,4 +5,4 @@
 development:
   dialect: postgres
   datasource: dbname=dnote sslmode=disable
-  dir: ./migrations
+  dir: ./sql

@@ -191,9 +191,9 @@ func runBook(ctx context.NadCtx, bookLabel string) error {
 		return errors.Wrap(err, "removing notes in the book")
 	}
 
-	// override the label with a random string
+	// override the name with a random string
 	uniqLabel := utils.GenerateUUID()
-	if _, err = tx.Exec("UPDATE books SET deleted = ?, dirty = ?, label = ? WHERE uuid = ?", true, true, uniqLabel, bookUUID); err != nil {
+	if _, err = tx.Exec("UPDATE books SET deleted = ?, dirty = ?, name = ? WHERE uuid = ?", true, true, uniqLabel, bookUUID); err != nil {
 		tx.Rollback()
 		return errors.Wrap(err, "removing the book")
 	}

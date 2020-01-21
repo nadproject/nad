@@ -4,13 +4,14 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/nadproject/nad/pkg/server/config"
 	"github.com/nadproject/nad/pkg/server/views"
 )
 
 // NewStatic creates a new Static controller.
-func NewStatic() *Static {
+func NewStatic(cfg config.Config) *Static {
 	return &Static{
-		NotFoundView: views.NewView(views.Config{Title: "Not Found", Layout: "base"}, "static/not_found"),
+		NotFoundView: views.NewView(cfg.PageTemplateDir, views.Config{Title: "Not Found", Layout: "base"}, "static/not_found"),
 	}
 }
 

@@ -135,7 +135,7 @@ func doQuery(ctx context.NadCtx, query, bookName string) (*sql.Rows, error) {
 
 	sql := `SELECT
 		notes.rowid,
-		books.label AS book_label,
+		books.name AS book_name,
 		snippet(note_fts, 0, '<nadhl>', '</nadhl>', '...', 28)
 	FROM note_fts
 	INNER JOIN notes ON notes.rowid = note_fts.rowid
@@ -144,7 +144,7 @@ func doQuery(ctx context.NadCtx, query, bookName string) (*sql.Rows, error) {
 	args := []interface{}{query}
 
 	if bookName != "" {
-		sql = fmt.Sprintf("%s AND books.label = ?", sql)
+		sql = fmt.Sprintf("%s AND books.name = ?", sql)
 		args = append(args, bookName)
 	}
 
