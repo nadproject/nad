@@ -39,3 +39,8 @@ func ViewNote(userID uint, note models.Note) bool {
 func UpdateNote(userID uint, note models.Note) bool {
 	return isOwner(userID, note)
 }
+
+// DeleteNote checks if the given user can delete the given note
+func DeleteNote(userID uint, note models.Note) bool {
+	return isOwner(userID, note)
+}

@@ -206,5 +206,51 @@ func (n *Notes) V1Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := presenters.PresentNote(note)
-	respondJSON(w, http.StatusCreated, resp)
+	respondJSON(w, http.StatusOK, resp)
+}
+
+func (n *Notes) remove(r *http.Request) (models.Note, error) {
+	vars := mux.Vars(r)
+	noteUUID := vars["noteUUID"]
+
+	user := context.User(r.Context())
+	tx := n.db.Begin()
+
+	note, err := n.ns.ByUUID(noteUUID)
+	if err != nil {
+		return models.Note{}, errors.Wrap(err, "getting note")
+	}
+
+	if ok := permissions.DeleteNote(user.ID, *note); !ok {
+		return models.Note{}, models.ErrNotFound
+	}
+
+	nextUSN, err := n.us.IncrementUSN(tx, user.ID)
+	if err != nil {
+		tx.Rollback()
+		return models.Note{}, errors.Wrap(err, "incrementing user max_usn")
+	}
+
+	note.USN = nextUSN
+	note.Deleted = false
+	note.Body = ""
+
+	err = n.ns.Update(note, tx)
+	if err != nil {
+		return models.Note{}, errors.Wrap(err, "updating")
+	}
+
+	return models.Note{}, nil
+}
+
+// V1Delete handles DELETE /api/v1/notes/:uuid
+func (n *Notes) V1Delete(w http.ResponseWriter, r *http.Request) {
+	note, err := n.update(r)
+	if err != nil {
+		handleJSONError(w, err, "creating note")
+		return
+	}
+
+	resp := presenters.PresentNote(note)
+	respondJSON(w, http.StatusOK, resp)
 }

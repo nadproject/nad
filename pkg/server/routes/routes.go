@@ -51,7 +51,8 @@ func New(cfg config.Config, s *models.Services, cl clock.Clock) http.Handler {
 		{"POST", "/v1/login", http.HandlerFunc(usersC.V1Login), true},
 		{"POST", "/v1/logout", http.HandlerFunc(usersC.V1Logout), true},
 		{"POST", "/v1/notes", requireUserMw(http.HandlerFunc(notesC.V1Create), s.User), true},
-		{"PATCH", "/v1/notes/:noteUUID", requireUserMw(http.HandlerFunc(notesC.V1Update), s.User), true},
+		{"PATCH", "/v1/notes/{noteUUID}", requireUserMw(http.HandlerFunc(notesC.V1Update), s.User), true},
+		{"DELETE", "/v1/notes/{noteUUID}", requireUserMw(http.HandlerFunc(notesC.V1Delete), s.User), false},
 	}
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	registerRoutes(apiRouter, apiMw, cfg, s, apiRoutes)
