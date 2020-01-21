@@ -1,6 +1,8 @@
 # NAD
 
-NAD is a simple notebook for developers. It is forked from [NAD](https://github.com/nadproject/nad)
+NAD is a simple notebook for developers.
+
+It is forked from [Dnote](https://github.com/dnote/dnote), and stands for "NAD Ain't Dnote"
 
 ## Features
 
