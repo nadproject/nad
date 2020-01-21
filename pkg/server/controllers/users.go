@@ -125,7 +125,7 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-// V1Login handles POST /v1/login
+// V1Login handles POST /api/v1/login
 func (u *Users) V1Login(w http.ResponseWriter, r *http.Request) {
 	s, err := u.login(r)
 	if err != nil {
@@ -136,7 +136,7 @@ func (u *Users) V1Login(w http.ResponseWriter, r *http.Request) {
 	respondWithSession(w, http.StatusOK, *s)
 }
 
-// logout deletes a users session.
+// logout deletes a user session.
 func (u *Users) logout(r *http.Request) error {
 	key, err := GetCredential(r)
 	if err != nil {
@@ -165,7 +165,7 @@ func (u *Users) Logout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/login", http.StatusFound)
 }
 
-// V1Logout handles POST /v1/logout
+// V1Logout handles POST /api/v1/logout
 func (u *Users) V1Logout(w http.ResponseWriter, r *http.Request) {
 	if err := u.logout(r); err != nil {
 		handleJSONError(w, err, "logging out")

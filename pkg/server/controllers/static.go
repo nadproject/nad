@@ -28,6 +28,7 @@ func (s *Static) NotFound(w http.ResponseWriter, r *http.Request) {
 	if strings.Contains(accept, "text/html") {
 		s.NotFoundView.Render(w, r, nil)
 	} else {
-		w.Write([]byte("not found"))
+		statusText := http.StatusText(http.StatusNotFound)
+		w.Write([]byte(statusText))
 	}
 }

@@ -42,3 +42,11 @@ func (n *Notes) Index(w http.ResponseWriter, r *http.Request) {
 
 	n.IndexView.Render(w, r, vd)
 }
+
+// NoteForm is the form data for a note
+type NoteForm struct {
+}
+
+// V1Create handles POST /api/v1/notes
+func (n *Notes) V1Create(w http.ResponseWriter, r *http.Request) {
+}

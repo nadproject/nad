@@ -49,6 +49,7 @@ func New(c config.Config, s *models.Services) http.Handler {
 	var apiRoutes = []Route{
 		{"POST", "/v1/login", http.HandlerFunc(usersC.V1Login), true},
 		{"POST", "/v1/logout", http.HandlerFunc(usersC.V1Logout), true},
+		{"POST", "/v1/notes", http.HandlerFunc(notesC.V1Create), true},
 	}
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	registerRoutes(apiRouter, apiMw, c, s, apiRoutes)
