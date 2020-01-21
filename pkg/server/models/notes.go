@@ -30,7 +30,7 @@ type NoteDB interface {
 	ByUUID(uuid string) (*Note, error)
 
 	Create(*Note, *gorm.DB) error
-	// Update(*Note) error
+	Update(*Note, *gorm.DB) error
 	Delete(key string) error
 }
 
@@ -94,6 +94,21 @@ func (ng *noteGorm) Delete(key string) error {
 	return nil
 }
 
+func (ng *noteGorm) Update(n *Note, tx *gorm.DB) error {
+	var conn *gorm.DB
+	if tx != nil {
+		conn = tx
+	} else {
+		conn = ng.db
+	}
+
+	if err := conn.Save(n).Error; err != nil {
+		return errors.Wrap(err, "saving note")
+	}
+
+	return nil
+}
+
 func (ng *noteGorm) Create(n *Note, tx *gorm.DB) error {
 	var conn *gorm.DB
 	if tx != nil {
@@ -126,12 +141,28 @@ func (nv *noteValidator) Create(s *Note, tx *gorm.DB) error {
 		nv.requireUserID,
 		nv.requireBookUUID,
 		nv.requireAddedOn,
+		nv.requireEditedOn,
 		nv.requireUSN,
 	); err != nil {
 		return err
 	}
 
 	return nv.NoteDB.Create(s, tx)
+}
+
+// Update validates the parameters for retreiving a sesison by key.
+func (nv *noteValidator) Update(s *Note, tx *gorm.DB) error {
+	if err := runNoteValFuncs(s,
+		nv.requireUserID,
+		nv.requireBookUUID,
+		nv.requireAddedOn,
+		nv.requireEditedOn,
+		nv.requireUSN,
+	); err != nil {
+		return err
+	}
+
+	return nv.NoteDB.Update(s, tx)
 }
 
 // Search validates the parameters for retreiving a sesison by key.

@@ -19,20 +19,23 @@
 package permissions
 
 import (
-	"github.com/nadproject/nad/pkg/server/database"
+	"github.com/nadproject/nad/pkg/server/models"
 )
 
+func isOwner(userID uint, note models.Note) bool {
+	return note.UserID == userID
+}
+
 // ViewNote checks if the given user can view the given note
-func ViewNote(user *database.User, note database.Note) bool {
+func ViewNote(userID uint, note models.Note) bool {
 	if note.Public {
 		return true
 	}
-	if user == nil {
-		return false
-	}
-	if note.UserID == 0 {
-		return false
-	}
 
-	return note.UserID == user.ID
+	return isOwner(userID, note)
+}
+
+// UpdateNote checks if the given user can update the given note
+func UpdateNote(userID uint, note models.Note) bool {
+	return isOwner(userID, note)
 }
