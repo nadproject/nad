@@ -104,7 +104,7 @@ func TestBooksV1CreateDuplicate(t *testing.T) {
 	assert.Equal(t, userRecord.MaxUSN, 101, "user max_usn mismatch")
 }
 
-func TestDeleteBook(t *testing.T) {
+func TestBooksV1Delete(t *testing.T) {
 	testCases := []struct {
 		label          string
 		deleted        bool
@@ -284,7 +284,7 @@ func TestDeleteBook(t *testing.T) {
 	}
 }
 
-func TestUpdateBook(t *testing.T) {
+func TestBooksV1Update(t *testing.T) {
 	updatedLabel := "updated-label"
 
 	b1UUID := "ead8790f-aff9-4bdf-8eec-f734ccd29202"
@@ -372,7 +372,7 @@ func TestUpdateBook(t *testing.T) {
 	}
 }
 
-func TestGetBooks(t *testing.T) {
+func TestBooksV1Get(t *testing.T) {
 	// Set up
 	cfg := config.Load()
 	cfg.SetPageTemplateDir(testPageDir)
@@ -448,8 +448,7 @@ func TestGetBooks(t *testing.T) {
 	assert.DeepEqual(t, payload, expected, "payload mismatch")
 }
 
-// TODO: implement search by name
-func TestGetBooksByName(t *testing.T) {
+func TestBooksV1Get_Name(t *testing.T) {
 	// Set up
 	cfg := config.Load()
 	cfg.SetPageTemplateDir(testPageDir)
