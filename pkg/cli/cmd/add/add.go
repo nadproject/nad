@@ -133,7 +133,7 @@ func writeNote(ctx context.NadCtx, bookLabel string, content string, ts int64) (
 	}
 
 	var bookUUID string
-	err = tx.QueryRow("SELECT uuid FROM books WHERE label = ?", bookLabel).Scan(&bookUUID)
+	err = tx.QueryRow("SELECT uuid FROM books WHERE name = ?", bookLabel).Scan(&bookUUID)
 	if err == sql.ErrNoRows {
 		bookUUID = utils.GenerateUUID()
 

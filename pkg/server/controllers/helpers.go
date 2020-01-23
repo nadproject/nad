@@ -30,15 +30,12 @@ func parseRequestData(r *http.Request, dst interface{}) error {
 		return nil
 	}
 
-	if ct == contentTypeJSON {
-		if err := parseJSON(r, dst); err != nil {
-			return errors.Wrap(err, "parsing JSON")
-		}
-
-		return nil
+	// default to JSON
+	if err := parseJSON(r, dst); err != nil {
+		return errors.Wrap(err, "parsing JSON")
 	}
 
-	return errors.Errorf("Unrecognized content type: %s", ct)
+	return nil
 }
 
 func parseForm(r *http.Request, dst interface{}) error {
@@ -188,7 +185,9 @@ func logError(err error, msg string) {
 }
 
 func getErrStatusCode(err error) int {
-	switch err.(type) {
+	rootErr := errors.Cause(err)
+
+	switch rootErr.(type) {
 	case views.BadRequestError:
 		return http.StatusBadRequest
 	case views.ConflictError:
@@ -212,8 +211,10 @@ func handleJSONError(w http.ResponseWriter, err error, msg string) {
 	logError(err, msg)
 	statusCode := getErrStatusCode(err)
 
+	rootErr := errors.Cause(err)
+
 	var respText string
-	if pErr, ok := err.(views.PublicError); ok {
+	if pErr, ok := rootErr.(views.PublicError); ok {
 		respText = pErr.Public()
 	} else {
 		respText = http.StatusText(statusCode)

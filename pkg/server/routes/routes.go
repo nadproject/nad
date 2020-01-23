@@ -32,30 +32,41 @@ func registerRoutes(router *mux.Router, mw middleware, c config.Config, s *model
 func New(cfg config.Config, s *models.Services, cl clock.Clock) http.Handler {
 	router := mux.NewRouter().StrictSlash(true)
 
-	usersC := controllers.NewUsers(s.User, s.Session)
-	notesC := controllers.NewNotes(s.Note, s.User, s.DB)
-	staticC := controllers.NewStatic()
+	usersC := controllers.NewUsers(cfg, s.User, s.Session)
+	notesC := controllers.NewNotes(cfg, s.Note, s.User, cl, s.DB)
+	booksC := controllers.NewBooks(cfg, s.Book, s.User, s.Note, cl, s.DB)
+	syncC := controllers.NewSync(s.Note, s.Book, cl)
+	staticC := controllers.NewStatic(cfg)
 
 	var webRoutes = []Route{
-		{"GET", "/", requireUserMw(http.HandlerFunc(notesC.Index), s.User), true},
+		{"GET", "/", webRequireUserMw(http.HandlerFunc(notesC.Index), s.User), true},
 		{"GET", "/register", http.HandlerFunc(usersC.New), true},
 		{"POST", "/register", http.HandlerFunc(usersC.Create), true},
 		{"POST", "/logout", http.HandlerFunc(usersC.Logout), true},
 		{"GET", "/login", usersC.LoginView, true},
 		{"POST", "/login", http.HandlerFunc(usersC.Login), true},
 	}
-	webRouter := router.PathPrefix("/").Subrouter()
-	registerRoutes(webRouter, webMw, cfg, s, webRoutes)
-
 	var apiRoutes = []Route{
 		{"POST", "/v1/login", http.HandlerFunc(usersC.V1Login), true},
 		{"POST", "/v1/logout", http.HandlerFunc(usersC.V1Logout), true},
-		{"POST", "/v1/notes", requireUserMw(http.HandlerFunc(notesC.V1Create), s.User), true},
-		{"GET", "/v1/notes/{noteUUID}", requireUserMw(http.HandlerFunc(notesC.V1Get), s.User), true},
-		{"PATCH", "/v1/notes/{noteUUID}", requireUserMw(http.HandlerFunc(notesC.V1Update), s.User), true},
-		{"DELETE", "/v1/notes/{noteUUID}", requireUserMw(http.HandlerFunc(notesC.V1Delete), s.User), false},
+
+		{"GET", "/v1/notes/{noteUUID}", apiRequireUserMw(http.HandlerFunc(notesC.V1Get), s.User), true},
+		{"POST", "/v1/notes", apiRequireUserMw(http.HandlerFunc(notesC.V1Create), s.User), true},
+		{"PATCH", "/v1/notes/{noteUUID}", apiRequireUserMw(http.HandlerFunc(notesC.V1Update), s.User), true},
+		{"DELETE", "/v1/notes/{noteUUID}", apiRequireUserMw(http.HandlerFunc(notesC.V1Delete), s.User), false},
+
+		{"GET", "/v1/books/{bookUUID}", apiRequireUserMw(http.HandlerFunc(booksC.V1Get), s.User), true},
+		{"POST", "/v1/books", apiRequireUserMw(http.HandlerFunc(booksC.V1Create), s.User), true},
+		{"PATCH", "/v1/books/{bookUUID}", apiRequireUserMw(http.HandlerFunc(booksC.V1Update), s.User), true},
+		{"DELETE", "/v1/books/{bookUUID}", apiRequireUserMw(http.HandlerFunc(booksC.V1Delete), s.User), false},
+
+		{"GET", "/v1/sync/state", apiRequireUserMw(http.HandlerFunc(syncC.GetState), s.User), false},
+		{"GET", "/v1/sync/fragment", apiRequireUserMw(http.HandlerFunc(syncC.GetFragment), s.User), false},
 	}
+
+	webRouter := router.PathPrefix("/").Subrouter()
 	apiRouter := router.PathPrefix("/api").Subrouter()
+	registerRoutes(webRouter, webMw, cfg, s, webRoutes)
 	registerRoutes(apiRouter, apiMw, cfg, s, apiRoutes)
 
 	// static

@@ -22,8 +22,12 @@ import (
 	"github.com/nadproject/nad/pkg/server/models"
 )
 
-func isOwner(userID uint, note models.Note) bool {
+func isNoteOwner(userID uint, note models.Note) bool {
 	return note.UserID == userID
+}
+
+func isBookOwner(userID uint, book models.Book) bool {
+	return book.UserID == userID
 }
 
 // ViewNote checks if the given user can view the given note
@@ -31,16 +35,38 @@ func ViewNote(userID uint, note models.Note) bool {
 	if note.Public {
 		return true
 	}
+	if note.Deleted {
+		return false
+	}
 
-	return isOwner(userID, note)
+	return isNoteOwner(userID, note)
 }
 
 // UpdateNote checks if the given user can update the given note
 func UpdateNote(userID uint, note models.Note) bool {
-	return isOwner(userID, note)
+	return isNoteOwner(userID, note)
 }
 
 // DeleteNote checks if the given user can delete the given note
 func DeleteNote(userID uint, note models.Note) bool {
-	return isOwner(userID, note)
+	return isNoteOwner(userID, note)
+}
+
+// ViewBook checks if the given user can view the given book
+func ViewBook(userID uint, book models.Book) bool {
+	if book.Deleted {
+		return false
+	}
+
+	return isBookOwner(userID, book)
+}
+
+// UpdateBook checks if the given user can update the given book
+func UpdateBook(userID uint, book models.Book) bool {
+	return isBookOwner(userID, book)
+}
+
+// DeleteBook checks if the given user can delete the given book
+func DeleteBook(userID uint, book models.Book) bool {
+	return isBookOwner(userID, book)
 }

@@ -31,22 +31,26 @@ import (
 	"github.com/nadproject/nad/pkg/server/routes"
 )
 
-var templateDir = flag.String("templateDir", "tpl/web", "the path to a directory containing templates")
+var pageDir = flag.String("pageDir", "views", "the path to a directory containing page templates")
 
 func startCmd() {
 	cfg := config.Load()
+	cfg.SetPageTemplateDir(*pageDir)
 
 	services, err := models.NewServices(
 		models.WithGorm("postgres", cfg.DB.GetConnectionStr()),
 		models.WithUser(),
-		models.WithSession(),
 		models.WithNote(),
 		models.WithBook(),
+		models.WithSession(),
 	)
 	must(err)
 	defer services.Close()
 
-	err = services.AutoMigrate()
+	err = services.InitDB()
+	must(err)
+
+	err = services.MigrateDB()
 	must(err)
 
 	cl := clock.New()

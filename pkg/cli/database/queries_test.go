@@ -329,8 +329,8 @@ func TestUpdateNoteBook(t *testing.T) {
 
 	b1UUID := "b1-uuid"
 	b2UUID := "b2-uuid"
-	MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b1UUID, "b1-label", 8, false, false)
-	MustExec(t, "inserting b2", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b2UUID, "b2-label", 9, false, false)
+	MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b1UUID, "b1-name", 8, false, false)
+	MustExec(t, "inserting b2", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b2UUID, "b2-name", 9, false, false)
 
 	uuid := "n1-uuid"
 	MustExec(t, "inserting n1", db, "INSERT INTO notes (uuid, book_uuid, body, added_on, edited_on, usn, public, deleted, dirty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", uuid, b1UUID, "n1 content", 1542058875, 0, 1, false, false, false)
@@ -365,19 +365,19 @@ func TestUpdateBookName(t *testing.T) {
 	defer CloseTestDB(t, db)
 
 	b1UUID := "b1-uuid"
-	MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, label, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b1UUID, "b1-label", 8, false, false)
+	MustExec(t, "inserting b1", db, "INSERT INTO books (uuid, name, usn, deleted, dirty) VALUES (?, ?, ?, ?, ?)", b1UUID, "b1-name", 8, false, false)
 
 	// execute
-	err := UpdateBookName(db, b1UUID, "b1-label-edited")
+	err := UpdateBookName(db, b1UUID, "b1-name-edited")
 	if err != nil {
 		t.Fatal(errors.Wrap(err, "executing"))
 	}
 
 	// test
 	var b1 Book
-	MustScan(t, "getting the note record", db.QueryRow("SELECT uuid, label, dirty, usn, deleted FROM books WHERE uuid = ?", b1UUID), &b1.UUID, &b1.Label, &b1.Dirty, &b1.USN, &b1.Deleted)
+	MustScan(t, "getting the note record", db.QueryRow("SELECT uuid, name, dirty, usn, deleted FROM books WHERE uuid = ?", b1UUID), &b1.UUID, &b1.Label, &b1.Dirty, &b1.USN, &b1.Deleted)
 	assert.Equal(t, b1.UUID, b1UUID, "UUID mismatch")
-	assert.Equal(t, b1.Label, "b1-label-edited", "Label mismatch")
+	assert.Equal(t, b1.Label, "b1-name-edited", "Label mismatch")
 	assert.Equal(t, b1.Dirty, true, "Dirty mismatch")
 	assert.Equal(t, b1.USN, 8, "USN mismatch")
 	assert.Equal(t, b1.Deleted, false, "Deleted mismatch")

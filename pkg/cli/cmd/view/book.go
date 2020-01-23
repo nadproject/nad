@@ -79,12 +79,12 @@ func printBookLine(info bookInfo, nameOnly bool) {
 func printBooks(ctx context.NadCtx, nameOnly bool) error {
 	db := ctx.DB
 
-	rows, err := db.Query(`SELECT books.label, count(notes.uuid) note_count
+	rows, err := db.Query(`SELECT books.name, count(notes.uuid) note_count
 	FROM books
 	LEFT JOIN notes ON notes.book_uuid = books.uuid AND notes.deleted = false
 	WHERE books.deleted = false
 	GROUP BY books.uuid
-	ORDER BY books.label ASC;`)
+	ORDER BY books.name ASC;`)
 	if err != nil {
 		return errors.Wrap(err, "querying books")
 	}
@@ -112,7 +112,7 @@ func printBookNotes(ctx context.NadCtx, bookName string) error {
 	db := ctx.DB
 
 	var bookUUID string
-	err := db.QueryRow("SELECT uuid FROM books WHERE label = ?", bookName).Scan(&bookUUID)
+	err := db.QueryRow("SELECT uuid FROM books WHERE name = ?", bookName).Scan(&bookUUID)
 	if err == sql.ErrNoRows {
 		return errors.New("book not found")
 	} else if err != nil {

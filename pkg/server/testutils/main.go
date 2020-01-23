@@ -20,119 +20,16 @@
 package testutils
 
 import (
-	"encoding/base64"
 	"encoding/json"
-	"fmt"
-	"math/rand"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"sync"
 	"testing"
-	"time"
 
-	"github.com/jinzhu/gorm"
-	"github.com/nadproject/nad/pkg/server/database"
-	"github.com/nadproject/nad/pkg/server/dbconn"
 	"github.com/pkg/errors"
 	"github.com/stripe/stripe-go"
-	"golang.org/x/crypto/bcrypt"
 )
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
-
-// DB is the database connection to a test database
-var DB *gorm.DB
-
-// InitTestDB establishes connection pool with the test database specified by
-// the environment variable configuration and initalizes a new schema
-func InitTestDB() {
-	db := dbconn.Open(dbconn.Config{
-		Host:     os.Getenv("DBHost"),
-		Port:     os.Getenv("DBPort"),
-		Name:     os.Getenv("DBName"),
-		User:     os.Getenv("DBUser"),
-		Password: os.Getenv("DBPassword"),
-	})
-	database.InitSchema(db)
-
-	DB = db
-}
-
-// ClearData deletes all records from the database
-func ClearData() {
-	if err := DB.Delete(&database.Book{}).Error; err != nil {
-		panic(errors.Wrap(err, "Failed to clear books"))
-	}
-	if err := DB.Delete(&database.Note{}).Error; err != nil {
-		panic(errors.Wrap(err, "Failed to clear notes"))
-	}
-	if err := DB.Delete(&database.Notification{}).Error; err != nil {
-		panic(errors.Wrap(err, "Failed to clear notifications"))
-	}
-	if err := DB.Delete(&database.User{}).Error; err != nil {
-		panic(errors.Wrap(err, "Failed to clear users"))
-	}
-	if err := DB.Delete(&database.Token{}).Error; err != nil {
-		panic(errors.Wrap(err, "Failed to clear tokens"))
-	}
-	if err := DB.Delete(&database.EmailPreference{}).Error; err != nil {
-		panic(errors.Wrap(err, "Failed to clear email preferences"))
-	}
-	if err := DB.Delete(&database.Session{}).Error; err != nil {
-		panic(errors.Wrap(err, "Failed to clear sessions"))
-	}
-}
-
-// SetupUserData creates and returns a new user for testing purposes
-func SetupUserData(email, password string) database.User {
-	user := database.User{
-		Pro: true,
-	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		panic(errors.Wrap(err, "Failed to hash password"))
-	}
-	user.Password = string(hashedPassword)
-
-	if err := DB.Save(&user).Error; err != nil {
-		panic(errors.Wrap(err, "Failed to prepare user"))
-	}
-
-	return user
-}
-
-// SetupSession creates and returns a new user session
-func SetupSession(t *testing.T, user database.User) database.Session {
-	session := database.Session{
-		Key:       "Vvgm3eBXfXGEFWERI7faiRJ3DAzJw+7DdT9J1LEyNfI=",
-		UserID:    user.ID,
-		ExpiresAt: time.Now().Add(time.Hour * 24),
-	}
-	if err := DB.Save(&session).Error; err != nil {
-		t.Fatal(errors.Wrap(err, "Failed to prepare user"))
-	}
-
-	return session
-}
-
-// SetupEmailPreferenceData creates and returns a new email frequency for a user
-func SetupEmailPreferenceData(user database.User, inactiveReminder bool) database.EmailPreference {
-	frequency := database.EmailPreference{
-		UserID:           user.ID,
-		InactiveReminder: inactiveReminder,
-	}
-
-	if err := DB.Save(&frequency).Error; err != nil {
-		panic(errors.Wrap(err, "Failed to prepare email frequency"))
-	}
-
-	return frequency
-}
 
 // HTTPDo makes an HTTP request and returns a response
 func HTTPDo(t *testing.T, req *http.Request) *http.Response {
@@ -153,45 +50,14 @@ func HTTPDo(t *testing.T, req *http.Request) *http.Response {
 	return res
 }
 
-// HTTPAuthDo makes an HTTP request with an appropriate authorization header for a user
-func HTTPAuthDo(t *testing.T, req *http.Request, user database.User) *http.Response {
-	b := make([]byte, 32)
-	if _, err := rand.Read(b); err != nil {
-		t.Fatal(errors.Wrap(err, "reading random bits"))
-	}
-
-	session := database.Session{
-		Key:       base64.StdEncoding.EncodeToString(b),
-		UserID:    user.ID,
-		ExpiresAt: time.Now().Add(time.Hour * 10 * 24),
-	}
-	if err := DB.Save(&session).Error; err != nil {
-		t.Fatal(errors.Wrap(err, "Failed to prepare user"))
-	}
-
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", session.Key))
-
-	return HTTPDo(t, req)
-
-}
-
 // MakeReq makes an HTTP request and returns a response
-func MakeReq(endpoint string, method, path, data string) *http.Request {
-	u := fmt.Sprintf("%s%s", endpoint, path)
-
-	req, err := http.NewRequest(method, u, strings.NewReader(data))
+func MakeReq(method, url, data string) *http.Request {
+	req, err := http.NewRequest(method, url, strings.NewReader(data))
 	if err != nil {
 		panic(errors.Wrap(err, "constructing http request"))
 	}
 
 	return req
-}
-
-// MustExec fails the test if the given database query has error
-func MustExec(t *testing.T, db *gorm.DB, message string) {
-	if err := db.Error; err != nil {
-		t.Fatalf("%s: %s", message, err.Error())
-	}
 }
 
 // GetCookieByName returns a cookie with the given name

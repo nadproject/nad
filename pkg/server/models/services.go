@@ -3,6 +3,8 @@ package models
 import (
 	"github.com/jinzhu/gorm"
 
+	"github.com/nadproject/nad/pkg/server/migrations"
+	"github.com/pkg/errors"
 	// use postgres
 	_ "github.com/lib/pq"
 )
@@ -89,8 +91,27 @@ func (s *Services) Close() error {
 	return s.DB.Close()
 }
 
-// AutoMigrate automatically migrates all tables using a set of model
+// InitDB automatically migrates all tables using a set of model
 // definitions.
-func (s *Services) AutoMigrate() error {
-	return s.DB.AutoMigrate(&User{}, &Session{}).Error
+func (s *Services) InitDB() error {
+	if err := s.DB.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`).Error; err != nil {
+		return errors.Wrap(err, "creating uuid extension")
+	}
+
+	err := s.DB.AutoMigrate(&User{}, &Note{}, &Book{}, &Session{}).Error
+	if err != nil {
+		return errors.Wrap(err, "updating schema")
+	}
+
+	return nil
+}
+
+// MigrateDB runs migrations.
+func (s *Services) MigrateDB() error {
+	err := migrations.Run(s.DB)
+	if err != nil {
+		return errors.Wrap(err, "running migrations")
+	}
+
+	return nil
 }

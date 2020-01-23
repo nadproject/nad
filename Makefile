@@ -173,7 +173,7 @@ ifndef filename
 	$(error filename is required. Usage: make filename=your-filename create-migration)
 endif
 
-	@(cd ${currentDir}/pkg/server/database && ./scripts/create-migration.sh $(filename))
+	@(cd ${currentDir}/pkg/server/migrations && ./scripts/create-migration.sh $(filename))
 .PHONY: create-migration
 
 clean:

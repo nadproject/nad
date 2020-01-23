@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/nadproject/nad/pkg/clock"
+	"github.com/nadproject/nad/pkg/server/config"
 	"github.com/nadproject/nad/pkg/server/context"
 	"github.com/nadproject/nad/pkg/server/models"
 	"github.com/nadproject/nad/pkg/server/permissions"
@@ -15,9 +16,10 @@ import (
 )
 
 // NewNotes creates a new Notes controller.
-func NewNotes(ns models.NoteService, us models.UserService, db *gorm.DB) *Notes {
+func NewNotes(cfg config.Config, ns models.NoteService, us models.UserService, c clock.Clock, db *gorm.DB) *Notes {
 	return &Notes{
-		IndexView: views.NewView(views.Config{Title: "", Layout: "base", HeaderTemplate: "navbar"}, "notes/index"),
+		IndexView: views.NewView(cfg.PageTemplateDir, views.Config{Title: "", Layout: "base", HeaderTemplate: "navbar"}, "notes/index"),
+		c:         c,
 		ns:        ns,
 		us:        us,
 		db:        db,
@@ -191,8 +193,11 @@ func (n *Notes) update(r *http.Request) (models.Note, error) {
 
 	err = n.ns.Update(note, tx)
 	if err != nil {
+		tx.Rollback()
 		return models.Note{}, errors.Wrap(err, "updating")
 	}
+
+	tx.Commit()
 
 	return models.Note{}, nil
 }
@@ -209,6 +214,34 @@ func (n *Notes) V1Update(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, resp)
 }
 
+func removeNote(tx *gorm.DB, userID uint, noteUUID string, ns models.NoteService, us models.UserService) error {
+	note, err := ns.ByUUID(noteUUID)
+	if err != nil {
+		return errors.Wrap(err, "getting note")
+	}
+
+	if ok := permissions.DeleteNote(userID, *note); !ok {
+		return models.ErrNotFound
+	}
+
+	nextUSN, err := us.IncrementUSN(tx, userID)
+	if err != nil {
+		tx.Rollback()
+		return errors.Wrap(err, "incrementing user max_usn")
+	}
+
+	note.USN = nextUSN
+	note.Deleted = true
+	note.Body = ""
+
+	err = ns.Update(note, tx)
+	if err != nil {
+		return errors.Wrap(err, "updating")
+	}
+
+	return nil
+}
+
 func (n *Notes) remove(r *http.Request) (models.Note, error) {
 	vars := mux.Vars(r)
 	noteUUID := vars["noteUUID"]
@@ -216,28 +249,8 @@ func (n *Notes) remove(r *http.Request) (models.Note, error) {
 	user := context.User(r.Context())
 	tx := n.db.Begin()
 
-	note, err := n.ns.ByUUID(noteUUID)
-	if err != nil {
-		return models.Note{}, errors.Wrap(err, "getting note")
-	}
-
-	if ok := permissions.DeleteNote(user.ID, *note); !ok {
-		return models.Note{}, models.ErrNotFound
-	}
-
-	nextUSN, err := n.us.IncrementUSN(tx, user.ID)
-	if err != nil {
-		tx.Rollback()
-		return models.Note{}, errors.Wrap(err, "incrementing user max_usn")
-	}
-
-	note.USN = nextUSN
-	note.Deleted = false
-	note.Body = ""
-
-	err = n.ns.Update(note, tx)
-	if err != nil {
-		return models.Note{}, errors.Wrap(err, "updating")
+	if err := removeNote(tx, user.ID, noteUUID, n.ns, n.us); err != nil {
+		return models.Note{}, errors.Wrap(err, "removing note")
 	}
 
 	return models.Note{}, nil

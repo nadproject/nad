@@ -33,7 +33,6 @@ type NadCtx struct {
 	DB               *database.DB
 	SessionKey       string
 	SessionKeyExpiry int64
-	CipherKey        []byte
 	Editor           string
 	Clock            clock.Clock
 }

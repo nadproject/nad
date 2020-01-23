@@ -1,22 +1,4 @@
-/* Copyright (C) 2019 Monomax Software Pty Ltd
- *
- * This file is part of nad.
- *
- * nad is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * nad is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with nad.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-package handlers
+package controllers
 
 import (
 	"fmt"
@@ -26,9 +8,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/nadproject/nad/pkg/server/database"
-	"github.com/nadproject/nad/pkg/server/helpers"
+	"github.com/nadproject/nad/pkg/clock"
+	"github.com/nadproject/nad/pkg/server/context"
 	"github.com/nadproject/nad/pkg/server/log"
+	"github.com/nadproject/nad/pkg/server/models"
 	"github.com/pkg/errors"
 )
 
@@ -65,7 +48,7 @@ type SyncFragNote struct {
 }
 
 // NewFragNote presents the given note as a SyncFragNote
-func NewFragNote(note database.Note) SyncFragNote {
+func NewFragNote(note models.Note) SyncFragNote {
 	return SyncFragNote{
 		UUID:      note.UUID,
 		USN:       note.USN,
@@ -88,19 +71,19 @@ type SyncFragBook struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	AddedOn   int64     `json:"added_on"`
-	Label     string    `json:"label"`
+	Name      string    `json:"name"`
 	Deleted   bool      `json:"deleted"`
 }
 
 // NewFragBook presents the given book as a SyncFragBook
-func NewFragBook(book database.Book) SyncFragBook {
+func NewFragBook(book models.Book) SyncFragBook {
 	return SyncFragBook{
 		UUID:      book.UUID,
 		USN:       book.USN,
 		CreatedAt: book.CreatedAt,
 		UpdatedAt: book.UpdatedAt,
 		AddedOn:   book.AddedOn,
-		Label:     book.Label,
+		Name:      book.Name,
 		Deleted:   book.Deleted,
 	}
 }
@@ -108,6 +91,48 @@ func NewFragBook(book database.Book) SyncFragBook {
 type usnItem struct {
 	usn int
 	val interface{}
+}
+
+// NewSync creates a new Sync controller.
+func NewSync(ns models.NoteService, bs models.BookService, c clock.Clock) *Sync {
+	return &Sync{
+		c:  c,
+		ns: ns,
+		bs: bs,
+	}
+}
+
+// Sync is a static controller
+type Sync struct {
+	c  clock.Clock
+	ns models.NoteService
+	bs models.BookService
+}
+
+// GetSyncStateResp represents a response from GetSyncFragment handler
+type GetSyncStateResp struct {
+	FullSyncBefore int   `json:"full_sync_before"`
+	MaxUSN         int   `json:"max_usn"`
+	CurrentTime    int64 `json:"current_time"`
+}
+
+// GetState handles GET /sync/state
+func (n *Sync) GetState(w http.ResponseWriter, r *http.Request) {
+	user := context.User(r.Context())
+
+	response := GetSyncStateResp{
+		FullSyncBefore: fullSyncBefore,
+		MaxUSN:         user.MaxUSN,
+		// TODO: exposing server time means we probably shouldn't seed random generator with time?
+		CurrentTime: n.c.Now().Unix(),
+	}
+
+	log.WithFields(log.Fields{
+		"user_id": user.ID,
+		"resp":    response,
+	}).Info("getting sync state")
+
+	respondJSON(w, http.StatusOK, response)
 }
 
 type queryParamError struct {
@@ -118,87 +143,6 @@ type queryParamError struct {
 
 func (e *queryParamError) Error() string {
 	return fmt.Sprintf("invalid query param %s=%s. %s", e.key, e.value, e.message)
-}
-
-func (c *Context) newFragment(userID, userMaxUSN, afterUSN, limit int) (SyncFragment, error) {
-	var notes []database.Note
-	if err := c.App.DB.Where("user_id = ? AND usn > ? AND usn <= ?", userID, afterUSN, userMaxUSN).Order("usn ASC").Limit(limit).Find(&notes).Error; err != nil {
-		return SyncFragment{}, nil
-	}
-	var books []database.Book
-	if err := c.App.DB.Where("user_id = ? AND usn > ? AND usn <= ?", userID, afterUSN, userMaxUSN).Order("usn ASC").Limit(limit).Find(&books).Error; err != nil {
-		return SyncFragment{}, nil
-	}
-
-	var items []usnItem
-	for _, note := range notes {
-		i := usnItem{
-			usn: note.USN,
-			val: note,
-		}
-		items = append(items, i)
-	}
-	for _, book := range books {
-		i := usnItem{
-			usn: book.USN,
-			val: book,
-		}
-		items = append(items, i)
-	}
-
-	// order by usn in ascending order
-	sort.Slice(items, func(i, j int) bool {
-		return items[i].usn < items[j].usn
-	})
-
-	fragNotes := []SyncFragNote{}
-	fragBooks := []SyncFragBook{}
-	fragExpungedNotes := []string{}
-	fragExpungedBooks := []string{}
-
-	fragMaxUSN := 0
-	for i := 0; i < limit; i++ {
-		if i > len(items)-1 {
-			break
-		}
-
-		item := items[i]
-
-		fragMaxUSN = item.usn
-
-		switch v := item.val.(type) {
-		case database.Note:
-			note := item.val.(database.Note)
-
-			if note.Deleted {
-				fragExpungedNotes = append(fragExpungedNotes, note.UUID)
-			} else {
-				fragNotes = append(fragNotes, NewFragNote(note))
-			}
-		case database.Book:
-			book := item.val.(database.Book)
-
-			if book.Deleted {
-				fragExpungedBooks = append(fragExpungedBooks, book.UUID)
-			} else {
-				fragBooks = append(fragBooks, NewFragBook(book))
-			}
-		default:
-			return SyncFragment{}, errors.Errorf("unknown internal item type %s", v)
-		}
-	}
-
-	ret := SyncFragment{
-		FragMaxUSN:    fragMaxUSN,
-		UserMaxUSN:    userMaxUSN,
-		CurrentTime:   c.App.Clock.Now().Unix(),
-		Notes:         fragNotes,
-		Books:         fragBooks,
-		ExpungedNotes: fragExpungedNotes,
-		ExpungedBooks: fragExpungedBooks,
-	}
-
-	return ret, nil
 }
 
 func parseGetSyncFragmentQuery(q url.Values) (afterUSN, limit int, err error) {
@@ -241,63 +185,111 @@ func parseGetSyncFragmentQuery(q url.Values) (afterUSN, limit int, err error) {
 	return
 }
 
+func (n *Sync) newFragment(userID uint, userMaxUSN, afterUSN, limit int) (SyncFragment, error) {
+	notes, err := n.ns.ByUSNRange(userID, afterUSN, userMaxUSN, limit)
+	if err != nil {
+		return SyncFragment{}, errors.Wrap(err, "getting notes by usn range")
+	}
+
+	books, err := n.bs.ByUSNRange(userID, afterUSN, userMaxUSN, limit)
+	if err != nil {
+		return SyncFragment{}, errors.Wrap(err, "getting books by usn range")
+	}
+
+	var items []usnItem
+	for _, note := range notes {
+		i := usnItem{
+			usn: note.USN,
+			val: note,
+		}
+		items = append(items, i)
+	}
+	for _, book := range books {
+		i := usnItem{
+			usn: book.USN,
+			val: book,
+		}
+		items = append(items, i)
+	}
+
+	// order by usn in ascending order
+	sort.Slice(items, func(i, j int) bool {
+		return items[i].usn < items[j].usn
+	})
+
+	fragNotes := []SyncFragNote{}
+	fragBooks := []SyncFragBook{}
+	fragExpungedNotes := []string{}
+	fragExpungedBooks := []string{}
+
+	fragMaxUSN := 0
+	for i := 0; i < limit; i++ {
+		if i > len(items)-1 {
+			break
+		}
+
+		item := items[i]
+
+		fragMaxUSN = item.usn
+
+		switch v := item.val.(type) {
+		case models.Note:
+			note := item.val.(models.Note)
+
+			if note.Deleted {
+				fragExpungedNotes = append(fragExpungedNotes, note.UUID)
+			} else {
+				fragNotes = append(fragNotes, NewFragNote(note))
+			}
+		case models.Book:
+			book := item.val.(models.Book)
+
+			if book.Deleted {
+				fragExpungedBooks = append(fragExpungedBooks, book.UUID)
+			} else {
+				fragBooks = append(fragBooks, NewFragBook(book))
+			}
+		default:
+			return SyncFragment{}, errors.Errorf("unknown internal item type %s", v)
+		}
+	}
+
+	ret := SyncFragment{
+		FragMaxUSN:    fragMaxUSN,
+		UserMaxUSN:    userMaxUSN,
+		CurrentTime:   n.c.Now().Unix(),
+		Notes:         fragNotes,
+		Books:         fragBooks,
+		ExpungedNotes: fragExpungedNotes,
+		ExpungedBooks: fragExpungedBooks,
+	}
+
+	return ret, nil
+}
+
 // GetSyncFragmentResp represents a response from GetSyncFragment handler
 type GetSyncFragmentResp struct {
 	Fragment SyncFragment `json:"fragment"`
 }
 
-// GetSyncFragment responds with a sync fragment
-func (c *Context) GetSyncFragment(w http.ResponseWriter, r *http.Request) {
-	user, ok := r.Context().Value(helpers.KeyUser).(database.User)
-	if !ok {
-		HandleError(w, "No authenticated user found", nil, http.StatusInternalServerError)
-		return
-	}
+// GetFragment responds with a sync fragment
+func (n *Sync) GetFragment(w http.ResponseWriter, r *http.Request) {
+	user := context.User(r.Context())
 
 	afterUSN, limit, err := parseGetSyncFragmentQuery(r.URL.Query())
 	if err != nil {
-		HandleError(w, "parsing query params", err, http.StatusInternalServerError)
+		handleJSONError(w, err, "parsing query params")
 		return
 	}
 
-	fragment, err := c.newFragment(user.ID, user.MaxUSN, afterUSN, limit)
+	fragment, err := n.newFragment(user.ID, user.MaxUSN, afterUSN, limit)
 	if err != nil {
-		HandleError(w, "getting fragment", err, http.StatusInternalServerError)
+		handleJSONError(w, err, "getting fragment")
 		return
 	}
 
 	response := GetSyncFragmentResp{
 		Fragment: fragment,
 	}
-	respondJSON(w, http.StatusOK, response)
-}
-
-// GetSyncStateResp represents a response from GetSyncFragment handler
-type GetSyncStateResp struct {
-	FullSyncBefore int   `json:"full_sync_before"`
-	MaxUSN         int   `json:"max_usn"`
-	CurrentTime    int64 `json:"current_time"`
-}
-
-// GetSyncState responds with a sync fragment
-func (c *Context) GetSyncState(w http.ResponseWriter, r *http.Request) {
-	user, ok := r.Context().Value(helpers.KeyUser).(database.User)
-	if !ok {
-		HandleError(w, "No authenticated user found", nil, http.StatusInternalServerError)
-		return
-	}
-
-	response := GetSyncStateResp{
-		FullSyncBefore: fullSyncBefore,
-		MaxUSN:         user.MaxUSN,
-		// TODO: exposing server time means we probably shouldn't seed random generator with time?
-		CurrentTime: c.App.Clock.Now().Unix(),
-	}
-
-	log.WithFields(log.Fields{
-		"user_id": user.ID,
-		"resp":    response,
-	}).Info("getting sync state")
-
 	respondJSON(w, http.StatusOK, response)
 }

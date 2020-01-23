@@ -25,7 +25,7 @@ import (
 // Book holds a metadata and its notes
 type Book struct {
 	UUID    string `json:"uuid"`
-	Label   string `json:"label"`
+	Name    string `json:"name"`
 	USN     int    `json:"usn"`
 	Notes   []Note `json:"notes"`
 	Deleted bool   `json:"deleted"`
@@ -109,10 +109,10 @@ func (n Note) Expunge(db *DB) error {
 }
 
 // NewBook constructs a book with the given data
-func NewBook(uuid, label string, usn int, deleted, dirty bool) Book {
+func NewBook(uuid, name string, usn int, deleted, dirty bool) Book {
 	return Book{
 		UUID:    uuid,
-		Label:   label,
+		Name:    name,
 		USN:     usn,
 		Deleted: deleted,
 		Dirty:   dirty,
@@ -121,8 +121,8 @@ func NewBook(uuid, label string, usn int, deleted, dirty bool) Book {
 
 // Insert inserts a new book
 func (b Book) Insert(db *DB) error {
-	_, err := db.Exec("INSERT INTO books (uuid, label, usn, dirty, deleted) VALUES (?, ?, ?, ?, ?)",
-		b.UUID, b.Label, b.USN, b.Dirty, b.Deleted)
+	_, err := db.Exec("INSERT INTO books (uuid, name, usn, dirty, deleted) VALUES (?, ?, ?, ?, ?)",
+		b.UUID, b.Name, b.USN, b.Dirty, b.Deleted)
 
 	if err != nil {
 		return errors.Wrapf(err, "inserting book with uuid %s", b.UUID)
@@ -133,8 +133,8 @@ func (b Book) Insert(db *DB) error {
 
 // Update updates the book with the given data
 func (b Book) Update(db *DB) error {
-	_, err := db.Exec("UPDATE books SET label = ?, usn = ?, dirty = ?, deleted = ? WHERE uuid = ?",
-		b.Label, b.USN, b.Dirty, b.Deleted, b.UUID)
+	_, err := db.Exec("UPDATE books SET name = ?, usn = ?, dirty = ?, deleted = ? WHERE uuid = ?",
+		b.Name, b.USN, b.Dirty, b.Deleted, b.UUID)
 
 	if err != nil {
 		return errors.Wrapf(err, "updating the book with uuid %s", b.UUID)

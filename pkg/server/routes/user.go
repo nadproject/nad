@@ -23,12 +23,25 @@ func userMw(inner http.Handler, ss models.SessionService, us models.UserService)
 	})
 }
 
-// requireUserMw redirects the request to the login page if user is not set
-func requireUserMw(inner http.Handler, us models.UserService) http.HandlerFunc {
+// webRequireUserMw redirects the request to the login page if user is not set
+func webRequireUserMw(inner http.Handler, us models.UserService) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user := context.User(r.Context())
 		if user == nil {
 			http.Redirect(w, r, "/login", http.StatusFound)
+			return
+		}
+
+		inner.ServeHTTP(w, r)
+	})
+}
+
+// apiRequireUserMw redirects the request to the login page if user is not set
+func apiRequireUserMw(inner http.Handler, us models.UserService) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user := context.User(r.Context())
+		if user == nil {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 			return
 		}
 

@@ -19,8 +19,6 @@ import (
 const (
 	// LayoutDir is the layout directory
 	LayoutDir string = "views/layouts/"
-	// TemplateDir is the template directory
-	TemplateDir string = "views/"
 	// TemplateExt is the template extension
 	TemplateExt string = ".gohtml"
 )
@@ -45,8 +43,8 @@ func (c Config) getLayout() string {
 }
 
 // NewView returns a new view by parsing  the given layout and files
-func NewView(c Config, files ...string) *View {
-	addTemplatePath(files)
+func NewView(baseDir string, c Config, files ...string) *View {
+	addTemplatePath(baseDir, files)
 	addTemplateExt(files)
 	files = append(files, layoutFiles()...)
 
@@ -137,14 +135,10 @@ func layoutFiles() []string {
 }
 
 // addTemplatePath takes in a slice of strings
-// representing file paths for templates, and it prepends
-// the TemplateDir directory to each string in the slice
-//
-// Eg the input {"home"} would result in the output
-// {"views/home"} if TemplateDir == "views/"
-func addTemplatePath(files []string) {
+// representing file paths for templates.
+func addTemplatePath(baseDir string, files []string) {
 	for i, f := range files {
-		files[i] = TemplateDir + f
+		files[i] = fmt.Sprintf("%s/%s", baseDir, f)
 	}
 }
 

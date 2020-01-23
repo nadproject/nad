@@ -72,7 +72,7 @@ func reportBodyConflict(localBody, remoteBody string) string {
 		}
 
 		// within the conflict area, append a linebreak to the text if it is missing one
-		// to make sure conflict labels are separated by new lines
+		// to make sure conflict names are separated by new lines
 		sanitized := sanitize(d.Text)
 
 		if d.Type == diff.DiffDelete {
@@ -113,11 +113,11 @@ func reportBookConflict(tx *database.DB, body, localBookUUID, serverBookUUID str
 	var builder strings.Builder
 
 	var localBookName, serverBookName string
-	if err := tx.QueryRow("SELECT label FROM books WHERE uuid = ?", localBookUUID).Scan(&localBookName); err != nil {
-		return "", errors.Wrapf(err, "getting book label for %s", localBookUUID)
+	if err := tx.QueryRow("SELECT name FROM books WHERE uuid = ?", localBookUUID).Scan(&localBookName); err != nil {
+		return "", errors.Wrapf(err, "getting book name for %s", localBookUUID)
 	}
-	if err := tx.QueryRow("SELECT label FROM books WHERE uuid = ?", serverBookUUID).Scan(&serverBookName); err != nil {
-		return "", errors.Wrapf(err, "getting book label for %s", serverBookUUID)
+	if err := tx.QueryRow("SELECT name FROM books WHERE uuid = ?", serverBookUUID).Scan(&serverBookName); err != nil {
+		return "", errors.Wrapf(err, "getting book name for %s", serverBookUUID)
 	}
 
 	builder.WriteString(conflictLabelLocal)
@@ -134,7 +134,7 @@ func reportBookConflict(tx *database.DB, body, localBookUUID, serverBookUUID str
 func getConflictsBookUUID(tx *database.DB) (string, error) {
 	var ret string
 
-	err := tx.QueryRow("SELECT uuid FROM books WHERE label = ?", "conflicts").Scan(&ret)
+	err := tx.QueryRow("SELECT uuid FROM books WHERE name = ?", "conflicts").Scan(&ret)
 	if err == sql.ErrNoRows {
 		// Create a conflicts book
 		ret = utils.GenerateUUID()

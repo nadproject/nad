@@ -16,7 +16,7 @@ type Note struct {
 	Body      string `json:"content"`
 	AddedOn   int64  `json:"added_on"`
 	EditedOn  int64  `json:"edited_on"`
-	TSV       string `json:"-" gorm:"type:tnvector"`
+	TSV       string `json:"-" gorm:"type:tsvector"`
 	Public    bool   `json:"public" gorm:"default:false"`
 	USN       int    `json:"-" gorm:"index"`
 	Deleted   bool   `json:"-" gorm:"default:false"`
@@ -28,10 +28,11 @@ type NoteDB interface {
 	Search(userID uint) ([]Note, error)
 	ByUUID(uuid string) (*Note, error)
 	ActiveByUUID(uuid string) (*Note, error)
+	ActiveByBookUUID(uuid string) ([]Note, error)
+	ByUSNRange(userID uint, lb, ub, limit int) ([]Note, error)
 
 	Create(*Note, *gorm.DB) error
 	Update(*Note, *gorm.DB) error
-	Delete(key string) error
 }
 
 // noteGorm encapsulates the actual implementations of
@@ -77,6 +78,22 @@ func (ng *noteGorm) Search(userID uint) ([]Note, error) {
 	return ret, err
 }
 
+// ByUSNRange looks up a note with the given book_uuid.
+func (ng *noteGorm) ByUSNRange(userID uint, lb, ub, limit int) ([]Note, error) {
+	var ret []Note
+	err := Find(ng.db.Where("user_id = ? AND usn > ? AND usn <= ?", userID, lb, ub).Order("usn ASC").Limit(limit), &ret)
+
+	return ret, err
+}
+
+// ActiveByBookUUID looks up a note with the given book_uuid.
+func (ng *noteGorm) ActiveByBookUUID(bookUUID string) ([]Note, error) {
+	var ret []Note
+	err := Find(ng.db.Debug().Where("book_uuid = ? AND NOT DELETED", bookUUID), &ret)
+
+	return ret, err
+}
+
 // ByUUID looks up a note with the given uuid.
 func (ng *noteGorm) ByUUID(uuid string) (*Note, error) {
 	var ret Note
@@ -91,15 +108,6 @@ func (ng *noteGorm) ActiveByUUID(uuid string) (*Note, error) {
 	err := First(ng.db.Where("uuid = ? AND deleted = ?", uuid, false), &ret)
 
 	return &ret, err
-}
-
-// TODO
-func (ng *noteGorm) Delete(key string) error {
-	if err := ng.db.Where("key = ?", key).Delete(&Note{}).Error; err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (ng *noteGorm) Update(n *Note, tx *gorm.DB) error {
@@ -149,7 +157,6 @@ func (nv *noteValidator) Create(s *Note, tx *gorm.DB) error {
 		nv.requireUserID,
 		nv.requireBookUUID,
 		nv.requireAddedOn,
-		nv.requireEditedOn,
 		nv.requireUSN,
 	); err != nil {
 		return err
@@ -164,7 +171,6 @@ func (nv *noteValidator) Update(s *Note, tx *gorm.DB) error {
 		nv.requireUserID,
 		nv.requireBookUUID,
 		nv.requireAddedOn,
-		nv.requireEditedOn,
 		nv.requireUSN,
 	); err != nil {
 		return err
@@ -224,14 +230,6 @@ func (nv *noteValidator) requireBookUUID(s *Note) error {
 func (nv *noteValidator) requireAddedOn(s *Note) error {
 	if s.AddedOn == 0 {
 		return ErrNoteAddedOnRequired
-	}
-
-	return nil
-}
-
-func (nv *noteValidator) requireEditedOn(s *Note) error {
-	if s.EditedOn == 0 {
-		return ErrNoteEditedOnRequired
 	}
 
 	return nil
