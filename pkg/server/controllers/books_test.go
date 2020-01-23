@@ -449,56 +449,56 @@ func TestGetBooks(t *testing.T) {
 }
 
 // TODO: implement search by name
-// func TestGetBooksByName(t *testing.T) {
-// 	// Set up
-// 	cfg := config.Load()
-// 	cfg.SetPageTemplateDir(testPageDir)
-// 	defer models.ClearTestData(t, models.TestServices.DB)
-//
-// 	user, _ := models.SetupUser(t, models.TestServices.User, models.TestServices.Session, "alice@example.com", "pass1234")
-// 	anotherUser, _ := models.SetupUser(t, models.TestServices.User, models.TestServices.Session, "bob@example.com", "pass1234")
-//
-// 	b1 := models.Book{
-// 		UserID: user.ID,
-// 		Name:   "js",
-// 	}
-// 	models.MustExec(t, models.TestServices.DB.Save(&b1), "preparing b1")
-// 	b2 := models.Book{
-// 		UserID: user.ID,
-// 		Name:   "css",
-// 	}
-// 	models.MustExec(t, models.TestServices.DB.Save(&b2), "preparing b2")
-// 	b3 := models.Book{
-// 		UserID: anotherUser.ID,
-// 		Name:   "js",
-// 	}
-// 	models.MustExec(t, models.TestServices.DB.Save(&b3), "preparing b3")
-//
-// 	// Execute
-// 	req := newReq(t, "GET", "/api/v1/books?name=js", "")
-// 	booksC := NewBooks(cfg, models.TestServices.Book, models.TestServices.User, models.TestServices.Note, clock.NewMock(), models.TestServices.DB)
-// 	w := httpDo(t, booksC.V1Index, req, &user)
-//
-// 	// Test
-// 	assert.Equal(t, w.Code, http.StatusOK, "status coe mismatmch")
-//
-// 	var payload []presenters.Book
-// 	if err := json.NewDecoder(w.Body).Decode(&payload); err != nil {
-// 		t.Fatal(errors.Wrap(err, "decoding payload"))
-// 	}
-//
-// 	var b1Record models.Book
-// 	models.MustExec(t, models.TestServices.DB.Where("id = ?", b1.ID).First(&b1Record), "finding b1")
-//
-// 	expected := []presenters.Book{
-// 		{
-// 			UUID:      b1Record.UUID,
-// 			CreatedAt: b1Record.CreatedAt,
-// 			UpdatedAt: b1Record.UpdatedAt,
-// 			Name:      b1Record.Name,
-// 			USN:       b1Record.USN,
-// 		},
-// 	}
-//
-// 	assert.DeepEqual(t, payload, expected, "payload mismatch")
-// }
+func TestGetBooksByName(t *testing.T) {
+	// Set up
+	cfg := config.Load()
+	cfg.SetPageTemplateDir(testPageDir)
+	defer models.ClearTestData(t, models.TestServices.DB)
+
+	user, _ := models.SetupUser(t, models.TestServices.User, models.TestServices.Session, "alice@example.com", "pass1234")
+	anotherUser, _ := models.SetupUser(t, models.TestServices.User, models.TestServices.Session, "bob@example.com", "pass1234")
+
+	b1 := models.Book{
+		UserID: user.ID,
+		Name:   "js",
+	}
+	models.MustExec(t, models.TestServices.DB.Save(&b1), "preparing b1")
+	b2 := models.Book{
+		UserID: user.ID,
+		Name:   "css",
+	}
+	models.MustExec(t, models.TestServices.DB.Save(&b2), "preparing b2")
+	b3 := models.Book{
+		UserID: anotherUser.ID,
+		Name:   "js",
+	}
+	models.MustExec(t, models.TestServices.DB.Save(&b3), "preparing b3")
+
+	// Execute
+	req := newReq(t, "GET", "/api/v1/books?name=js", "")
+	booksC := NewBooks(cfg, models.TestServices.Book, models.TestServices.User, models.TestServices.Note, clock.NewMock(), models.TestServices.DB)
+	w := httpDo(t, booksC.V1Index, req, &user)
+
+	// Test
+	assert.Equal(t, w.Code, http.StatusOK, "status coe mismatmch")
+
+	var payload []presenters.Book
+	if err := json.NewDecoder(w.Body).Decode(&payload); err != nil {
+		t.Fatal(errors.Wrap(err, "decoding payload"))
+	}
+
+	var b1Record models.Book
+	models.MustExec(t, models.TestServices.DB.Where("id = ?", b1.ID).First(&b1Record), "finding b1")
+
+	expected := []presenters.Book{
+		{
+			UUID:      b1Record.UUID,
+			CreatedAt: b1Record.CreatedAt,
+			UpdatedAt: b1Record.UpdatedAt,
+			Name:      b1Record.Name,
+			USN:       b1Record.USN,
+		},
+	}
+
+	assert.DeepEqual(t, payload, expected, "payload mismatch")
+}
