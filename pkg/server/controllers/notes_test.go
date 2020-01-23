@@ -10,8 +10,6 @@ import (
 	"github.com/nadproject/nad/pkg/clock"
 	"github.com/nadproject/nad/pkg/server/config"
 	"github.com/nadproject/nad/pkg/server/models"
-	// "github.com/nadproject/nad/pkg/server/presenters"
-	// "github.com/pkg/errors"
 )
 
 func TestNotesV1Create(t *testing.T) {
