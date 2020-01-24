@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/gorilla/csrf"
-	"github.com/nadproject/nad/pkg/server/build"
+	"github.com/nadproject/nad/pkg/server/buildinfo"
 	"github.com/nadproject/nad/pkg/server/context"
 	"github.com/nadproject/nad/pkg/server/log"
 	"github.com/pkg/errors"
@@ -51,7 +51,7 @@ func NewView(baseDir string, c Config, files ...string) *View {
 			return "", errors.New("csrfField is not implemented")
 		},
 		"css": func() []string {
-			return strings.Split(build.CSSFiles, ",")
+			return strings.Split(buildinfo.CSSFiles, ",")
 		},
 		"title": func() string {
 			if c.Title != "" {

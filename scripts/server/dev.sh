@@ -14,13 +14,13 @@ dotenvPath="$serverPath/.env.dev"
 source "$dotenvPath"
 set +a
 
+# run asset pipeline in the background
+(cd "$serverPath/assets/" && "$serverPath/assets/scripts/styles/dev.sh" ) &
+
 # run server
 moduleName="github.com/nadproject/nad"
-ldflags="-X '$moduleName/pkg/server/build.CSSFiles=nad.css' -X '$moduleName/pkg/server/build.JSFiles=nad.js' -X '$moduleName/pkg/server/build.Version=dev' "
+ldflags="-X '$moduleName/pkg/server/buildinfo.CSSFiles=nad.css' -X '$moduleName/pkg/server/buildinfo.JSFiles=nad.js' -X '$moduleName/pkg/server/buildinfo.Version=dev' "
 task="go run -ldflags \"$ldflags\" main.go start"
-
-# run asset pipeline in the background
-(cd "$serverPath/assets/" && "$serverPath/assets/scripts/sass.sh" ) &
 
 (
   cd "$basePath/pkg/watcher" && \

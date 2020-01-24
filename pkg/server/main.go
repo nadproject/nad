@@ -25,17 +25,19 @@ import (
 	"net/http"
 
 	"github.com/nadproject/nad/pkg/clock"
-	"github.com/nadproject/nad/pkg/server/build"
+	"github.com/nadproject/nad/pkg/server/buildinfo"
 	"github.com/nadproject/nad/pkg/server/config"
 	"github.com/nadproject/nad/pkg/server/models"
 	"github.com/nadproject/nad/pkg/server/routes"
 )
 
 var pageDir = flag.String("pageDir", "views", "the path to a directory containing page templates")
+var staticDir = flag.String("staticDir", "./static/", "the path to the static directory ")
 
 func startCmd() {
 	cfg := config.Load()
 	cfg.SetPageTemplateDir(*pageDir)
+	cfg.SetStaticDir(*staticDir)
 
 	services, err := models.NewServices(
 		models.WithGorm("postgres", cfg.DB.GetConnectionStr()),
@@ -55,12 +57,12 @@ func startCmd() {
 
 	cl := clock.New()
 	r := routes.New(cfg, services, cl)
-	log.Printf("nad version %s is running on port %s", build.Version, cfg.Port)
+	log.Printf("nad version %s is running on port %s", buildinfo.Version, cfg.Port)
 	log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), r))
 }
 
 func versionCmd() {
-	fmt.Printf("nad-server-%s\n", build.Version)
+	fmt.Printf("nad-server-%s\n", buildinfo.Version)
 }
 
 func rootCmd() {

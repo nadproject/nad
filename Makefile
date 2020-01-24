@@ -94,15 +94,7 @@ dev-server:
 .PHONY: dev-server
 
 ## build
-build-web:
-ifndef version
-	$(error version is required. Usage: make version=0.1.0 build-web)
-endif
-	@echo "==> building web"
-	@VERSION=${version} ${currentDir}/scripts/web/build-prod.sh
-.PHONY: build-web
-
-build-server: build-web
+build-server:
 ifndef version
 	$(error version is required. Usage: make version=0.1.0 build-server)
 endif

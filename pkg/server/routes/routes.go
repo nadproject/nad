@@ -71,7 +71,7 @@ func New(cfg config.Config, s *models.Services, cl clock.Clock) http.Handler {
 	registerRoutes(apiRouter, apiMw, cfg, s, apiRoutes)
 
 	// static
-	staticHandler := http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))
+	staticHandler := http.StripPrefix("/static/", http.FileServer(http.Dir(cfg.StaticDir)))
 	router.PathPrefix("/static/").Handler(staticHandler)
 
 	// catch-all
