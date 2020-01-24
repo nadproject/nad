@@ -10,17 +10,15 @@ import (
 	"strings"
 
 	"github.com/gorilla/csrf"
-	"github.com/nadproject/nad/pkg/server/build"
+	"github.com/nadproject/nad/pkg/server/buildinfo"
 	"github.com/nadproject/nad/pkg/server/context"
 	"github.com/nadproject/nad/pkg/server/log"
 	"github.com/pkg/errors"
 )
 
 const (
-	// LayoutDir is the layout directory
-	LayoutDir string = "views/layouts/"
-	// TemplateExt is the template extension
-	TemplateExt string = ".gohtml"
+	// templateExt is the template extension
+	templateExt string = ".gohtml"
 )
 
 const (
@@ -46,14 +44,14 @@ func (c Config) getLayout() string {
 func NewView(baseDir string, c Config, files ...string) *View {
 	addTemplatePath(baseDir, files)
 	addTemplateExt(files)
-	files = append(files, layoutFiles()...)
+	files = append(files, layoutFiles(baseDir)...)
 
-	t, err := template.New("").Funcs(template.FuncMap{
+	t, err := template.New(c.Title).Funcs(template.FuncMap{
 		"csrfField": func() (template.HTML, error) {
 			return "", errors.New("csrfField is not implemented")
 		},
 		"css": func() []string {
-			return strings.Split(build.CSSFiles, ",")
+			return strings.Split(buildinfo.CSSFiles, ",")
 		},
 		"title": func() string {
 			if c.Title != "" {
@@ -117,7 +115,7 @@ func (v *View) Render(w http.ResponseWriter, r *http.Request, data interface{}) 
 	})
 
 	if err := tpl.ExecuteTemplate(&buf, v.Layout, vd); err != nil {
-		log.ErrorWrap(err, fmt.Sprintf("executing a template %s", v.Template.Name()))
+		log.ErrorWrap(err, fmt.Sprintf("executing a template '%s'", v.Template.Name()))
 		http.Error(w, AlertMsgGeneric, http.StatusInternalServerError)
 		return
 	}
@@ -126,11 +124,14 @@ func (v *View) Render(w http.ResponseWriter, r *http.Request, data interface{}) 
 
 // layoutFiles returns a slice of strings representing
 // the layout files used in our application.
-func layoutFiles() []string {
-	files, err := filepath.Glob(LayoutDir + "*" + TemplateExt)
+func layoutFiles(baseDir string) []string {
+	pattern := fmt.Sprintf("%s/layouts/*%s", baseDir, templateExt)
+
+	files, err := filepath.Glob(pattern)
 	if err != nil {
 		panic(err)
 	}
+
 	return files
 }
 
@@ -144,12 +145,12 @@ func addTemplatePath(baseDir string, files []string) {
 
 // addTemplateExt takes in a slice of strings
 // representing file paths for templates and it appends
-// the TemplateExt extension to each string in the slice
+// the templateExt extension to each string in the slice
 //
 // Eg the input {"home"} would result in the output
-// {"home.gohtml"} if TemplateExt == ".gohtml"
+// {"home.gohtml"} if templateExt == ".gohtml"
 func addTemplateExt(files []string) {
 	for i, f := range files {
-		files[i] = f + TemplateExt
+		files[i] = f + templateExt
 	}
 }

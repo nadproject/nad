@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-set -eux
+set -ex
 
 dir=$(dirname "${BASH_SOURCE[0]}")
-serverDir="$dir/../.."
+serverDir="$dir/../../.."
 outputDir="$serverDir/static"
-inputDir="$dir/../scss"
+inputDir="$dir/../../scss"
 
 rm -rf "${outputDir:?}/*"
 
@@ -15,8 +15,7 @@ task="npx node-sass \
 
 # compile first then watch
 eval "$task $inputDir"
-eval "$task --watch $inputDir"
 
-# hash="$(shasum -a 256 "$outputDir")"
-# hash="${hash:0:12}"
-# mv "$outputDir/nad.css" "$outputDir/nad-$hash.css"
+if [[ $1 == 'true' ]]; then
+  eval "$task --watch $inputDir"
+fi

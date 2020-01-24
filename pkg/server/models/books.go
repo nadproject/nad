@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/jinzhu/gorm"
@@ -69,6 +70,7 @@ func newBookValidator(ndb BookDB) *bookValidator {
 
 // BookSearchParams is a group of paramters for searching books
 type BookSearchParams struct {
+	Name   string
 	UserID uint
 	Offset int
 	Limit  int
@@ -76,8 +78,17 @@ type BookSearchParams struct {
 
 // Search looks up books with the given params
 func (bg *bookGorm) Search(p BookSearchParams) ([]Book, error) {
+
 	var ret []Book
-	err := Find(bg.db.Debug().Where("user_id = ? AND NOT deleted", p.UserID).Order("name ASC").Offset(p.Offset).Limit(p.Limit), &ret)
+
+	conn := bg.db.Where("user_id = ? AND NOT deleted", p.UserID)
+
+	if p.Name != "" {
+		part := fmt.Sprintf("%%%s%%", p.Name)
+		conn = conn.Where("LOWER(name) LIKE ?", part)
+	}
+
+	err := Find(conn.Order("name ASC"), &ret)
 
 	return ret, err
 }

@@ -55,7 +55,8 @@ func New(cfg config.Config, s *models.Services, cl clock.Clock) http.Handler {
 		{"PATCH", "/v1/notes/{noteUUID}", apiRequireUserMw(http.HandlerFunc(notesC.V1Update), s.User), true},
 		{"DELETE", "/v1/notes/{noteUUID}", apiRequireUserMw(http.HandlerFunc(notesC.V1Delete), s.User), false},
 
-		{"GET", "/v1/books/{bookUUID}", apiRequireUserMw(http.HandlerFunc(booksC.V1Get), s.User), true},
+		{"GET", "/v1/books", apiRequireUserMw(http.HandlerFunc(booksC.V1Index), s.User), true},
+		{"GET", "/v1/books/{bookUUID}", apiRequireUserMw(http.HandlerFunc(booksC.V1Show), s.User), true},
 		{"POST", "/v1/books", apiRequireUserMw(http.HandlerFunc(booksC.V1Create), s.User), true},
 		{"PATCH", "/v1/books/{bookUUID}", apiRequireUserMw(http.HandlerFunc(booksC.V1Update), s.User), true},
 		{"DELETE", "/v1/books/{bookUUID}", apiRequireUserMw(http.HandlerFunc(booksC.V1Delete), s.User), false},
@@ -70,7 +71,7 @@ func New(cfg config.Config, s *models.Services, cl clock.Clock) http.Handler {
 	registerRoutes(apiRouter, apiMw, cfg, s, apiRoutes)
 
 	// static
-	staticHandler := http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))
+	staticHandler := http.StripPrefix("/static/", http.FileServer(http.Dir(cfg.StaticDir)))
 	router.PathPrefix("/static/").Handler(staticHandler)
 
 	// catch-all

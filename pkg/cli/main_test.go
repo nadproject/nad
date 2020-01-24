@@ -36,8 +36,8 @@ import (
 var binaryName = "test-nad"
 
 var opts = testutils.RunNADCmdOptions{
-	HomeDir:  "./tmp",
-	NADDir: "./tmp/.nad",
+	HomeDir: "./tmp",
+	NADDir:  "./tmp/.nad",
 }
 
 func TestMain(m *testing.M) {
@@ -293,20 +293,21 @@ func TestEditBook(t *testing.T) {
 		var b1, b2 database.Book
 		var n1 database.Note
 		database.MustScan(t, "getting b1",
-			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "js-book-uuid"), &b1.UUID, &b1.Label, &b1.USN, &b1.Dirty)
+
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "js-book-uuid"), &b1.UUID, &b1.Name, &b1.USN, &b1.Dirty)
 		database.MustScan(t, "getting b2",
-			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "linux-book-uuid"), &b2.UUID, &b2.Label, &b2.USN, &b2.Dirty)
+			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "linux-book-uuid"), &b2.UUID, &b2.Name, &b2.USN, &b2.Dirty)
 		database.MustScan(t, "getting n1",
 			db.QueryRow("SELECT uuid, body, added_on, deleted, dirty, usn FROM notes WHERE book_uuid = ? AND uuid = ?", "js-book-uuid", "43827b9a-c2b0-4c06-a290-97991c896653"),
 			&n1.UUID, &n1.Body, &n1.AddedOn, &n1.Deleted, &n1.Dirty, &n1.USN)
 
 		assert.Equal(t, b1.UUID, "js-book-uuid", "b1 should have UUID")
-		assert.Equal(t, b1.Label, "js-edited", "b1 Label mismatch")
+		assert.Equal(t, b1.Name, "js-edited", "b1 Name mismatch")
 		assert.Equal(t, b1.USN, 0, "b1 USN mismatch")
 		assert.Equal(t, b1.Dirty, true, "b1 Dirty mismatch")
 
 		assert.Equal(t, b2.UUID, "linux-book-uuid", "b2 should have UUID")
-		assert.Equal(t, b2.Label, "linux", "b2 Label mismatch")
+		assert.Equal(t, b2.Name, "linux", "b2 Name mismatch")
 		assert.Equal(t, b2.USN, 0, "b2 USN mismatch")
 		assert.Equal(t, b2.Dirty, false, "b2 Dirty mismatch")
 
@@ -361,10 +362,11 @@ func TestRemoveNote(t *testing.T) {
 			var n1, n2, n3 database.Note
 			database.MustScan(t, "getting b1",
 				db.QueryRow("SELECT name, deleted, usn FROM books WHERE uuid = ?", "js-book-uuid"),
-				&b1.Label, &b1.Deleted, &b1.USN)
+
+				&b1.Name, &b1.Deleted, &b1.USN)
 			database.MustScan(t, "getting b2",
 				db.QueryRow("SELECT name, deleted, usn FROM books WHERE uuid = ?", "linux-book-uuid"),
-				&b2.Label, &b2.Deleted, &b2.USN)
+				&b2.Name, &b2.Deleted, &b2.USN)
 			database.MustScan(t, "getting n1",
 				db.QueryRow("SELECT uuid, body, added_on, deleted, dirty, usn FROM notes WHERE book_uuid = ? AND uuid = ?", "js-book-uuid", "f0d0fbb7-31ff-45ae-9f0f-4e429c0c797f"),
 				&n1.UUID, &n1.Body, &n1.AddedOn, &n1.Deleted, &n1.Dirty, &n1.USN)
@@ -375,12 +377,12 @@ func TestRemoveNote(t *testing.T) {
 				db.QueryRow("SELECT uuid, body, added_on, deleted, dirty, usn FROM notes WHERE book_uuid = ? AND uuid = ?", "linux-book-uuid", "3e065d55-6d47-42f2-a6bf-f5844130b2d2"),
 				&n3.UUID, &n3.Body, &n3.AddedOn, &n3.Deleted, &n3.Dirty, &n3.USN)
 
-			assert.Equal(t, b1.Label, "js", "b1 name mismatch")
+			assert.Equal(t, b1.Name, "js", "b1 name mismatch")
 			assert.Equal(t, b1.Deleted, false, "b1 deleted mismatch")
 			assert.Equal(t, b1.Dirty, false, "b1 Dirty mismatch")
 			assert.Equal(t, b1.USN, 111, "b1 usn mismatch")
 
-			assert.Equal(t, b2.Label, "linux", "b2 name mismatch")
+			assert.Equal(t, b2.Name, "linux", "b2 name mismatch")
 			assert.Equal(t, b2.Deleted, false, "b2 deleted mismatch")
 			assert.Equal(t, b2.Dirty, false, "b2 Dirty mismatch")
 			assert.Equal(t, b2.USN, 122, "b2 usn mismatch")
@@ -449,10 +451,11 @@ func TestRemoveBook(t *testing.T) {
 			var n1, n2, n3 database.Note
 			database.MustScan(t, "getting b1",
 				db.QueryRow("SELECT name, dirty, deleted, usn FROM books WHERE uuid = ?", "js-book-uuid"),
-				&b1.Label, &b1.Dirty, &b1.Deleted, &b1.USN)
+
+				&b1.Name, &b1.Dirty, &b1.Deleted, &b1.USN)
 			database.MustScan(t, "getting b2",
 				db.QueryRow("SELECT name, dirty, deleted, usn FROM books WHERE uuid = ?", "linux-book-uuid"),
-				&b2.Label, &b2.Dirty, &b2.Deleted, &b2.USN)
+				&b2.Name, &b2.Dirty, &b2.Deleted, &b2.USN)
 			database.MustScan(t, "getting n1",
 				db.QueryRow("SELECT uuid, body, added_on, dirty, deleted, usn FROM notes WHERE book_uuid = ? AND uuid = ?", "js-book-uuid", "f0d0fbb7-31ff-45ae-9f0f-4e429c0c797f"),
 				&n1.UUID, &n1.Body, &n1.AddedOn, &n1.Deleted, &n1.Dirty, &n1.USN)
@@ -463,12 +466,12 @@ func TestRemoveBook(t *testing.T) {
 				db.QueryRow("SELECT uuid, body, added_on, dirty, deleted, usn FROM notes WHERE book_uuid = ? AND uuid = ?", "linux-book-uuid", "3e065d55-6d47-42f2-a6bf-f5844130b2d2"),
 				&n3.UUID, &n3.Body, &n3.AddedOn, &n3.Deleted, &n3.Dirty, &n3.USN)
 
-			assert.NotEqual(t, b1.Label, "js", "b1 name mismatch")
+			assert.NotEqual(t, b1.Name, "js", "b1 name mismatch")
 			assert.Equal(t, b1.Dirty, true, "b1 Dirty mismatch")
 			assert.Equal(t, b1.Deleted, true, "b1 deleted mismatch")
 			assert.Equal(t, b1.USN, 111, "b1 usn mismatch")
 
-			assert.Equal(t, b2.Label, "linux", "b2 name mismatch")
+			assert.Equal(t, b2.Name, "linux", "b2 name mismatch")
 			assert.Equal(t, b2.Dirty, false, "b2 Dirty mismatch")
 			assert.Equal(t, b2.Deleted, false, "b2 deleted mismatch")
 			assert.Equal(t, b2.USN, 122, "b2 usn mismatch")

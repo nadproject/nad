@@ -4,7 +4,8 @@
 
 set -eux
 
-basePath="$GOPATH/src/github.com/nadproject/nad/pkg/cli"
+dir=$(dirname "${BASH_SOURCE[0]}")
+basePath="$dir/../../pkg/cli"
 
 # clear tmp dir in case not properly torn down
 rm -rf "$basePath/tmp"

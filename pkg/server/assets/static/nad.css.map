@@ -1,9 +1,0 @@
-{
-	"version": 3,
-	"file": "nad.css",
-	"sources": [
-		"../scss/nad.scss"
-	],
-	"names": [],
-	"mappings": "AAAA,AAAA,IAAI,CAAC;EAEH,MAAM,EAAE,CAAC,GACV"
-}
