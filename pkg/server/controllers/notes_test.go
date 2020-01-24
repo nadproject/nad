@@ -57,7 +57,7 @@ func TestNotesV1Create(t *testing.T) {
 
 	assert.NotEqual(t, noteRecord.UUID, "", "note uuid should have been generated")
 	assert.Equal(t, noteRecord.BookUUID, b1.UUID, "note book_uuid mismatch")
-	assert.Equal(t, noteRecord.Body, "note content", "note content mismatch")
+	assert.Equal(t, noteRecord.Content, "note content", "note content mismatch")
 	assert.Equal(t, noteRecord.USN, 102, "note usn mismatch")
 }
 
@@ -239,7 +239,7 @@ func TestNotesV1Update(t *testing.T) {
 				UserID:   user.ID,
 				UUID:     tc.noteUUID,
 				BookUUID: tc.noteBookUUID,
-				Body:     tc.noteBody,
+				Content:  tc.noteBody,
 				Deleted:  tc.noteDeleted,
 				Public:   tc.notePublic,
 				AddedOn:  1579818739000000,
@@ -271,7 +271,7 @@ func TestNotesV1Update(t *testing.T) {
 			assert.Equalf(t, noteCount, 1, "note count mismatch")
 
 			assert.Equal(t, noteRecord.UUID, tc.noteUUID, "note uuid mismatch for test case")
-			assert.Equal(t, noteRecord.Body, tc.expectedNoteBody, "note content mismatch for test case")
+			assert.Equal(t, noteRecord.Content, tc.expectedNoteBody, "note content mismatch for test case")
 			assert.Equal(t, noteRecord.BookUUID, tc.expectedNoteBookUUID, "note book_uuid mismatch for test case")
 			// TODO: implement public notes
 			// assert.Equal(t, noteRecord.Public, tc.expectedNotePublic, "note public mismatch for test case")
@@ -327,7 +327,7 @@ func TestNotesV1Delete(t *testing.T) {
 			note := models.Note{
 				UserID:   user.ID,
 				BookUUID: b1.UUID,
-				Body:     tc.content,
+				Content:  tc.content,
 				Deleted:  tc.deleted,
 				USN:      tc.originalUSN,
 				AddedOn:  1579818739000000,
@@ -359,7 +359,7 @@ func TestNotesV1Delete(t *testing.T) {
 			assert.Equalf(t, noteCount, 1, "note count mismatch")
 
 			assert.Equal(t, noteRecord.UUID, note.UUID, "note uuid mismatch for test case")
-			assert.Equal(t, noteRecord.Body, "", "note content mismatch for test case")
+			assert.Equal(t, noteRecord.Content, "", "note content mismatch for test case")
 			assert.Equal(t, noteRecord.Deleted, true, "note deleted mismatch for test case")
 			assert.Equal(t, noteRecord.BookUUID, note.BookUUID, "note book_uuid mismatch for test case")
 			assert.Equal(t, noteRecord.UserID, note.UserID, "note user_id mismatch for test case")

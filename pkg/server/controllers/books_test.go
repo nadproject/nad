@@ -179,7 +179,7 @@ func TestBooksV1Delete(t *testing.T) {
 			n1 := models.Note{
 				UserID:   user.ID,
 				BookUUID: b1.UUID,
-				Body:     "n1 content",
+				Content:  "n1 content",
 				USN:      4,
 				AddedOn:  1579750817,
 			}
@@ -187,7 +187,7 @@ func TestBooksV1Delete(t *testing.T) {
 			n2 := models.Note{
 				UserID:   user.ID,
 				BookUUID: b2.UUID,
-				Body:     n2Body,
+				Content:  n2Body,
 				USN:      5,
 				Deleted:  tc.deleted,
 				AddedOn:  1579750817,
@@ -196,7 +196,7 @@ func TestBooksV1Delete(t *testing.T) {
 			n3 := models.Note{
 				UserID:   user.ID,
 				BookUUID: b2.UUID,
-				Body:     n3Body,
+				Content:  n3Body,
 				USN:      6,
 				Deleted:  tc.deleted,
 				AddedOn:  1579750817,
@@ -205,7 +205,7 @@ func TestBooksV1Delete(t *testing.T) {
 			n4 := models.Note{
 				UserID:   user.ID,
 				BookUUID: b2.UUID,
-				Body:     "",
+				Content:  "",
 				USN:      7,
 				Deleted:  true,
 				AddedOn:  1579750817,
@@ -214,7 +214,7 @@ func TestBooksV1Delete(t *testing.T) {
 			n5 := models.Note{
 				UserID:   anotherUser.ID,
 				BookUUID: b3.UUID,
-				Body:     "n5 content",
+				Content:  "n5 content",
 				USN:      8,
 				AddedOn:  1579750817,
 			}
@@ -262,24 +262,24 @@ func TestBooksV1Delete(t *testing.T) {
 
 			assert.Equal(t, n1Record.USN, n1.USN, "n1 usn mismatch")
 			assert.Equal(t, n1Record.Deleted, false, "n1 deleted mismatch")
-			assert.Equal(t, n1Record.Body, n1.Body, "n1 content mismatch")
+			assert.Equal(t, n1Record.Content, n1.Content, "n1 content mismatch")
 
 			assert.Equal(t, n2Record.USN, tc.expectedN2USN, "n2 usn mismatch")
 			assert.Equal(t, n2Record.Deleted, true, "n2 deleted mismatch")
-			assert.Equal(t, n2Record.Body, "", "n2 content mismatch")
+			assert.Equal(t, n2Record.Content, "", "n2 content mismatch")
 
 			assert.Equal(t, n3Record.USN, tc.expectedN3USN, "n3 usn mismatch")
 			assert.Equal(t, n3Record.Deleted, true, "n3 deleted mismatch")
-			assert.Equal(t, n3Record.Body, "", "n3 content mismatch")
+			assert.Equal(t, n3Record.Content, "", "n3 content mismatch")
 
 			// if already deleted, usn should remain the same and hence should not contribute to bumping the max_usn
 			assert.Equal(t, n4Record.USN, n4.USN, "n4 usn mismatch")
 			assert.Equal(t, n4Record.Deleted, true, "n4 deleted mismatch")
-			assert.Equal(t, n4Record.Body, "", "n4 content mismatch")
+			assert.Equal(t, n4Record.Content, "", "n4 content mismatch")
 
 			assert.Equal(t, n5Record.USN, n5.USN, "n5 usn mismatch")
 			assert.Equal(t, n5Record.Deleted, false, "n5 deleted mismatch")
-			assert.Equal(t, n5Record.Body, n5.Body, "n5 content mismatch")
+			assert.Equal(t, n5Record.Content, n5.Content, "n5 content mismatch")
 		})
 	}
 }

@@ -129,7 +129,7 @@ func (n *Notes) create(r *http.Request) (models.Note, error) {
 		BookUUID: form.GetBookUUID(),
 		AddedOn:  form.GetAddedOn(),
 		EditedOn: form.GetEditedOn(),
-		Body:     form.GetContent(),
+		Content:  form.GetContent(),
 	}
 	if err := n.ns.Create(&note, tx); err != nil {
 		tx.Rollback()
@@ -185,7 +185,7 @@ func (n *Notes) update(r *http.Request) (models.Note, error) {
 		note.BookUUID = form.GetBookUUID()
 	}
 	if form.Content != nil {
-		note.Body = form.GetContent()
+		note.Content = form.GetContent()
 	}
 	note.USN = nextUSN
 	note.EditedOn = n.c.Now().UnixNano()
@@ -232,7 +232,7 @@ func removeNote(tx *gorm.DB, userID uint, noteUUID string, ns models.NoteService
 
 	note.USN = nextUSN
 	note.Deleted = true
-	note.Body = ""
+	note.Content = ""
 
 	err = ns.Update(note, tx)
 	if err != nil {

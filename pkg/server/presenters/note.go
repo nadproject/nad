@@ -29,7 +29,7 @@ type Note struct {
 	UUID      string    `json:"uuid"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-	Body      string    `json:"content"`
+	Content   string    `json:"content"`
 	AddedOn   int64     `json:"added_on"`
 	Public    bool      `json:"public"`
 	USN       int       `json:"usn"`
@@ -55,7 +55,7 @@ func PresentNote(note models.Note) Note {
 		UUID:      note.UUID,
 		CreatedAt: FormatTS(note.CreatedAt),
 		UpdatedAt: FormatTS(note.UpdatedAt),
-		Body:      note.Body,
+		Content:   note.Content,
 		AddedOn:   note.AddedOn,
 		Public:    note.Public,
 		USN:       note.USN,

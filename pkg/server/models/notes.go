@@ -13,7 +13,7 @@ type Note struct {
 	User      User   `json:"user"`
 	UserID    uint   `json:"user_id" gorm:"index"`
 	BookUUID  string `json:"book_uuid" gorm:"index;type:uuid"`
-	Body      string `json:"content"`
+	Content   string `json:"content"`
 	AddedOn   int64  `json:"added_on"`
 	EditedOn  int64  `json:"edited_on"`
 	TSV       string `json:"-" gorm:"type:tsvector"`

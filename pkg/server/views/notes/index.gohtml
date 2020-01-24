@@ -1,8 +1,18 @@
 {{define "yield"}}
+
 <div>
-your notes are:
-  {{range .Notes}}
-    {{ .UUID }}
-  {{end}}
+  <h2>
+    Your notes
+  </h2>
+
+  <ul>
+    {{range .Notes}}
+      <li>
+        {{ .UUID }}
+        {{ .Content }}
+      </li>
+    {{end}}
+  </ul>
 </div>
+
 {{end}}
