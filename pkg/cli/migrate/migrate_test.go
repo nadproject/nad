@@ -19,21 +19,13 @@
 package migrate
 
 import (
-	"encoding/json"
 	"fmt"
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/nadproject/nad/pkg/assert"
 	"github.com/nadproject/nad/pkg/cli/consts"
 	"github.com/nadproject/nad/pkg/cli/context"
 	"github.com/nadproject/nad/pkg/cli/database"
-	"github.com/nadproject/nad/pkg/cli/testutils"
-	"github.com/nadproject/nad/pkg/cli/utils"
 	"github.com/pkg/errors"
 )
 

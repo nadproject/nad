@@ -57,12 +57,12 @@ func TestProcessFragments(t *testing.T) {
 			},
 			Books: []client.SyncFragBook{
 				{
-					UUID:  "e8ac6f25-d95b-435a-9fae-094f7506a5ac",
-					Label: "foo",
+					UUID: "e8ac6f25-d95b-435a-9fae-094f7506a5ac",
+					Name: "foo",
 				},
 				{
-					UUID:  "05fd8b95-ddcd-4071-9380-4358ffb8a436",
-					Label: "foo-bar-baz-1000",
+					UUID: "05fd8b95-ddcd-4071-9380-4358ffb8a436",
+					Name: "foo-bar-baz-1000",
 				},
 			},
 			ExpungedNotes: []string{},
@@ -89,12 +89,12 @@ func TestProcessFragments(t *testing.T) {
 		},
 		Books: map[string]client.SyncFragBook{
 			"e8ac6f25-d95b-435a-9fae-094f7506a5ac": {
-				UUID:  "e8ac6f25-d95b-435a-9fae-094f7506a5ac",
-				Label: "foo",
+				UUID: "e8ac6f25-d95b-435a-9fae-094f7506a5ac",
+				Name: "foo",
 			},
 			"05fd8b95-ddcd-4071-9380-4358ffb8a436": {
-				UUID:  "05fd8b95-ddcd-4071-9380-4358ffb8a436",
-				Label: "foo-bar-baz-1000",
+				UUID: "05fd8b95-ddcd-4071-9380-4358ffb8a436",
+				Name: "foo-bar-baz-1000",
 			},
 		},
 		ExpungedNotes:  map[string]bool{},
@@ -371,7 +371,7 @@ func TestSyncDeleteBook(t *testing.T) {
 		var b1 database.Book
 		database.MustScan(t, "getting b1 for test case",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
-			&b1.UUID, &b1.Label, &b1.USN, &b1.Dirty)
+			&b1.UUID, &b1.Name, &b1.USN, &b1.Dirty)
 
 		// execute
 		tx, err := db.Begin()
@@ -397,10 +397,10 @@ func TestSyncDeleteBook(t *testing.T) {
 		var b1Record database.Book
 		database.MustScan(t, "getting b1 for test case",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
-			&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Dirty)
+			&b1Record.UUID, &b1Record.Name, &b1Record.USN, &b1Record.Dirty)
 
 		assert.Equal(t, b1Record.UUID, b1.UUID, "b1 UUID mismatch for test case")
-		assert.Equal(t, b1Record.Label, b1.Label, "b1 Label mismatch for test case")
+		assert.Equal(t, b1Record.Name, b1.Name, "b1 Name mismatch for test case")
 		assert.Equal(t, b1Record.USN, b1.USN, "b1 USN mismatch for test case")
 		assert.Equal(t, b1Record.Dirty, b1.Dirty, "b1 Dirty mismatch for test case")
 	})
@@ -418,7 +418,7 @@ func TestSyncDeleteBook(t *testing.T) {
 		var b1 database.Book
 		database.MustScan(t, "getting b1 for test case",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", b1UUID),
-			&b1.UUID, &b1.Label, &b1.USN, &b1.Dirty)
+			&b1.UUID, &b1.Name, &b1.USN, &b1.Dirty)
 		var n1 database.Note
 		database.MustScan(t, "getting n1 for test case",
 			db.QueryRow("SELECT uuid, book_uuid, usn, added_on, edited_on, body,  deleted, dirty FROM notes WHERE uuid = ?", "n1-uuid"),
@@ -449,14 +449,14 @@ func TestSyncDeleteBook(t *testing.T) {
 		var b1Record database.Book
 		database.MustScan(t, "getting b1Record for test case",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", b1UUID),
-			&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Dirty)
+			&b1Record.UUID, &b1Record.Name, &b1Record.USN, &b1Record.Dirty)
 		var n1Record database.Note
 		database.MustScan(t, "getting n1 for test case",
 			db.QueryRow("SELECT uuid, book_uuid, usn, added_on, edited_on, body, deleted, dirty FROM notes WHERE uuid = ?", n1.UUID),
 			&n1Record.UUID, &n1Record.BookUUID, &n1Record.USN, &n1Record.AddedOn, &n1Record.EditedOn, &n1Record.Body, &n1Record.Deleted, &n1Record.Dirty)
 
 		assert.Equal(t, b1Record.UUID, b1.UUID, "b1 UUID mismatch for test case")
-		assert.Equal(t, b1Record.Label, b1.Label, "b1 Label mismatch for test case")
+		assert.Equal(t, b1Record.Name, b1.Name, "b1 Name mismatch for test case")
 		assert.Equal(t, b1Record.USN, b1.USN, "b1 USN mismatch for test case")
 		assert.Equal(t, b1Record.Dirty, b1.Dirty, "b1 Dirty mismatch for test case")
 
@@ -486,7 +486,7 @@ func TestSyncDeleteBook(t *testing.T) {
 		var b2 database.Book
 		database.MustScan(t, "getting b2 for test case",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", b2UUID),
-			&b2.UUID, &b2.Label, &b2.USN, &b2.Dirty)
+			&b2.UUID, &b2.Name, &b2.USN, &b2.Dirty)
 		var n2 database.Note
 		database.MustScan(t, "getting n2 for test case",
 			db.QueryRow("SELECT uuid, book_uuid, usn, added_on, edited_on, body,  deleted, dirty FROM notes WHERE uuid = ?", "n2-uuid"),
@@ -516,14 +516,14 @@ func TestSyncDeleteBook(t *testing.T) {
 		var b2Record database.Book
 		database.MustScan(t, "getting b2 for test case",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", b2UUID),
-			&b2Record.UUID, &b2Record.Label, &b2Record.USN, &b2Record.Dirty)
+			&b2Record.UUID, &b2Record.Name, &b2Record.USN, &b2Record.Dirty)
 		var n2Record database.Note
 		database.MustScan(t, "getting n2 for test case",
 			db.QueryRow("SELECT uuid, book_uuid, usn, added_on, edited_on, body,  deleted, dirty FROM notes WHERE uuid = ?", n2.UUID),
 			&n2Record.UUID, &n2Record.BookUUID, &n2Record.USN, &n2Record.AddedOn, &n2Record.EditedOn, &n2Record.Body, &n2Record.Deleted, &n2Record.Dirty)
 
 		assert.Equal(t, b2Record.UUID, b2.UUID, "b2 UUID mismatch for test case")
-		assert.Equal(t, b2Record.Label, b2.Label, "b2 Label mismatch for test case")
+		assert.Equal(t, b2Record.Name, b2.Name, "b2 Name mismatch for test case")
 		assert.Equal(t, b2Record.USN, b2.USN, "b2 USN mismatch for test case")
 		assert.Equal(t, b2Record.Dirty, b2.Dirty, "b2 Dirty mismatch for test case")
 
@@ -570,14 +570,14 @@ func TestSyncDeleteBook(t *testing.T) {
 		var b1Record database.Book
 		database.MustScan(t, "getting b1 for test case",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", b1UUID),
-			&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Dirty)
+			&b1Record.UUID, &b1Record.Name, &b1Record.USN, &b1Record.Dirty)
 		var n1Record database.Note
 		database.MustScan(t, "getting n1 for test case",
 			db.QueryRow("SELECT uuid, book_uuid, usn, added_on, body,deleted, dirty FROM notes WHERE uuid = ?", "n1-uuid"),
 			&n1Record.UUID, &n1Record.BookUUID, &n1Record.USN, &n1Record.AddedOn, &n1Record.Body, &n1Record.Deleted, &n1Record.Dirty)
 
 		assert.Equal(t, b1Record.UUID, b1UUID, "b1 UUID mismatch for test case")
-		assert.Equal(t, b1Record.Label, "b1-name", "b1 Label mismatch for test case")
+		assert.Equal(t, b1Record.Name, "b1-name", "b1 Name mismatch for test case")
 		assert.Equal(t, b1Record.Dirty, true, "b1 Dirty mismatch for test case")
 
 		assert.Equal(t, n1Record.UUID, "n1-uuid", "n1 UUID mismatch for test case")
@@ -904,7 +904,7 @@ func TestFullSyncBook(t *testing.T) {
 			UUID:    b2UUID,
 			USN:     1,
 			AddedOn: 1541108743,
-			Label:   "b2-name",
+			Name:    "b2-name",
 			Deleted: false,
 		}
 
@@ -926,20 +926,20 @@ func TestFullSyncBook(t *testing.T) {
 		var b1, b2 database.Book
 		database.MustScan(t, "getting b1",
 			db.QueryRow("SELECT uuid, usn, name, dirty, deleted FROM books WHERE uuid = ?", b1UUID),
-			&b1.UUID, &b1.USN, &b1.Label, &b1.Dirty, &b1.Deleted)
+			&b1.UUID, &b1.USN, &b1.Name, &b1.Dirty, &b1.Deleted)
 		database.MustScan(t, "getting b2",
 			db.QueryRow("SELECT uuid, usn, name, dirty, deleted FROM books WHERE uuid = ?", b2UUID),
-			&b2.UUID, &b2.USN, &b2.Label, &b2.Dirty, &b2.Deleted)
+			&b2.UUID, &b2.USN, &b2.Name, &b2.Dirty, &b2.Deleted)
 
 		assert.Equal(t, b1.UUID, b1UUID, "b1 UUID mismatch")
 		assert.Equal(t, b1.USN, 555, "b1 USN mismatch")
-		assert.Equal(t, b1.Label, "b1-name", "b1 Label mismatch")
+		assert.Equal(t, b1.Name, "b1-name", "b1 Name mismatch")
 		assert.Equal(t, b1.Dirty, true, "b1 Dirty mismatch")
 		assert.Equal(t, b1.Deleted, false, "b1 Deleted mismatch")
 
 		assert.Equal(t, b2.UUID, b2UUID, "b2 UUID mismatch")
 		assert.Equal(t, b2.USN, b.USN, "b2 USN mismatch")
-		assert.Equal(t, b2.Label, b.Label, "b2 Label mismatch")
+		assert.Equal(t, b2.Name, b.Name, "b2 Name mismatch")
 		assert.Equal(t, b2.Dirty, false, "b2 Dirty mismatch")
 		assert.Equal(t, b2.Deleted, b.Deleted, "b2 Deleted mismatch")
 	})
@@ -1042,7 +1042,7 @@ func TestFullSyncBook(t *testing.T) {
 				b := client.SyncFragBook{
 					UUID:    b1UUID,
 					USN:     tc.serverUSN,
-					Label:   tc.serverLabel,
+					Name:    tc.serverLabel,
 					Deleted: tc.serverDeleted,
 				}
 
@@ -1064,11 +1064,11 @@ func TestFullSyncBook(t *testing.T) {
 				var b1 database.Book
 				database.MustScan(t, "getting b1",
 					db.QueryRow("SELECT uuid, usn, name, dirty, deleted FROM books WHERE uuid = ?", b1UUID),
-					&b1.UUID, &b1.USN, &b1.Label, &b1.Dirty, &b1.Deleted)
+					&b1.UUID, &b1.USN, &b1.Name, &b1.Dirty, &b1.Deleted)
 
 				assert.Equal(t, b1.UUID, b1UUID, fmt.Sprintf("b1 UUID mismatch for idx %d", idx))
 				assert.Equal(t, b1.USN, tc.expectedUSN, fmt.Sprintf("b1 USN mismatch for test case %d", idx))
-				assert.Equal(t, b1.Label, tc.expectedLabel, fmt.Sprintf("b1 Label mismatch for test case %d", idx))
+				assert.Equal(t, b1.Name, tc.expectedLabel, fmt.Sprintf("b1 Name mismatch for test case %d", idx))
 				assert.Equal(t, b1.Dirty, tc.clientDirty, fmt.Sprintf("b1 Dirty mismatch for test case %d", idx))
 				assert.Equal(t, b1.Deleted, tc.expectedDeleted, fmt.Sprintf("b1 Deleted mismatch for test case %d", idx))
 			}()
@@ -1316,7 +1316,7 @@ func TestStepSyncBook(t *testing.T) {
 			UUID:    b2UUID,
 			USN:     1,
 			AddedOn: 1541108743,
-			Label:   "b2-name",
+			Name:    "b2-name",
 			Deleted: false,
 		}
 
@@ -1338,20 +1338,20 @@ func TestStepSyncBook(t *testing.T) {
 		var b1, b2 database.Book
 		database.MustScan(t, "getting b1",
 			db.QueryRow("SELECT uuid, usn, name, dirty, deleted FROM books WHERE uuid = ?", b1UUID),
-			&b1.UUID, &b1.USN, &b1.Label, &b1.Dirty, &b1.Deleted)
+			&b1.UUID, &b1.USN, &b1.Name, &b1.Dirty, &b1.Deleted)
 		database.MustScan(t, "getting b2",
 			db.QueryRow("SELECT uuid, usn, name, dirty, deleted FROM books WHERE uuid = ?", b2UUID),
-			&b2.UUID, &b2.USN, &b2.Label, &b2.Dirty, &b2.Deleted)
+			&b2.UUID, &b2.USN, &b2.Name, &b2.Dirty, &b2.Deleted)
 
 		assert.Equal(t, b1.UUID, b1UUID, "b1 UUID mismatch")
 		assert.Equal(t, b1.USN, 555, "b1 USN mismatch")
-		assert.Equal(t, b1.Label, "b1-name", "b1 Label mismatch")
+		assert.Equal(t, b1.Name, "b1-name", "b1 Name mismatch")
 		assert.Equal(t, b1.Dirty, true, "b1 Dirty mismatch")
 		assert.Equal(t, b1.Deleted, false, "b1 Deleted mismatch")
 
 		assert.Equal(t, b2.UUID, b2UUID, "b2 UUID mismatch")
 		assert.Equal(t, b2.USN, b.USN, "b2 USN mismatch")
-		assert.Equal(t, b2.Label, b.Label, "b2 Label mismatch")
+		assert.Equal(t, b2.Name, b.Name, "b2 Name mismatch")
 		assert.Equal(t, b2.Dirty, false, "b2 Dirty mismatch")
 		assert.Equal(t, b2.Deleted, b.Deleted, "b2 Deleted mismatch")
 	})
@@ -1440,7 +1440,7 @@ func TestStepSyncBook(t *testing.T) {
 				b := client.SyncFragBook{
 					UUID:    b1UUID,
 					USN:     tc.serverUSN,
-					Label:   tc.serverLabel,
+					Name:    tc.serverLabel,
 					Deleted: tc.serverDeleted,
 				}
 
@@ -1462,20 +1462,20 @@ func TestStepSyncBook(t *testing.T) {
 				var b1Record, b2Record database.Book
 				database.MustScan(t, "getting b1Record",
 					db.QueryRow("SELECT uuid, usn, name, dirty, deleted FROM books WHERE uuid = ?", b1UUID),
-					&b1Record.UUID, &b1Record.USN, &b1Record.Label, &b1Record.Dirty, &b1Record.Deleted)
+					&b1Record.UUID, &b1Record.USN, &b1Record.Name, &b1Record.Dirty, &b1Record.Deleted)
 				database.MustScan(t, "getting b2Record",
 					db.QueryRow("SELECT uuid, usn, name, dirty, deleted FROM books WHERE uuid = ?", b2UUID),
-					&b2Record.UUID, &b2Record.USN, &b2Record.Label, &b2Record.Dirty, &b2Record.Deleted)
+					&b2Record.UUID, &b2Record.USN, &b2Record.Name, &b2Record.Dirty, &b2Record.Deleted)
 
 				assert.Equal(t, b1Record.UUID, b1UUID, fmt.Sprintf("b1Record UUID mismatch for idx %d", idx))
 				assert.Equal(t, b1Record.USN, tc.expectedUSN, fmt.Sprintf("b1Record USN mismatch for test case %d", idx))
-				assert.Equal(t, b1Record.Label, tc.expectedLabel, fmt.Sprintf("b1Record Label mismatch for test case %d", idx))
+				assert.Equal(t, b1Record.Name, tc.expectedLabel, fmt.Sprintf("b1Record Name mismatch for test case %d", idx))
 				assert.Equal(t, b1Record.Dirty, tc.clientDirty, fmt.Sprintf("b1Record Dirty mismatch for test case %d", idx))
 				assert.Equal(t, b1Record.Deleted, tc.expectedDeleted, fmt.Sprintf("b1Record Deleted mismatch for test case %d", idx))
 
 				assert.Equal(t, b2Record.UUID, b2UUID, fmt.Sprintf("b2Record UUID mismatch for idx %d", idx))
 				assert.Equal(t, b2Record.USN, 2, fmt.Sprintf("b2Record USN mismatch for test case %d", idx))
-				assert.Equal(t, b2Record.Label, tc.expectedAnotherBookLabel, fmt.Sprintf("b2Record Label mismatch for test case %d", idx))
+				assert.Equal(t, b2Record.Name, tc.expectedAnotherBookLabel, fmt.Sprintf("b2Record Name mismatch for test case %d", idx))
 				assert.Equal(t, b2Record.Dirty, tc.expectedAnotherBookDirty, fmt.Sprintf("b2Record Dirty mismatch for test case %d", idx))
 				assert.Equal(t, b2Record.Deleted, false, fmt.Sprintf("b2Record Deleted mismatch for test case %d", idx))
 			}()
@@ -1499,7 +1499,7 @@ func TestMergeBook(t *testing.T) {
 			UUID:    "b1-uuid",
 			USN:     12,
 			AddedOn: 1541108743,
-			Label:   "b1-name",
+			Name:    "b1-name",
 			Deleted: false,
 		}
 
@@ -1521,10 +1521,10 @@ func TestMergeBook(t *testing.T) {
 		var b1Record database.Book
 		database.MustScan(t, "getting b1",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
-			&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Dirty)
+			&b1Record.UUID, &b1Record.Name, &b1Record.USN, &b1Record.Dirty)
 
 		assert.Equal(t, b1Record.UUID, b1.UUID, "b1 UUID mismatch")
-		assert.Equal(t, b1Record.Label, b1.Label, "b1 Label mismatch")
+		assert.Equal(t, b1Record.Name, b1.Name, "b1 Name mismatch")
 		assert.Equal(t, b1Record.USN, b1.USN, "b1 USN mismatch")
 	})
 
@@ -1544,7 +1544,7 @@ func TestMergeBook(t *testing.T) {
 			UUID:    "b2-uuid",
 			USN:     12,
 			AddedOn: 1541108743,
-			Label:   "foo",
+			Name:    "foo",
 			Deleted: false,
 		}
 
@@ -1566,16 +1566,16 @@ func TestMergeBook(t *testing.T) {
 		var b1Record, b2Record database.Book
 		database.MustScan(t, "getting b1",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
-			&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Dirty)
+			&b1Record.UUID, &b1Record.Name, &b1Record.USN, &b1Record.Dirty)
 		database.MustScan(t, "getting b2",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b2-uuid"),
-			&b2Record.UUID, &b2Record.Label, &b2Record.USN, &b2Record.Dirty)
+			&b2Record.UUID, &b2Record.Name, &b2Record.USN, &b2Record.Dirty)
 
-		assert.Equal(t, b1Record.Label, "foo_2", "b1 Label mismatch")
+		assert.Equal(t, b1Record.Name, "foo_2", "b1 Name mismatch")
 		assert.Equal(t, b1Record.USN, 1, "b1 USN mismatch")
 		assert.Equal(t, b1Record.Dirty, true, "b1 should have been marked dirty")
 
-		assert.Equal(t, b2Record.Label, "foo", "b2 Label mismatch")
+		assert.Equal(t, b2Record.Name, "foo", "b2 Name mismatch")
 		assert.Equal(t, b2Record.USN, 12, "b2 USN mismatch")
 		assert.Equal(t, b2Record.Dirty, false, "b2 Dirty mismatch")
 	})
@@ -1599,7 +1599,7 @@ func TestMergeBook(t *testing.T) {
 			UUID:    "b4-uuid",
 			USN:     12,
 			AddedOn: 1541108743,
-			Label:   "foo",
+			Name:    "foo",
 			Deleted: false,
 		}
 
@@ -1621,30 +1621,30 @@ func TestMergeBook(t *testing.T) {
 		var b1Record, b2Record, b3Record, b4Record database.Book
 		database.MustScan(t, "getting b1",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
-			&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Dirty)
+			&b1Record.UUID, &b1Record.Name, &b1Record.USN, &b1Record.Dirty)
 		database.MustScan(t, "getting b2",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b2-uuid"),
-			&b2Record.UUID, &b2Record.Label, &b2Record.USN, &b2Record.Dirty)
+			&b2Record.UUID, &b2Record.Name, &b2Record.USN, &b2Record.Dirty)
 		database.MustScan(t, "getting b3",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b3-uuid"),
-			&b3Record.UUID, &b3Record.Label, &b3Record.USN, &b3Record.Dirty)
+			&b3Record.UUID, &b3Record.Name, &b3Record.USN, &b3Record.Dirty)
 		database.MustScan(t, "getting b4",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b4-uuid"),
-			&b4Record.UUID, &b4Record.Label, &b4Record.USN, &b4Record.Dirty)
+			&b4Record.UUID, &b4Record.Name, &b4Record.USN, &b4Record.Dirty)
 
-		assert.Equal(t, b1Record.Label, "foo_4", "b1 Label mismatch")
+		assert.Equal(t, b1Record.Name, "foo_4", "b1 Name mismatch")
 		assert.Equal(t, b1Record.USN, 1, "b1 USN mismatch")
 		assert.Equal(t, b1Record.Dirty, true, "b1 Dirty mismatch")
 
-		assert.Equal(t, b2Record.Label, "foo_2", "b2 Label mismatch")
+		assert.Equal(t, b2Record.Name, "foo_2", "b2 Name mismatch")
 		assert.Equal(t, b2Record.USN, 2, "b2 USN mismatch")
 		assert.Equal(t, b2Record.Dirty, true, "b2 Dirty mismatch")
 
-		assert.Equal(t, b3Record.Label, "foo_3", "b3 Label mismatch")
+		assert.Equal(t, b3Record.Name, "foo_3", "b3 Name mismatch")
 		assert.Equal(t, b3Record.USN, 3, "b3 USN mismatch")
 		assert.Equal(t, b3Record.Dirty, false, "b3 Dirty mismatch")
 
-		assert.Equal(t, b4Record.Label, "foo", "b4 Label mismatch")
+		assert.Equal(t, b4Record.Name, "foo", "b4 Name mismatch")
 		assert.Equal(t, b4Record.USN, 12, "b4 USN mismatch")
 		assert.Equal(t, b4Record.Dirty, false, "b4 Dirty mismatch")
 	})
@@ -1667,7 +1667,7 @@ func TestMergeBook(t *testing.T) {
 			UUID:    b1UUID,
 			USN:     12,
 			AddedOn: 1541108743,
-			Label:   "b1-name-edited",
+			Name:    "b1-name-edited",
 			Deleted: false,
 		}
 
@@ -1689,10 +1689,10 @@ func TestMergeBook(t *testing.T) {
 		var b1Record database.Book
 		database.MustScan(t, "getting b1",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", b1UUID),
-			&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Dirty)
+			&b1Record.UUID, &b1Record.Name, &b1Record.USN, &b1Record.Dirty)
 
 		assert.Equal(t, b1Record.UUID, b1UUID, "b1 UUID mismatch")
-		assert.Equal(t, b1Record.Label, "b1-name-edited", "b1 Label mismatch")
+		assert.Equal(t, b1Record.Name, "b1-name-edited", "b1 Name mismatch")
 		assert.Equal(t, b1Record.USN, 12, "b1 USN mismatch")
 	})
 
@@ -1714,7 +1714,7 @@ func TestMergeBook(t *testing.T) {
 			UUID:    "b1-uuid",
 			USN:     12,
 			AddedOn: 1541108743,
-			Label:   "bar",
+			Name:    "bar",
 			Deleted: false,
 		}
 
@@ -1736,16 +1736,16 @@ func TestMergeBook(t *testing.T) {
 		var b1Record, b2Record database.Book
 		database.MustScan(t, "getting b1",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
-			&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Dirty)
+			&b1Record.UUID, &b1Record.Name, &b1Record.USN, &b1Record.Dirty)
 		database.MustScan(t, "getting b2",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b2-uuid"),
-			&b2Record.UUID, &b2Record.Label, &b2Record.USN, &b2Record.Dirty)
+			&b2Record.UUID, &b2Record.Name, &b2Record.USN, &b2Record.Dirty)
 
-		assert.Equal(t, b1Record.Label, "bar", "b1 Label mismatch")
+		assert.Equal(t, b1Record.Name, "bar", "b1 Name mismatch")
 		assert.Equal(t, b1Record.USN, 12, "b1 USN mismatch")
 		assert.Equal(t, b1Record.Dirty, false, "b1 Dirty mismatch")
 
-		assert.Equal(t, b2Record.Label, "bar_2", "b2 Label mismatch")
+		assert.Equal(t, b2Record.Name, "bar_2", "b2 Name mismatch")
 		assert.Equal(t, b2Record.USN, 2, "b2 USN mismatch")
 		assert.Equal(t, b2Record.Dirty, true, "b2 Dirty mismatch")
 	})
@@ -1770,7 +1770,7 @@ func TestMergeBook(t *testing.T) {
 			UUID:    "b1-uuid",
 			USN:     12,
 			AddedOn: 1541108743,
-			Label:   "bar",
+			Name:    "bar",
 			Deleted: false,
 		}
 
@@ -1792,30 +1792,30 @@ func TestMergeBook(t *testing.T) {
 		var b1Record, b2Record, b3Record, b4Record database.Book
 		database.MustScan(t, "getting b1",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b1-uuid"),
-			&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Dirty)
+			&b1Record.UUID, &b1Record.Name, &b1Record.USN, &b1Record.Dirty)
 		database.MustScan(t, "getting b2",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b2-uuid"),
-			&b2Record.UUID, &b2Record.Label, &b2Record.USN, &b2Record.Dirty)
+			&b2Record.UUID, &b2Record.Name, &b2Record.USN, &b2Record.Dirty)
 		database.MustScan(t, "getting b3",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b3-uuid"),
-			&b3Record.UUID, &b3Record.Label, &b3Record.USN, &b3Record.Dirty)
+			&b3Record.UUID, &b3Record.Name, &b3Record.USN, &b3Record.Dirty)
 		database.MustScan(t, "getting b4",
 			db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", "b4-uuid"),
-			&b4Record.UUID, &b4Record.Label, &b4Record.USN, &b4Record.Dirty)
+			&b4Record.UUID, &b4Record.Name, &b4Record.USN, &b4Record.Dirty)
 
-		assert.Equal(t, b1Record.Label, "bar", "b1 Label mismatch")
+		assert.Equal(t, b1Record.Name, "bar", "b1 Name mismatch")
 		assert.Equal(t, b1Record.USN, 12, "b1 USN mismatch")
 		assert.Equal(t, b1Record.Dirty, false, "b1 Dirty mismatch")
 
-		assert.Equal(t, b2Record.Label, "bar_4", "b2 Label mismatch")
+		assert.Equal(t, b2Record.Name, "bar_4", "b2 Name mismatch")
 		assert.Equal(t, b2Record.USN, 2, "b2 USN mismatch")
 		assert.Equal(t, b2Record.Dirty, true, "b2 Dirty mismatch")
 
-		assert.Equal(t, b3Record.Label, "bar_2", "b3 Label mismatch")
+		assert.Equal(t, b3Record.Name, "bar_2", "b3 Name mismatch")
 		assert.Equal(t, b3Record.USN, 3, "b3 USN mismatch")
 		assert.Equal(t, b3Record.Dirty, true, "b3 Dirty mismatch")
 
-		assert.Equal(t, b4Record.Label, "bar_3", "b4 Label mismatch")
+		assert.Equal(t, b4Record.Name, "bar_3", "b4 Name mismatch")
 		assert.Equal(t, b4Record.USN, 4, "b4 USN mismatch")
 		assert.Equal(t, b4Record.Dirty, false, "b4 Dirty mismatch")
 	})
@@ -1905,7 +1905,7 @@ func TestSendBooks(t *testing.T) {
 
 	// fire up a test server. It decrypts the payload for test purposes.
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.String() == "/v3/books" && r.Method == "POST" {
+		if r.URL.String() == "/v1/books" && r.Method == "POST" {
 			var payload client.CreateBookPayload
 
 			err := json.NewDecoder(r.Body).Decode(&payload)
@@ -1916,10 +1916,8 @@ func TestSendBooks(t *testing.T) {
 
 			createdLabels = append(createdLabels, payload.Name)
 
-			resp := client.CreateBookResp{
-				Book: client.RespBook{
-					UUID: fmt.Sprintf("server-%s-uuid", payload.Name),
-				},
+			resp := client.RespBook{
+				UUID: fmt.Sprintf("server-%s-uuid", payload.Name),
 			}
 
 			w.Header().Set("Content-Type", "application/json")
@@ -1931,7 +1929,7 @@ func TestSendBooks(t *testing.T) {
 		}
 
 		p := strings.Split(r.URL.Path, "/")
-		if len(p) == 4 && p[0] == "" && p[1] == "v3" && p[2] == "books" {
+		if len(p) == 4 && p[0] == "" && p[1] == "v1" && p[2] == "books" {
 			if r.Method == "PATCH" {
 				uuid := p[3]
 				updatesUUIDs = append(updatesUUIDs, uuid)
@@ -2024,7 +2022,7 @@ func TestSendBooks(t *testing.T) {
 
 func TestSendBooks_isBehind(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.String() == "/v3/books" && r.Method == "POST" {
+		if r.URL.String() == "/v1/books" && r.Method == "POST" {
 			var payload client.CreateBookPayload
 
 			err := json.NewDecoder(r.Body).Decode(&payload)
@@ -2033,10 +2031,8 @@ func TestSendBooks_isBehind(t *testing.T) {
 				return
 			}
 
-			resp := client.CreateBookResp{
-				Book: client.RespBook{
-					USN: 11,
-				},
+			resp := client.RespBook{
+				USN: 11,
 			}
 
 			w.Header().Set("Content-Type", "application/json")
@@ -2048,7 +2044,7 @@ func TestSendBooks_isBehind(t *testing.T) {
 		}
 
 		p := strings.Split(r.URL.Path, "/")
-		if len(p) == 4 && p[0] == "" && p[1] == "v3" && p[2] == "books" {
+		if len(p) == 4 && p[0] == "" && p[1] == "v1" && p[2] == "books" {
 			if r.Method == "PATCH" {
 				resp := client.UpdateBookResp{
 					Book: client.RespBook{
@@ -2269,7 +2265,7 @@ func TestSendNotes(t *testing.T) {
 
 	// fire up a test server. It decrypts the payload for test purposes.
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.String() == "/v3/notes" && r.Method == "POST" {
+		if r.URL.String() == "/v1/notes" && r.Method == "POST" {
 			var payload client.CreateNotePayload
 
 			err := json.NewDecoder(r.Body).Decode(&payload)
@@ -2295,7 +2291,7 @@ func TestSendNotes(t *testing.T) {
 		}
 
 		p := strings.Split(r.URL.Path, "/")
-		if len(p) == 4 && p[0] == "" && p[1] == "v3" && p[2] == "notes" {
+		if len(p) == 4 && p[0] == "" && p[1] == "v1" && p[2] == "notes" {
 			if r.Method == "PATCH" {
 				uuid := p[3]
 				updatedUUIDs = append(updatedUUIDs, uuid)
@@ -2398,7 +2394,7 @@ func TestSendNotes_addedOn(t *testing.T) {
 
 	// fire up a test server. It decrypts the payload for test purposes.
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.String() == "/v3/notes" && r.Method == "POST" {
+		if r.URL.String() == "/v1/notes" && r.Method == "POST" {
 			resp := client.CreateNoteResp{
 				Result: client.RespNote{
 					UUID: utils.GenerateUUID(),
@@ -2440,7 +2436,7 @@ func TestSendNotes_addedOn(t *testing.T) {
 
 func TestSendNotes_isBehind(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.String() == "/v3/notes" && r.Method == "POST" {
+		if r.URL.String() == "/v1/notes" && r.Method == "POST" {
 			var payload client.CreateBookPayload
 
 			err := json.NewDecoder(r.Body).Decode(&payload)
@@ -2464,7 +2460,7 @@ func TestSendNotes_isBehind(t *testing.T) {
 		}
 
 		p := strings.Split(r.URL.Path, "/")
-		if len(p) == 4 && p[0] == "" && p[1] == "v3" && p[2] == "notes" {
+		if len(p) == 4 && p[0] == "" && p[1] == "v1" && p[2] == "notes" {
 			if r.Method == "PATCH" {
 				resp := client.UpdateNoteResp{
 					Result: client.RespNote{
@@ -2832,19 +2828,19 @@ n1 body edited
 			var b1Record database.Book
 			database.MustScan(t, "getting b1Record for test case",
 				db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", b1UUID),
-				&b1Record.UUID, &b1Record.Label, &b1Record.USN, &b1Record.Dirty)
+				&b1Record.UUID, &b1Record.Name, &b1Record.USN, &b1Record.Dirty)
 			var b2Record database.Book
 			database.MustScan(t, "getting b2Record for test case",
 				db.QueryRow("SELECT uuid, name, usn, dirty FROM books WHERE uuid = ?", b2UUID),
-				&b2Record.UUID, &b2Record.Label, &b2Record.USN, &b2Record.Dirty)
+				&b2Record.UUID, &b2Record.Name, &b2Record.USN, &b2Record.Dirty)
 
 			assert.Equal(t, b1Record.UUID, b1UUID, fmt.Sprintf("b1Record UUID mismatch for test case %d", idx))
-			assert.Equal(t, b1Record.Label, "b1-name", fmt.Sprintf("b1Record Label mismatch for test case %d", idx))
+			assert.Equal(t, b1Record.Name, "b1-name", fmt.Sprintf("b1Record Name mismatch for test case %d", idx))
 			assert.Equal(t, b1Record.USN, 5, fmt.Sprintf("b1Record USN mismatch for test case %d", idx))
 			assert.Equal(t, b1Record.Dirty, false, fmt.Sprintf("b1Record Dirty mismatch for test case %d", idx))
 
 			assert.Equal(t, b2Record.UUID, b2UUID, fmt.Sprintf("b2Record UUID mismatch for test case %d", idx))
-			assert.Equal(t, b2Record.Label, "b2-name", fmt.Sprintf("b2Record Label mismatch for test case %d", idx))
+			assert.Equal(t, b2Record.Name, "b2-name", fmt.Sprintf("b2Record Name mismatch for test case %d", idx))
 			assert.Equal(t, b2Record.USN, 6, fmt.Sprintf("b2Record USN mismatch for test case %d", idx))
 			assert.Equal(t, b2Record.Dirty, false, fmt.Sprintf("b2Record Dirty mismatch for test case %d", idx))
 
@@ -3169,7 +3165,7 @@ func TestCleanLocalBooks(t *testing.T) {
 	assert.Equal(t, bookCount, 3, "note count mismatch")
 
 	var b1, b3, b5 database.Book
-	database.MustScan(t, "getting b1", db.QueryRow("SELECT name FROM books WHERE uuid = ?", "b1-uuid"), &b1.Label)
-	database.MustScan(t, "getting b3", db.QueryRow("SELECT name FROM books WHERE uuid = ?", "b3-uuid"), &b3.Label)
-	database.MustScan(t, "getting b5", db.QueryRow("SELECT name FROM books WHERE uuid = ?", "b5-uuid"), &b5.Label)
+	database.MustScan(t, "getting b1", db.QueryRow("SELECT name FROM books WHERE uuid = ?", "b1-uuid"), &b1.Name)
+	database.MustScan(t, "getting b3", db.QueryRow("SELECT name FROM books WHERE uuid = ?", "b3-uuid"), &b3.Name)
+	database.MustScan(t, "getting b5", db.QueryRow("SELECT name FROM books WHERE uuid = ?", "b5-uuid"), &b5.Name)
 }
