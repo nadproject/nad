@@ -1,0 +1,18 @@
+{{define "yield"}}
+
+<div>
+  <h2>
+    New note
+  </h2>
+
+
+  <form action="/notes" method="POST">
+    {{csrfField}}
+
+    <textarea name="content" cols="30" rows="10"></textarea>
+    <input type="submit" value="Submit" />
+  </form>
+</div>
+
+
+{{end}}

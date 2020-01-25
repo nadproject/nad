@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -62,7 +63,9 @@ func (e modelError) Error() string {
 // for returning to the client.
 func (e modelError) Public() string {
 	s := string(e)
-	return strings.Title(s)
+
+	parts := strings.Split(s, " ")
+	return fmt.Sprintf("%s %s", strings.Title(parts[0]), strings.Join(parts[1:], " "))
 }
 
 type badRequestError struct {

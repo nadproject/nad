@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -19,6 +20,7 @@ import (
 func NewNotes(cfg config.Config, ns models.NoteService, us models.UserService, c clock.Clock, db *gorm.DB) *Notes {
 	return &Notes{
 		IndexView: views.NewView(cfg.PageTemplateDir, views.Config{Title: "", Layout: "base", HeaderTemplate: "navbar"}, "notes/index"),
+		NewView:   views.NewView(cfg.PageTemplateDir, views.Config{Title: "New note", Layout: "base"}, "notes/new"),
 		c:         c,
 		ns:        ns,
 		us:        us,
@@ -29,6 +31,7 @@ func NewNotes(cfg config.Config, ns models.NoteService, us models.UserService, c
 // Notes is a static controller
 type Notes struct {
 	IndexView *views.View
+	NewView   *views.View
 	c         clock.Clock
 	ns        models.NoteService
 	us        models.UserService
@@ -151,6 +154,25 @@ func (n *Notes) V1Create(w http.ResponseWriter, r *http.Request) {
 
 	resp := presenters.PresentNote(note)
 	respondJSON(w, http.StatusCreated, resp)
+}
+
+// Create handles POST /notes
+func (n *Notes) Create(w http.ResponseWriter, r *http.Request) {
+	_, err := n.create(r)
+	if err != nil {
+		fmt.Println(errors.Cause(err))
+
+		var vd views.Data
+		handleHTMLError(w, err, "creating user", &vd)
+		n.NewView.Render(w, r, vd)
+		return
+	}
+
+	alert := views.Alert{
+		Level:   views.AlertLvlSuccess,
+		Message: "Created a note",
+	}
+	views.RedirectAlert(w, r, "/", http.StatusCreated, alert)
 }
 
 func (n *Notes) update(r *http.Request) (models.Note, error) {

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/nadproject/nad/pkg/server/models"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -46,7 +47,9 @@ func getErrMessage(err error) string {
 
 // SetAlert sets alert in the given data for given error.
 func (d *Data) SetAlert(err error) {
-	if pErr, ok := err.(PublicError); ok {
+	errC := errors.Cause(err)
+
+	if pErr, ok := errC.(PublicError); ok {
 		d.Alert = &Alert{
 			Level:   AlertLvlError,
 			Message: pErr.Public(),

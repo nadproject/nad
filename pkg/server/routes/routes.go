@@ -45,6 +45,9 @@ func New(cfg config.Config, s *models.Services, cl clock.Clock) http.Handler {
 		{"POST", "/logout", http.HandlerFunc(usersC.Logout), true},
 		{"GET", "/login", usersC.LoginView, true},
 		{"POST", "/login", http.HandlerFunc(usersC.Login), true},
+
+		{"GET", "/new", notesC.NewView, true},
+		{"POST", "/notes", http.HandlerFunc(notesC.Create), true},
 	}
 	var apiRoutes = []Route{
 		{"POST", "/v1/login", http.HandlerFunc(usersC.V1Login), true},
