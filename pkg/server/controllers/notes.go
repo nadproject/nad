@@ -20,7 +20,7 @@ import (
 func NewNotes(cfg config.Config, ns models.NoteService, us models.UserService, c clock.Clock, db *gorm.DB) *Notes {
 	return &Notes{
 		IndexView: views.NewView(cfg.PageTemplateDir, views.Config{Title: "", Layout: "base", HeaderTemplate: "navbar"}, "notes/index"),
-		NewView:   views.NewView(cfg.PageTemplateDir, views.Config{Title: "New note", Layout: "base"}, "notes/new"),
+		NewView:   views.NewView(cfg.PageTemplateDir, views.Config{Title: "New note", Layout: "base", HeaderTemplate: "navbar"}, "notes/new"),
 		c:         c,
 		ns:        ns,
 		us:        us,
