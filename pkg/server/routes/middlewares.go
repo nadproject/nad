@@ -10,7 +10,8 @@ import (
 
 type middleware func(h http.Handler, c config.Config, s *models.Services, rateLimit bool) http.Handler
 
-func webMw(h http.Handler, c config.Config, s *models.Services, rateLimit bool) http.Handler {
+// WebMw is the middleware for the web
+func WebMw(h http.Handler, c config.Config, s *models.Services, rateLimit bool) http.Handler {
 	csrfMw := csrf.Protect([]byte(c.CSRFAuthKey), csrf.Secure(c.IsProd()))
 
 	ret := h
@@ -24,7 +25,8 @@ func webMw(h http.Handler, c config.Config, s *models.Services, rateLimit bool) 
 	return ret
 }
 
-func apiMw(h http.Handler, c config.Config, s *models.Services, rateLimit bool) http.Handler {
+// APIMw is the middleware for the API
+func APIMw(h http.Handler, c config.Config, s *models.Services, rateLimit bool) http.Handler {
 	ret := h
 	ret = userMw(ret, s.Session, s.User)
 

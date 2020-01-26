@@ -40,20 +40,11 @@ func startCmd() {
 	cfg.SetPageTemplateDir(*pageDir)
 	cfg.SetStaticDir(*staticDir)
 
-	services, err := models.NewServices(
-		models.WithGorm("postgres", cfg.DB.GetConnectionStr()),
-		models.WithUser(),
-		models.WithNote(),
-		models.WithBook(),
-		models.WithSession(),
-	)
+	services, err := models.NewServices(models.DialectPostgres, cfg.DB.GetConnectionStr())
 	must(err)
 	defer services.Close()
 
-	err = services.InitDB()
-	must(err)
-
-	err = services.MigrateDB()
+	err = services.SetupDB()
 	must(err)
 
 	cl := clock.New()

@@ -6,6 +6,11 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+const (
+	// DialectPostgres represenets a SQL dialect of Postgres
+	DialectPostgres = "postgres"
+)
+
 // First executes the given gorm.DB query and saves the first result
 // in the given destination.
 func First(db *gorm.DB, dst interface{}) error {

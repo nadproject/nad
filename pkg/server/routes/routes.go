@@ -78,8 +78,8 @@ func New(cfg config.Config, s *models.Services, rc RouteConfig) *mux.Router {
 
 	webRouter := router.PathPrefix("/").Subrouter()
 	apiRouter := router.PathPrefix("/api").Subrouter()
-	registerRoutes(webRouter, webMw, cfg, s, rc.WebRoutes)
-	registerRoutes(apiRouter, apiMw, cfg, s, rc.APIRoutes)
+	registerRoutes(webRouter, WebMw, cfg, s, rc.WebRoutes)
+	registerRoutes(apiRouter, APIMw, cfg, s, rc.APIRoutes)
 
 	// static
 	staticHandler := http.StripPrefix("/static/", http.FileServer(http.Dir(cfg.StaticDir)))

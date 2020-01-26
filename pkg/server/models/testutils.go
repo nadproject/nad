@@ -82,18 +82,12 @@ var TestServices *Services
 
 // InitTestService initializes test service
 func InitTestService(cfg config.Config) error {
-	services, err := NewServices(
-		WithGorm("postgres", cfg.DB.GetConnectionStr()),
-		WithUser(),
-		WithNote(),
-		WithBook(),
-		WithSession(),
-	)
+	services, err := NewServices(DialectPostgres, cfg.DB.GetConnectionStr())
 	if err != nil {
 		return err
 	}
 
-	err = services.InitDB()
+	err = services.SetupDB()
 	if err != nil {
 		return err
 	}
