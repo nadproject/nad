@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/base64"
-	"log"
 	"math/rand"
 	"testing"
 	"time"
@@ -91,13 +90,11 @@ func InitTestService(cfg config.Config) error {
 		WithSession(),
 	)
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 
 	err = services.InitDB()
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 
