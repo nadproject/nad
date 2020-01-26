@@ -21,7 +21,8 @@ func (w *logResponseWriter) WriteHeader(code int) {
 	w.ResponseWriter.WriteHeader(code)
 }
 
-func loggingMw(inner http.Handler) http.HandlerFunc {
+// LoggingMw is a middleware that logs incoming HTTP requests
+func LoggingMw(inner http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 

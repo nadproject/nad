@@ -73,7 +73,7 @@ type RouteConfig struct {
 }
 
 // New creates and returns a new router
-func New(cfg config.Config, s *models.Services, rc RouteConfig) *mux.Router {
+func New(cfg config.Config, s *models.Services, rc RouteConfig) http.Handler {
 	router := mux.NewRouter().StrictSlash(true)
 
 	webRouter := router.PathPrefix("/").Subrouter()
@@ -88,5 +88,5 @@ func New(cfg config.Config, s *models.Services, rc RouteConfig) *mux.Router {
 	// catch-all
 	router.PathPrefix("/").HandlerFunc(rc.Controllers.Static.NotFound)
 
-	return router
+	return LoggingMw(router)
 }
