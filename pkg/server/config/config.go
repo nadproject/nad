@@ -41,8 +41,8 @@ var (
 	ErrDBMissingName = errors.New("DB Name is empty")
 	// ErrDBMissingUser is an error for an incomplete configuration missing the user
 	ErrDBMissingUser = errors.New("DB User is empty")
-	// ErrWebURLInvalid is an error for an incomplete configuration missing the user
-	ErrWebURLInvalid = errors.New("DB invalid WebURL")
+	// ErrWebURLInvalid is an error for an invalid web URL
+	ErrWebURLInvalid = errors.New("Invalid WebURL")
 	// ErrCSRFAuthKeyRequired  is an error for a missing CSRF auth key
 	ErrCSRFAuthKeyRequired = errors.New("CSRF auth key is required")
 )
@@ -123,7 +123,7 @@ func Load() Config {
 		WebURL:              os.Getenv("WEB_URL"),
 		CSRFAuthKey:         readCSRFAuthKey(),
 		Port:                port,
-		OnPremise:           readBoolEnv("ON_PREMISE"),
+		OnPremise:           true,
 		DisableRegistration: readBoolEnv("DISABLE_REGISTRATION"),
 		DB:                  loadDBConfig(),
 	}
