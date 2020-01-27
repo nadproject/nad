@@ -47,7 +47,7 @@ func NewCmd(ctx context.NadCtx) *cobra.Command {
 	return cmd
 }
 
-// Do dervies credentials on the client side and requests a session token from the server
+// Do dervies requests a session token from the server using the credentials given.
 func Do(ctx context.NadCtx, email, password string) error {
 	signinResp, err := client.Signin(ctx, email, password)
 	if err != nil {

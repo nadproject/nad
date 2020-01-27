@@ -13,7 +13,7 @@ import (
 )
 
 // SetupUser creates and returns a new user for testing purposes
-func SetupUser(t *testing.T, us UserService, ss SessionService, email, password string) (User, Session) {
+func SetupUser(t *testing.T, us UserService, email, password string) User {
 	user := User{
 		Email:    email,
 		Password: password,
@@ -24,15 +24,13 @@ func SetupUser(t *testing.T, us UserService, ss SessionService, email, password 
 	if err != nil {
 		t.Fatal(errors.Wrap(err, "hashing password"))
 	}
-	user.Password = string(hashedPassword)
+	user.PasswordHash = string(hashedPassword)
 
 	if err := us.Create(&user); err != nil {
 		t.Fatal(errors.Wrap(err, "preparing user"))
 	}
 
-	session := SetupSession(t, ss, user.ID)
-
-	return user, session
+	return user
 }
 
 // SetupSession creates and returns a new user session
