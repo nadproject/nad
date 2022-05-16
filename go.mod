@@ -10,7 +10,6 @@ require (
 	github.com/google/go-cmp v0.2.0
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect
-	github.com/google/uuid v1.1.1
 	github.com/gorilla/csrf v1.6.2
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/gorilla/mux v1.7.2
@@ -26,7 +25,6 @@ require (
 	github.com/nadproject/color v1.7.0
 	github.com/pkg/errors v0.8.1
 	github.com/radovskyb/watcher v1.0.7
-	github.com/robfig/cron v1.2.0
 	github.com/rubenv/sql-migrate v0.0.0-20190618074426-f4d34eae5a5c
 	github.com/satori/go.uuid v1.2.0
 	github.com/sergi/go-diff v1.0.0
@@ -39,5 +37,5 @@ require (
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20150902115704-41f357289737
 	gopkg.in/gorp.v1 v1.7.2 // indirect
-	gopkg.in/yaml.v2 v2.2.2
+	gopkg.in/yaml.v2 v2.2.8
 )
